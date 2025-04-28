@@ -1,8 +1,6 @@
 package mk.ukim.finki.soa.backend.model
 
 import jakarta.persistence.Embeddable
-import mk.ukim.finki.soa.taskmanagement.model.Workspace
-import java.io.Serializable
 import java.util.*
 
 @Embeddable

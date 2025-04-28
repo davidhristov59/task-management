@@ -1,7 +1,5 @@
 package mk.ukim.finki.soa.backend.model
 
-import org.axonframework.modelling.command.TargetAggregateIdentifier
-import java.time.ZonedDateTime
 
 /*-------------- Workspace --------------*/
 

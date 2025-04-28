@@ -1,9 +1,6 @@
-package mk.ukim.finki.soa.taskmanagement.model
+package mk.ukim.finki.soa.backend.model
 
 import jakarta.persistence.*
-import mk.ukim.finki.soa.backend.model.LabeledEntity
-import mk.ukim.finki.soa.backend.model.WorkspaceId
-import mk.ukim.finki.soa.backend.model.WorkspaceTitle
 import org.axonframework.commandhandling.CommandHandler
 import org.axonframework.modelling.command.AggregateIdentifier
 import org.axonframework.modelling.command.AggregateLifecycle
@@ -32,7 +29,7 @@ class Workspace : LabeledEntity {
     constructor(command: CreateWorkspaceCommand) {
         val event = WorkspaceCreatedEvent(
             workspaceId = WorkspaceId(),
-            title = WorkspaceTitle(command.title),
+            title = WorkspaceTitle(command.title.toString()),
             ownerId = command.ownerId
         )
 
@@ -53,7 +50,7 @@ class Workspace : LabeledEntity {
     fun updateTitle(command: UpdateWorkspaceTitleCommand) {
         val event = WorkspaceTitleUpdatedEvent(
             workspaceId = command.workspaceId,
-            title = WorkspaceTitle(command.title)
+            title = WorkspaceTitle(command.title.toString())
         )
 
         this.on(event)
