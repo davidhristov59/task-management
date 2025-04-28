@@ -74,7 +74,7 @@ class Workspace : LabeledEntity {
     }
 
     fun addMember(command: AddMemberToWorkspaceCommand) {
-        val event = MemberAddedToWorkspaceEvent(
+        val event = MemberAddedToWorkspaceEvent( //added event for new member added to the workspace
             workspaceId = command.workspaceId,
             memberId = command.memberId
         )
