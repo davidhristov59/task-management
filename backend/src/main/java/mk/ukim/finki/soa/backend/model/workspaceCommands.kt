@@ -1,6 +1,7 @@
 package mk.ukim.finki.soa.backend.model
 
 
+// TODO: Would call this file commands since we will have all commands here regardless of aggregates
 /*-------------- Workspace --------------*/
 
 data class CreateWorkspaceCommand(
