@@ -3,6 +3,8 @@ package mk.ukim.finki.soa.backend.model
 import jakarta.persistence.Embeddable
 import java.util.*
 
+
+// TODO: Discuss if we want this moved to a ids.kt file
 @Embeddable
 open class WorkspaceId(value: String) : Identifier<Workspace>(value, Workspace::class.java) {
     constructor() : this(UUID.randomUUID().toString())
@@ -19,6 +21,8 @@ open class WorkspaceId(value: String) : Identifier<Workspace>(value, Workspace::
     }
 }
 
+
+// TODO: Discuss if we want the value object to have custom logic or we just use it as a Dto/type
 @Embeddable
 data class WorkspaceTitle(
     val value: String

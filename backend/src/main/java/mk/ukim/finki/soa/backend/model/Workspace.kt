@@ -18,6 +18,7 @@ class Workspace : LabeledEntity {
     @Embedded
     lateinit var title: WorkspaceTitle
 
+    // TODO: This will likely be a "foreign key like" column in the table
     lateinit var ownerId: String
 
     var archived: Boolean = false
