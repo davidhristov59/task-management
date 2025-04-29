@@ -34,3 +34,8 @@ data class WorkspaceTitle(
 
     override fun toString(): String = value
 }
+
+data class CreateWorkspaceCommandDto(
+    val title: WorkspaceTitle,
+    val ownerId: String
+)
