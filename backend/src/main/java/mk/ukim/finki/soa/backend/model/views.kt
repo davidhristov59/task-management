@@ -6,7 +6,7 @@ import org.hibernate.annotations.Immutable
 @Entity
 @Table(name = "workspace")
 @Immutable
-data class ExpenseView(
+data class WorkspaceView(
     @EmbeddedId
     @AttributeOverride(name = "value", column = Column(name = "id"))
     val id: WorkspaceId,
