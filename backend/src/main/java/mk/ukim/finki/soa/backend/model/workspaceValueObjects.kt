@@ -1,13 +1,11 @@
 package mk.ukim.finki.soa.backend.model
 
-import jakarta.persistence.Embeddable
 import java.util.*
 
 // TODO: Discuss if we want this moved to a ids.kt file
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue
 import java.io.Serializable
-import java.util.*
 
 class WorkspaceId @JsonCreator constructor(val id: String) : Serializable {
 
