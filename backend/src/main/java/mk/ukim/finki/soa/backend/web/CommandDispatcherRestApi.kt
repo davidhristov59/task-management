@@ -4,10 +4,12 @@ import mk.ukim.finki.soa.backend.model.*
 import org.axonframework.commandhandling.gateway.CommandGateway
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import java.util.concurrent.CompletableFuture
 
 @RestController
+@Controller
 @RequestMapping("/workspaces/commands")
 class CommandDispatcherRestApi(private val commandGateway: CommandGateway) {
 

@@ -4,25 +4,25 @@ import jakarta.persistence.*
 import java.time.Instant
 
 @Entity
-@Table(name = "workspace_view")
+@Table
 data class WorkspaceView(
     @Id
     @Column(name = "id")
-    val workspaceId: WorkspaceId,
+    var workspaceId: WorkspaceId = WorkspaceId(),  // Provide default values
 
     @Column(name = "title", nullable = false)
-    var title: String,
+    var title: String = "",
 
     @Column(name = "owner_id", nullable = false)
-    val ownerId: String,
+    var ownerId: String = "",
 
     @ElementCollection
     @CollectionTable(name = "workspace_members", joinColumns = [JoinColumn(name = "workspace_id")])
     @Column(name = "member_id")
-    val memberIds: MutableSet<String> = mutableSetOf(),
+    var memberIds: MutableSet<String> = mutableSetOf(),
 
     @Column(name = "created_at", nullable = false)
-    val createdAt: Instant,
+    var createdAt: Instant = Instant.now(),
 
     @Column(name = "last_modified_at")
     var lastModifiedAt: Instant? = null,
