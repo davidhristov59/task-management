@@ -2,97 +2,131 @@ package mk.ukim.finki.soa.backend.model
 
 import jakarta.persistence.*
 import org.axonframework.commandhandling.CommandHandler
+import org.axonframework.eventsourcing.EventSourcingHandler
 import org.axonframework.modelling.command.AggregateIdentifier
 import org.axonframework.modelling.command.AggregateLifecycle
 import org.axonframework.spring.stereotype.Aggregate
 
-@Entity
-@Aggregate(repository = "axonWorkspaceRepository")
-class Workspace : LabeledEntity {
+
+@Aggregate
+class Workspace {
 
     @AggregateIdentifier
-    @EmbeddedId
-    @AttributeOverride(name = "value", column = Column(name = "id"))
-    lateinit var id: WorkspaceId
+    private lateinit var id: WorkspaceId
+    private lateinit var title: WorkspaceTitle
+    private lateinit var ownerId: String
+    private val memberIds: MutableSet<String> = mutableSetOf()
+    private var archived: Boolean = false
 
-    @Embedded
-    lateinit var title: WorkspaceTitle
-
-    // TODO: This will likely be a "foreign key like" column in the table
-    lateinit var ownerId: String
-
-    var archived: Boolean = false
-
-    @ElementCollection
-    var memberIds: MutableList<String> = mutableListOf()
+    constructor() // Required by Axon
 
     @CommandHandler
     constructor(command: CreateWorkspaceCommand) {
+        if (command.workspaceId == null) {
+            throw IllegalArgumentException("Workspace ID cannot be null")
+        }
+
         val event = WorkspaceCreatedEvent(
-            workspaceId = WorkspaceId(),
-            title = WorkspaceTitle(command.title.toString()),
+            workspaceId = command.workspaceId,
+            title = command.title,
             ownerId = command.ownerId
         )
 
-        this.on(event)
         AggregateLifecycle.apply(event)
-    }
-
-    constructor()
-
-    fun on(event: WorkspaceCreatedEvent) {
-        this.id = event.workspaceId
-        this.title = event.title
-        this.ownerId = event.ownerId
-        this.archived = false
-        this.memberIds = mutableListOf()
-    }
-
-    fun updateTitle(command: UpdateWorkspaceTitleCommand) {
-        val event = WorkspaceTitleUpdatedEvent(
-            workspaceId = command.workspaceId,
-            title = WorkspaceTitle(command.title.toString())
-        )
-
-        this.on(event)
-        AggregateLifecycle.apply(event)
-    }
-
-    fun on(event: WorkspaceTitleUpdatedEvent) {
-        this.title = event.title
     }
 
     @CommandHandler
-    fun archive(command: ArchiveWorkspaceCommand) {
-        val event = WorkspaceArchivedEvent(command)
+    fun handle(command: UpdateWorkspaceTitleCommand) {
+        validateNotArchived()
 
-        this.on(event)
+        val event = WorkspaceTitleUpdatedEvent(
+            workspaceId = command.workspaceId,
+            title = command.title
+        )
+
         AggregateLifecycle.apply(event)
     }
 
-    fun on(event: WorkspaceArchivedEvent) {
-        this.archived = true
-    }
+    @CommandHandler
+    fun handle(command: AddMemberToWorkspaceCommand) {
+        validateNotArchived()
 
-    fun addMember(command: AddMemberToWorkspaceCommand) {
-        val event = MemberAddedToWorkspaceEvent( //added event for new member added to the workspace
+        if (memberIds.contains(command.memberId)) {
+            throw IllegalArgumentException("Member is already part of the workspace")
+        }
+
+        val event = MemberAddedToWorkspaceEvent(
             workspaceId = command.workspaceId,
             memberId = command.memberId
         )
 
-        this.on(event)
         AggregateLifecycle.apply(event)
     }
 
+    @CommandHandler
+    fun handle(command: RemoveMemberFromWorkspaceCommand) {
+        validateNotArchived()
+
+        if (!memberIds.contains(command.memberId)) {
+            throw IllegalArgumentException("Member is not part of the workspace")
+        }
+
+        if (command.memberId == ownerId) {
+            throw IllegalArgumentException("Cannot remove the workspace owner")
+        }
+
+        val event = MemberRemovedFromWorkspaceEvent(
+            workspaceId = command.workspaceId,
+            memberId = command.memberId
+        )
+
+        AggregateLifecycle.apply(event)
+    }
+
+    @CommandHandler
+    fun handle(command: ArchiveWorkspaceCommand) {
+        if (archived) {
+            return // Already archived, idempotent operation
+        }
+
+        val event = WorkspaceArchivedEvent(
+            workspaceId = command.workspaceId
+        )
+
+        AggregateLifecycle.apply(event)
+    }
+
+    @EventSourcingHandler
+    fun on(event: WorkspaceCreatedEvent) {
+        id = event.workspaceId
+        title = event.title
+        ownerId = event.ownerId
+        archived = false
+    }
+
+    @EventSourcingHandler
+    fun on(event: WorkspaceTitleUpdatedEvent) {
+        title = event.title
+    }
+
+    @EventSourcingHandler
     fun on(event: MemberAddedToWorkspaceEvent) {
-        this.memberIds.add(event.memberId)
+        memberIds.add(event.memberId)
     }
 
-    override fun getId(): Identifier<out Any> {
-        return id
+    @EventSourcingHandler
+    fun on(event: MemberRemovedFromWorkspaceEvent) {
+        memberIds.remove(event.memberId)
     }
 
-    override fun getLabel(): String {
-        return title.value
+    @EventSourcingHandler
+    fun on(event: WorkspaceArchivedEvent) {
+        archived = true
+    }
+
+    private fun validateNotArchived() {
+        if (archived) {
+            throw IllegalStateException("Cannot modify an archived workspace")
+        }
     }
 }

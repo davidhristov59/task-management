@@ -1,30 +1,32 @@
 package mk.ukim.finki.soa.backend.model
 
 import jakarta.persistence.*
-import org.hibernate.annotations.Immutable
+import java.time.Instant
 
 @Entity
-@Table(name = "workspace")
-@Immutable
+@Table
 data class WorkspaceView(
-    @EmbeddedId
-    @AttributeOverride(name = "value", column = Column(name = "id"))
-    val id: WorkspaceId,
-    val title: String,
-    val ownerId: String,
-    val memberIds: MutableList<String> = mutableListOf()
+    @Id
+    @Column(name = "id")
+    var workspaceId: WorkspaceId = WorkspaceId(),  // Provide default values
 
-// TODO: Add FK like column
-//    @Embedded
-//    @Column(name = "account_id", nullable = false)
-//    val accountId: AccountId,
+    @Column(name = "title", nullable = false)
+    var title: String = "",
 
-    ) : LabeledEntity {
-    override fun getId(): Identifier<out Any> {
-        return id
-    }
+    @Column(name = "owner_id", nullable = false)
+    var ownerId: String = "",
 
-    override fun getLabel(): String {
-        return title
-    }
-}
+    @ElementCollection
+    @CollectionTable(name = "workspace_members", joinColumns = [JoinColumn(name = "workspace_id")])
+    @Column(name = "member_id")
+    var memberIds: MutableSet<String> = mutableSetOf(),
+
+    @Column(name = "created_at", nullable = false)
+    var createdAt: Instant = Instant.now(),
+
+    @Column(name = "last_modified_at")
+    var lastModifiedAt: Instant? = null,
+
+    @Column(name = "archived", nullable = false)
+    var archived: Boolean = false
+)
