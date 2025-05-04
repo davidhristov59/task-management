@@ -20,7 +20,7 @@ services:
     restart: always
     container_name: taskmgmt_backend
     ports:
-      - "8080:8087"
+      - "8087:8087"
     environment:
       SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: jdbc:postgresql://taskmgmt_db:5432/taskmgmt

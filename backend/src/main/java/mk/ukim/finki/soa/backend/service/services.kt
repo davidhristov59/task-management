@@ -12,4 +12,5 @@ interface WorkspaceModificationService {
 interface WorkspaceViewReadService {
     fun findById(workspaceId: WorkspaceId): WorkspaceView
     fun findAll(): List<WorkspaceView>
+    fun findAllFilter(workspaceId: WorkspaceId?, ownerId: String?, memberId: String?, archived: Boolean?): List<WorkspaceView>
 }

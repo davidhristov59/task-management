@@ -19,5 +19,44 @@ class WorkspaceViewReadServiceImpl(
         return workspaceViewJpaRepository.findAll()
     }
 
+    override fun findAllFilter(
+        workspaceId: WorkspaceId?,
+        ownerId: String?,
+        memberId: String?,
+        archived: Boolean?
+    ): List<WorkspaceView> {
+        if (workspaceId != null) {
+            this.findById(workspaceId);
+        }
 
+        if (ownerId != null && memberId != null && archived != null) {
+            return workspaceViewJpaRepository.findByMemberIdsContainingAndOwnerIdAndArchived(memberId, ownerId, archived);
+        }
+
+        if (ownerId != null && memberId != null) {
+            return workspaceViewJpaRepository.findByMemberIdsContainingAndOwnerId(memberId, ownerId);
+        }
+
+        if (ownerId != null && archived != null) {
+            return workspaceViewJpaRepository.findByOwnerIdAndArchived(ownerId, archived);
+        }
+
+        if (memberId != null && archived != null) {
+            return workspaceViewJpaRepository.findByMemberIdsContainingAndArchived(memberId, archived);
+        }
+
+        if (ownerId != null) {
+            return workspaceViewJpaRepository.findByOwnerId(ownerId);
+        }
+
+        if (memberId != null) {
+            return workspaceViewJpaRepository.findByMemberIdsContaining(memberId);
+        }
+
+        if (archived != null) {
+            return workspaceViewJpaRepository.findByArchived(archived);
+        }
+
+        return workspaceViewJpaRepository.findAll();
+    }
 }

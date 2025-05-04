@@ -7,9 +7,11 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface WorkspaceViewJpaRepository : JpaRepository<WorkspaceView, WorkspaceId> {
-    // TODO: This is currently covered by findById, but this is how we will append custom functionalities that also need to be added to the service
-    fun findByWorkspaceId(workspaceId: WorkspaceId): List<WorkspaceView>
     fun findByOwnerId(ownerId: String): List<WorkspaceView>
     fun findByMemberIdsContaining(memberId: String): List<WorkspaceView>
-    fun findByArchivedFalse(): List<WorkspaceView>
+    fun findByArchived(archived: Boolean): List<WorkspaceView>
+    fun findByOwnerIdAndArchived(ownerId: String, archived: Boolean): List<WorkspaceView>
+    fun findByMemberIdsContainingAndArchived(memberId: String, archived: Boolean): List<WorkspaceView>
+    fun findByMemberIdsContainingAndOwnerId(memberId: String, ownerId: String): List<WorkspaceView>
+    fun findByMemberIdsContainingAndOwnerIdAndArchived(memberId: String?, ownerId: String?, archived: Boolean?): List<WorkspaceView>
 }
