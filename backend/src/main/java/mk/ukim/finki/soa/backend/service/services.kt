@@ -1,12 +1,12 @@
 package mk.ukim.finki.soa.backend.service
 
-import mk.ukim.finki.soa.backend.model.CreateWorkspaceCommand
-import mk.ukim.finki.soa.backend.model.WorkspaceId
-import mk.ukim.finki.soa.backend.model.WorkspaceView
+import mk.ukim.finki.soa.backend.model.*
 import java.util.concurrent.CompletableFuture
 
 interface WorkspaceModificationService {
     fun createWorkspace(command: CreateWorkspaceCommand): CompletableFuture<WorkspaceId>
+    fun updateWorkspace(command: UpdateWorkspaceCommand): CompletableFuture<WorkspaceId>
+    fun deleteWorkspace(command: DeleteWorkspaceCommand): CompletableFuture<WorkspaceId>
 }
 
 interface WorkspaceViewReadService {

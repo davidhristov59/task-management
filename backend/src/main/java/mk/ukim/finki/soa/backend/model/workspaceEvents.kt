@@ -1,6 +1,5 @@
 package mk.ukim.finki.soa.backend.model
 
-// TODO: Would call this file events since we will have all events here regardless of aggregates
 import java.time.Instant
 
 abstract class WorkspaceEvent(
@@ -11,12 +10,29 @@ abstract class WorkspaceEvent(
 data class WorkspaceCreatedEvent(
     override val workspaceId: WorkspaceId,
     val title: WorkspaceTitle,
-    val ownerId: String
+    val description: String?,
+    val ownerId: String,
+    val memberIds: List<String> = emptyList()
 ) : WorkspaceEvent(workspaceId)
 
 data class WorkspaceTitleUpdatedEvent(
     override val workspaceId: WorkspaceId,
     val title: WorkspaceTitle
+) : WorkspaceEvent(workspaceId)
+
+data class WorkspaceDescriptionUpdatedEvent(
+    override val workspaceId: WorkspaceId,
+    val description: String?
+) : WorkspaceEvent(workspaceId)
+
+data class WorkspaceOwnerUpdatedEvent(
+    override val workspaceId: WorkspaceId,
+    val ownerId: String
+) : WorkspaceEvent(workspaceId)
+
+data class WorkspaceMembersUpdatedEvent(
+    override val workspaceId: WorkspaceId,
+    val memberIds: List<String>
 ) : WorkspaceEvent(workspaceId)
 
 data class MemberAddedToWorkspaceEvent(
@@ -30,5 +46,13 @@ data class MemberRemovedFromWorkspaceEvent(
 ) : WorkspaceEvent(workspaceId)
 
 data class WorkspaceArchivedEvent(
+    override val workspaceId: WorkspaceId
+) : WorkspaceEvent(workspaceId)
+
+data class WorkspaceUnarchivedEvent(
+    override val workspaceId: WorkspaceId
+) : WorkspaceEvent(workspaceId)
+
+data class WorkspaceDeletedEvent(
     override val workspaceId: WorkspaceId
 ) : WorkspaceEvent(workspaceId)

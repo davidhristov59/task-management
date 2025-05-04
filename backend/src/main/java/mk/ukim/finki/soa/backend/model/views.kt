@@ -13,6 +13,9 @@ data class WorkspaceView(
     @Column(name = "title", nullable = false)
     var title: String = "",
 
+    @Column(name = "description", nullable = true)
+    var description: String? = null,
+
     @Column(name = "owner_id", nullable = false)
     var ownerId: String = "",
 
@@ -28,5 +31,8 @@ data class WorkspaceView(
     var lastModifiedAt: Instant? = null,
 
     @Column(name = "archived", nullable = false)
-    var archived: Boolean = false
+    var archived: Boolean = false,
+
+    @Column(name = "deleted", nullable = false)
+    var deleted: Boolean = false
 )

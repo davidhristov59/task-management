@@ -1,19 +1,10 @@
 package mk.ukim.finki.soa.backend.web
 
-import mk.ukim.finki.soa.backend.model.AddMemberToWorkspaceCommand
-import mk.ukim.finki.soa.backend.model.ArchiveWorkspaceCommand
-import mk.ukim.finki.soa.backend.model.CreateWorkspaceCommand
-import mk.ukim.finki.soa.backend.model.RemoveMemberFromWorkspaceCommand
-import mk.ukim.finki.soa.backend.model.UpdateWorkspaceTitleCommand
-import mk.ukim.finki.soa.backend.model.WorkspaceId
-import mk.ukim.finki.soa.backend.model.WorkspaceTitle
-import mk.ukim.finki.soa.backend.model.WorkspaceView
-import mk.ukim.finki.soa.backend.repository.WorkspaceViewJpaRepository
+import mk.ukim.finki.soa.backend.model.*
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.concurrent.CompletableFuture
-import mk.ukim.finki.soa.backend.model.*
 import mk.ukim.finki.soa.backend.service.WorkspaceModificationService
 import mk.ukim.finki.soa.backend.service.WorkspaceViewReadService
 import org.axonframework.commandhandling.gateway.CommandGateway
@@ -28,100 +19,94 @@ class WorkspaceRestApi(
 
     @GetMapping
     fun findAll(
-        @RequestParam(required = false) workspaceId: WorkspaceId?,
         @RequestParam(required = false) archived: Boolean?,
         @RequestParam(required = false) ownerId: String?,
         @RequestParam(required = false) memberId: String?
     ): List<WorkspaceView> {
         return workspaceViewReadService.findAllFilter(
-            workspaceId,
+            null,
             ownerId,
             memberId,
-            archived,
+            archived
         )
     }
 
-    @GetMapping("/{id}")
-    fun findById(@PathVariable id: String): ResponseEntity<WorkspaceView> {
-        val workspaceId = WorkspaceId(id) // Assuming WorkspaceId has a constructor that accepts a String
-        val workspace = workspaceViewReadService.findById(workspaceId)
+    @GetMapping("/{workspaceId}")
+    fun findById(@PathVariable workspaceId: String): ResponseEntity<WorkspaceView> {
         try {
+            val workspace = workspaceViewReadService.findById(WorkspaceId(workspaceId))
             return ResponseEntity.ok(workspace)
         } catch (e: Exception) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)
         }
     }
 
     @PostMapping
     fun createWorkspace(
         @RequestBody request: CreateWorkspaceRequest
-    ): ResponseEntity<Any> {
+    ): CompletableFuture<ResponseEntity<WorkspaceId>> {
         val workspaceId = WorkspaceId()
 
-        return ResponseEntity.ok(
-            workspaceModificationService.createWorkspace(
+        return workspaceModificationService.createWorkspace(
             CreateWorkspaceCommand(
                 workspaceId = workspaceId,
                 title = WorkspaceTitle(request.title),
-                ownerId = request.ownerId
-        )));
+                description = request.description,
+                ownerId = request.ownerId,
+                memberIds = request.memberIds ?: emptyList()
+            )
+        ).thenApply {
+            ResponseEntity.status(HttpStatus.CREATED).body(it)
+        }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{workspaceId}") //bulk edit
     fun updateWorkspace(
-        @PathVariable id: String,
-        @RequestBody request: UpdateTitleRequest
+        @PathVariable workspaceId: String,
+        @RequestBody request: UpdateWorkspaceRequest
     ): CompletableFuture<ResponseEntity<Void>> {
-        return commandGateway.send<Void>(
-            UpdateWorkspaceTitleCommand(
-                workspaceId = WorkspaceId(id),
-                title = WorkspaceTitle(request.title)
-            )
-        ).thenApply {
-            ResponseEntity.ok().build()
-        }
+        val command = UpdateWorkspaceCommand(
+            workspaceId = WorkspaceId(workspaceId),
+            title = request.title?.let { WorkspaceTitle(it) },
+            description = request.description,
+            ownerId = request.ownerId,
+            memberIds = request.memberIds,
+            archived = request.archived
+        )
+
+        return workspaceModificationService.updateWorkspace(command)
+            .thenApply { ResponseEntity.ok().build<Void>() }
+            .exceptionally { e ->
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+            }
     }
 
-    @PostMapping("/{id}/members")
-    fun addMember(
-        @PathVariable id: String,
-        @RequestBody request: MemberRequest
+    @DeleteMapping("/{workspaceId}")
+    fun deleteWorkspace(
+        @PathVariable workspaceId: String
     ): CompletableFuture<ResponseEntity<Void>> {
-        return commandGateway.send<Void>(
-            AddMemberToWorkspaceCommand(
-                workspaceId = WorkspaceId(id),
-                memberId = request.memberId
-            )
-        ).thenApply {
-            ResponseEntity.ok().build()
-        }
+        val command = DeleteWorkspaceCommand(workspaceId = WorkspaceId(workspaceId))
+
+        return workspaceModificationService.deleteWorkspace(command)
+            .thenApply { ResponseEntity.noContent().build<Void>() }
+            .exceptionally { e ->
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+            }
     }
 
-    @DeleteMapping("/{id}/members/{memberId}")
-    fun removeMember(
-        @PathVariable id: String,
-        @PathVariable memberId: String
-    ): CompletableFuture<ResponseEntity<Void>> {
-        return commandGateway.send<Void>(
-            RemoveMemberFromWorkspaceCommand(
-                workspaceId = WorkspaceId(id),
-                memberId = memberId
-            )
-        ).thenApply {
-            ResponseEntity.ok().build()
-        }
-    }
 }
 
 data class CreateWorkspaceRequest(
     val title: String,
-    val ownerId: String
+    val description: String? = null,
+    val ownerId: String,
+    val memberIds: List<String>? = null
 )
 
-data class UpdateTitleRequest(
-    val title: String
-)
-
-data class MemberRequest(
-    val memberId: String
+data class UpdateWorkspaceRequest(
+    val title: String? = null,
+    val description: String? = null,
+    val memberIds: List<String>? = null,
+    val ownerId: String? = null,
+    val archived: Boolean? = null
 )

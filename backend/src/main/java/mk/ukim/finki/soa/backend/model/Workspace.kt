@@ -7,7 +7,6 @@ import org.axonframework.modelling.command.AggregateIdentifier
 import org.axonframework.modelling.command.AggregateLifecycle
 import org.axonframework.spring.stereotype.Aggregate
 
-
 @Aggregate
 class Workspace {
 
@@ -15,6 +14,7 @@ class Workspace {
     private lateinit var id: WorkspaceId
     private lateinit var title: WorkspaceTitle
     private lateinit var ownerId: String
+    private var description: String? = null
     private val memberIds: MutableSet<String> = mutableSetOf()
     private var archived: Boolean = false
 
@@ -29,22 +29,49 @@ class Workspace {
         val event = WorkspaceCreatedEvent(
             workspaceId = command.workspaceId,
             title = command.title,
-            ownerId = command.ownerId
+            description = command.description,
+            ownerId = command.ownerId,
+            memberIds = command.memberIds
         )
 
         AggregateLifecycle.apply(event)
     }
 
     @CommandHandler
-    fun handle(command: UpdateWorkspaceTitleCommand) {
+    fun handle(command: UpdateWorkspaceCommand) {
         validateNotArchived()
 
-        val event = WorkspaceTitleUpdatedEvent(
-            workspaceId = command.workspaceId,
-            title = command.title
-        )
+        command.title?.let {
+            AggregateLifecycle.apply(WorkspaceTitleUpdatedEvent(command.workspaceId, it))
+        }
 
-        AggregateLifecycle.apply(event)
+        command.description?.let {
+            AggregateLifecycle.apply(WorkspaceDescriptionUpdatedEvent(command.workspaceId, it))
+        }
+
+        command.ownerId?.let {
+            AggregateLifecycle.apply(WorkspaceOwnerUpdatedEvent(command.workspaceId, it))
+        }
+
+        command.memberIds?.let {
+            AggregateLifecycle.apply(WorkspaceMembersUpdatedEvent(command.workspaceId, it))
+        }
+
+        command.archived?.let {
+            if (it && !archived) {
+                AggregateLifecycle.apply(WorkspaceArchivedEvent(command.workspaceId))
+            } else if (!it && archived) {
+                AggregateLifecycle.apply(WorkspaceUnarchivedEvent(command.workspaceId))
+            }else {
+                //do nothing
+            }
+        }
+    }
+
+    @CommandHandler
+    fun handle(command: UpdateWorkspaceTitleCommand) {
+        validateNotArchived()
+        AggregateLifecycle.apply(WorkspaceTitleUpdatedEvent(command.workspaceId, command.title))
     }
 
     @CommandHandler
@@ -55,12 +82,7 @@ class Workspace {
             throw IllegalArgumentException("Member is already part of the workspace")
         }
 
-        val event = MemberAddedToWorkspaceEvent(
-            workspaceId = command.workspaceId,
-            memberId = command.memberId
-        )
-
-        AggregateLifecycle.apply(event)
+        AggregateLifecycle.apply(MemberAddedToWorkspaceEvent(command.workspaceId, command.memberId))
     }
 
     @CommandHandler
@@ -75,38 +97,53 @@ class Workspace {
             throw IllegalArgumentException("Cannot remove the workspace owner")
         }
 
-        val event = MemberRemovedFromWorkspaceEvent(
-            workspaceId = command.workspaceId,
-            memberId = command.memberId
-        )
-
-        AggregateLifecycle.apply(event)
+        AggregateLifecycle.apply(MemberRemovedFromWorkspaceEvent(command.workspaceId, command.memberId))
     }
 
     @CommandHandler
     fun handle(command: ArchiveWorkspaceCommand) {
+        if (archived) return
+        AggregateLifecycle.apply(WorkspaceArchivedEvent(command.workspaceId))
+    }
+
+    @CommandHandler
+    fun handle(command: DeleteWorkspaceCommand) {
         if (archived) {
-            return // Already archived, idempotent operation
+            AggregateLifecycle.apply(WorkspaceDeletedEvent(command.workspaceId))
+        } else {
+            throw IllegalStateException("Only archived workspaces can be deleted")
         }
-
-        val event = WorkspaceArchivedEvent(
-            workspaceId = command.workspaceId
-        )
-
-        AggregateLifecycle.apply(event)
     }
 
     @EventSourcingHandler
     fun on(event: WorkspaceCreatedEvent) {
         id = event.workspaceId
         title = event.title
+        description = event.description
         ownerId = event.ownerId
+        memberIds.addAll(event.memberIds)
         archived = false
     }
 
     @EventSourcingHandler
     fun on(event: WorkspaceTitleUpdatedEvent) {
         title = event.title
+    }
+
+    @EventSourcingHandler
+    fun on(event: WorkspaceDescriptionUpdatedEvent) {
+        description = event.description
+    }
+
+    @EventSourcingHandler
+    fun on(event: WorkspaceOwnerUpdatedEvent) {
+        ownerId = event.ownerId
+    }
+
+    @EventSourcingHandler
+    fun on(event: WorkspaceMembersUpdatedEvent) {
+        memberIds.clear()
+        memberIds.addAll(event.memberIds)
     }
 
     @EventSourcingHandler
@@ -122,6 +159,11 @@ class Workspace {
     @EventSourcingHandler
     fun on(event: WorkspaceArchivedEvent) {
         archived = true
+    }
+
+    @EventSourcingHandler
+    fun on(event: WorkspaceUnarchivedEvent) {
+        archived = false
     }
 
     private fun validateNotArchived() {
