@@ -1,16 +1,35 @@
 services:
-  postgres:
-    image: postgres:latest
-    container_name: postgres
+  taskmgmt_db:
+    image: postgres:16.1
+    restart: always
     environment:
-      POSTGRES_DB: task-management
-      POSTGRES_USER: soa
-      POSTGRES_PASSWORD: 123
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: taskmgmt
+    volumes:
+      - db-data:/var/lib/postgresql/data
     ports:
       - "5438:5432"
+    container_name: taskmgmt_db
+  taskmgmt_backend:
+    depends_on:
+      - taskmgmt_db
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    restart: always
+    container_name: taskmgmt_backend
+    ports:
+      - "8080:8087"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://taskmgmt_db:5432/taskmgmt
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: admin
+      SPRING_DATASOURCE_SCHEMA: public
+      OPTIMIZE_EVENT_CONSUMPTION: "true"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-
+      - dms-data:/opt/dms
   broker:
     image: apache/kafka:latest
     hostname: broker
@@ -35,4 +54,6 @@ services:
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
 
 volumes:
-  postgres_data:
+  db-data:
+  dms-data:
+  es-data:
