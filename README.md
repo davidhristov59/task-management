@@ -19,7 +19,8 @@ This project implements a DDD Service-Oriented Task Management System designed t
 1. Clone the repository:
 
    ```bash
-   git clone <repository-url>
+   git clone https://gitlab.finki.ukim.mk/soa/soa2025/task-management.git
+   
    cd task-management
    ```
 2. Start all services:
