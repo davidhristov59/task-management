@@ -31,7 +31,7 @@ This project implements a DDD Service-Oriented Task Management System designed t
 3. The backend API will be running on `http://localhost:8087`.
 4. Explore the API documentation at:
 
-   > [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+   > [http://localhost:8087/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 
 ## Tech Stack
 
@@ -44,5 +44,5 @@ This project implements a DDD Service-Oriented Task Management System designed t
 ## Docker Services
 
 * **taskmgmt\_db**: PostgreSQL database on port `5438 -> 5432`
-* **taskmgmt\_backend**: Java backend on port `8087`
+* **taskmgmt\_backend**: SpringBoot (Java + Kotlin) backend on port `8087`
 * **broker**: Kafka broker on port `9092`
