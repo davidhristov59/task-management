@@ -29,5 +29,33 @@ class WorkspaceModificationServiceImpl(
 
         return commandGateway.send(command)
     }
+
+    override fun addMemberToWorkspace(command: AddMemberToWorkspaceCommand): CompletableFuture<WorkspaceId> {
+        val workspace = workspaceViewReadService.findById(command.workspaceId);
+
+        if(workspace.archived) {
+            throw IllegalStateException("Workspace must not be archived before adding members");
+        }
+
+        if(workspace.memberIds.contains(command.memberId)) {
+            throw IllegalStateException("Member already exists in the workspace");
+        }
+
+       return commandGateway.send(command);
+    }
+
+    override fun removeMemberFromWorkspace(command: RemoveMemberFromWorkspaceCommand): CompletableFuture<WorkspaceId> {
+        val workspace = workspaceViewReadService.findById(command.workspaceId);
+
+        if(workspace.archived){
+            throw IllegalStateException("Workspace must not be archived before removing members");
+        }
+
+        if (!workspace.memberIds.contains(command.memberId)) {
+            throw IllegalStateException("Member does not exist in the workspace")
+        }
+
+        return commandGateway.send(command);
+    }
 }
 

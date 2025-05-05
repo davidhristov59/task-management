@@ -7,6 +7,8 @@ interface WorkspaceModificationService {
     fun createWorkspace(command: CreateWorkspaceCommand): CompletableFuture<WorkspaceId>
     fun updateWorkspace(command: UpdateWorkspaceCommand): CompletableFuture<WorkspaceId>
     fun deleteWorkspace(command: DeleteWorkspaceCommand): CompletableFuture<WorkspaceId>
+    fun addMemberToWorkspace(command: AddMemberToWorkspaceCommand) : CompletableFuture<WorkspaceId>
+    fun removeMemberFromWorkspace(command: RemoveMemberFromWorkspaceCommand) : CompletableFuture<WorkspaceId>
 }
 
 interface WorkspaceViewReadService {

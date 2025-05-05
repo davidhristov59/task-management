@@ -94,19 +94,35 @@ class WorkspaceRestApi(
             }
     }
 
+    @PostMapping("/{workspaceId}/members")
+    fun addMemberToWorkspace(
+        @PathVariable workspaceId: String,
+        @RequestBody memberId: String
+    ) : CompletableFuture<ResponseEntity<Void>> {
+
+        val command =AddMemberToWorkspaceCommand(workspaceId = WorkspaceId(workspaceId), memberId = memberId)
+
+        return workspaceModificationService.addMemberToWorkspace(command)
+            .thenApply { ResponseEntity.noContent().build<Void>() }
+            .exceptionally { e ->
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+            }
+    }
+
+    @DeleteMapping("/{workspaceId}/members/{memberId}")
+    fun removeMemberFromWorkspace(
+        @PathVariable workspaceId : String,
+        @PathVariable memberId : String
+    ) : CompletableFuture<ResponseEntity<Void>> {
+
+        val command = RemoveMemberFromWorkspaceCommand(workspaceId = WorkspaceId(workspaceId), memberId = memberId)
+
+        return workspaceModificationService.removeMemberFromWorkspace(command)
+            .thenApply { ResponseEntity.noContent().build<Void>() }
+            .exceptionally{ e ->
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+            }
+
+    }
+
 }
-
-data class CreateWorkspaceRequest(
-    val title: String,
-    val description: String? = null,
-    val ownerId: String,
-    val memberIds: List<String>? = null
-)
-
-data class UpdateWorkspaceRequest(
-    val title: String? = null,
-    val description: String? = null,
-    val memberIds: List<String>? = null,
-    val ownerId: String? = null,
-    val archived: Boolean? = null
-)
