@@ -31,7 +31,7 @@ This project implements a DDD Service-Oriented Task Management System designed t
 3. The backend API will be running on `http://localhost:8087`.
 4. Explore the API documentation at:
 
-   > [http://localhost:8087/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+   > [http://localhost:8087/swagger-ui/index.html](http://localhost:8087/swagger-ui/index.html)
 
 ## Tech Stack
 

@@ -11,9 +11,22 @@ services:
     ports:
       - "5438:5432"
     container_name: taskmgmt_db
+    networks:
+      - task_services_net
+
+  consul:
+    image: hashicorp/consul
+    container_name: dev-consul
+    ports:
+      - "8500:8500"
+    command: "agent -server -ui -node=server-1 -bootstrap-expect=1 -client=0.0.0.0"
+    networks:
+      - task_services_net
+
   taskmgmt_backend:
     depends_on:
       - taskmgmt_db
+      - consul
     build:
       context: backend
       dockerfile: Dockerfile
@@ -28,8 +41,18 @@ services:
       SPRING_DATASOURCE_PASSWORD: admin
       SPRING_DATASOURCE_SCHEMA: public
       OPTIMIZE_EVENT_CONSUMPTION: "true"
+      SPRING_CLOUD_CONSUL_HOST: "dev-consul"
+      SPRING_CLOUD_CONSUL_PORT: "8500"
+      SPRING_CLOUD_CONSUL_DISCOVERY_PREFER_IP_ADDRESS: "true"
+      SPRING_CLOUD_CONSUL_DISCOVERY_REGISTER: "true"
+      SPRING_CLOUD_CONSUL_DISCOVERY_SERVICE_NAME: "taskmgmt-backend"
+      SPRING_CLOUD_CONSUL_DISCOVERY_INSTANCE_ID: "taskmgmt-backend-1"
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,info"
     volumes:
       - dms-data:/opt/dms
+    networks:
+      - task_services_net
+
   broker:
     image: apache/kafka:latest
     hostname: broker
@@ -52,8 +75,16 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    networks:
+      - task_services_net
 
 volumes:
   db-data:
   dms-data:
   es-data:
+
+networks:
+  task_services_net:
+    name: task_services_net
+    driver: bridge
+
