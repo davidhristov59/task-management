@@ -32,6 +32,9 @@ This project implements a DDD Service-Oriented Task Management System designed t
 4. Explore the API documentation at:
 
    > [http://localhost:8087/swagger-ui/index.html](http://localhost:8087/swagger-ui/index.html)
+5. Access the Consul dashboard at:
+   
+   > [http://localhost:8500](http://localhost:8500)
 
 ## Tech Stack
 
@@ -40,9 +43,11 @@ This project implements a DDD Service-Oriented Task Management System designed t
 * PostgreSQL 16
 * Kafka (KRaft mode)
 * Docker & Docker Compose
+* Consul (Service Discovery)
 
 ## Docker Services
 
 * **taskmgmt\_db**: PostgreSQL database on port `5438 -> 5432`
 * **taskmgmt\_backend**: SpringBoot (Java + Kotlin) backend on port `8087`
 * **broker**: Kafka broker on port `9092`
+* **consul**: Consul service registry and discovery on port `8500`
