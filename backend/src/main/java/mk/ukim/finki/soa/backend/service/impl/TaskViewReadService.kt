@@ -2,7 +2,6 @@ package mk.ukim.finki.soa.backend.service
 
 import mk.ukim.finki.soa.backend.model.*
 import mk.ukim.finki.soa.backend.repository.TaskViewJpaRepository
-import mk.ukim.finki.soa.backend.web.FindTasksQuery
 import org.axonframework.queryhandling.QueryHandler
 import org.springframework.stereotype.Service
 
