@@ -18,7 +18,7 @@ class Workspace {
     private val memberIds: MutableSet<String> = mutableSetOf()
     private var archived: Boolean = false
 
-    constructor() // Required by Axon
+    constructor()
 
     @CommandHandler
     constructor(command: CreateWorkspaceCommand) {
@@ -62,8 +62,8 @@ class Workspace {
                 AggregateLifecycle.apply(WorkspaceArchivedEvent(command.workspaceId))
             } else if (!it && archived) {
                 AggregateLifecycle.apply(WorkspaceUnarchivedEvent(command.workspaceId))
-            }else {
-                //do nothing
+            } else {
+                println("No change in archived status for workspace ${command.workspaceId}")
             }
         }
     }
