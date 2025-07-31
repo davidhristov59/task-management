@@ -78,6 +78,18 @@ services:
     networks:
       - task_services_net
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.2
+    container_name: keycloak
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8001:8080"
+    networks:
+      - task_services_net
+
 volumes:
   db-data:
   dms-data:
