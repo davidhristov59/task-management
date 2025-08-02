@@ -30,6 +30,13 @@ class NotificationServiceFallback : NotificationServiceClient {
 }
 
 @Component
+class ExternalServiceFallback : ExternalServiceClient {
+    override fun getServiceStatus(): String {
+        return "External Service is unavailable."
+    }
+}
+
+@Component
 class ProjectServiceFallback : ProjectServiceClient {
     override fun getProject(projectId: String): ProjectDto {
         return ProjectDto(projectId, "Unknown Project", "UNKNOWN", emptyList())

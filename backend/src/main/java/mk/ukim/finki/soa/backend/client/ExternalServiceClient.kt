@@ -6,6 +6,16 @@ import org.springframework.web.bind.annotation.*
 
 
 @FeignClient(
+    name = "external-service",
+    fallback = ExternalServiceFallback::class
+)
+interface ExternalServiceClient {
+    @GetMapping("/api/status")
+    fun getServiceStatus(): String
+}
+
+
+@FeignClient(
     name = "user-management-service",
     fallback = UserServiceFallback::class
 )
