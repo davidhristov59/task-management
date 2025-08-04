@@ -36,6 +36,16 @@ This project implements a DDD Service-Oriented Task Management System designed t
    
    > [http://localhost:8500](http://localhost:8500)
 
+6. Keycloak (Authentication & Authorization)
+
+   > [http://localhost:8001](http://localhost:8001)
+
+   Log in with the admin credentials below
+
+   - **Admin Username:** admin
+   - **Admin Password:** admin
+   - **Port:** 8001 (mapped to container port 8080)
+
 ## Tech Stack
 
 * Java 21 / Spring Boot
@@ -44,6 +54,7 @@ This project implements a DDD Service-Oriented Task Management System designed t
 * Kafka (KRaft mode)
 * Docker & Docker Compose
 * Consul (Service Discovery)
+* Keycloak (Authentication & Authorization)
 
 ## Docker Services
 
@@ -51,3 +62,4 @@ This project implements a DDD Service-Oriented Task Management System designed t
 * **taskmgmt\_backend**: SpringBoot (Java + Kotlin) backend on port `8087`
 * **broker**: Kafka broker on port `9092`
 * **consul**: Consul service registry and discovery on port `8500`
+* **keycloak**: Keycloak for authentication and authorization on port `8001`
