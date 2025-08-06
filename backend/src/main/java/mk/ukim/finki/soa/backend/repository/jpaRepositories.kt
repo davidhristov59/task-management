@@ -2,6 +2,8 @@ package mk.ukim.finki.soa.backend.repository
 
 import mk.ukim.finki.soa.backend.model.*
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -36,3 +38,19 @@ interface TaskViewJpaRepository : JpaRepository<TaskView, TaskId> {
     fun findByProjectIdAndAssignedUserId(projectId: ProjectId, assignedUserId: String): List<TaskView>
 }
 
+@Repository
+interface UserViewJpaRepository : JpaRepository<UserView, UserId> {
+    fun findByUserId(userId: UserId): List<UserView>
+    fun findByRole(role: UserRole): List<UserView>
+    fun findByActive(active: Boolean): List<UserView>
+
+    @Query("SELECT u FROM UserView u WHERE u.email = :email")
+    fun findByEmailString(@Param("email") email: String): UserView?
+    fun findByEmail(email: UserEmail): UserView?
+    fun findByNameContainingIgnoreCase(name: String): List<UserView>
+    fun findByRoleAndActive(role: UserRole, active: Boolean): List<UserView>
+    fun existsByEmail(email: String): Boolean
+    fun existsByEmailAndActiveTrue(email: String): Boolean
+    fun findByDeleted(deleted: Boolean): List<UserView>
+    fun findByActiveAndDeleted(active: Boolean, deleted: Boolean): List<UserView>
+}

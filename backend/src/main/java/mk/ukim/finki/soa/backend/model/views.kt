@@ -129,3 +129,32 @@ data class TaskView(
     var deleted: Boolean = false
 )
 
+@Entity
+@Table
+data class UserView(
+    @Id
+    @Column(name = "id")
+    var userId: UserId = UserId(""),
+
+    @Column(name = "name", nullable = false)
+    var name: String = "",
+
+    @Column(name = "email", nullable = false)
+    var email: String = "",
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    var role: UserRole = UserRole.STUDENT,
+
+    @Column(name = "active", nullable = false)
+    var active: Boolean = true,
+
+    @Column(name = "created_at", nullable = false)
+    var createdAt: Instant = Instant.now(),
+
+    @Column(name = "last_modified_at")
+    var lastModifiedAt: Instant? = null,
+
+    @Column(name = "deleted", nullable = false)
+    var deleted: Boolean = false
+)
