@@ -1,4 +1,4 @@
-package mk.ukim.finki.soa.backend.service
+package mk.ukim.finki.soa.backend.service.impl
 
 import mk.ukim.finki.soa.backend.model.*
 import mk.ukim.finki.soa.backend.repository.TaskViewJpaRepository
