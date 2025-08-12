@@ -4,8 +4,7 @@ import jakarta.persistence.*
 import java.time.Instant
 import java.time.LocalDateTime
 
-@Entity
-@Table
+@Table(name = "workspace_view")
 data class WorkspaceView(
     @Id
     @Column(name = "id")
@@ -20,10 +19,8 @@ data class WorkspaceView(
     @Column(name = "owner_id", nullable = false)
     var ownerId: String = "",
 
-    @ElementCollection
-    @CollectionTable(name = "workspace_members", joinColumns = [JoinColumn(name = "workspace_id")])
-    @Column(name = "member_id")
-    var memberIds: MutableSet<String> = mutableSetOf(),
+    @Column(name = "member_ids")
+    var memberIds: String = "",
 
     @Column(name = "created_at", nullable = false)
     var createdAt: Instant = Instant.now(),
@@ -36,10 +33,14 @@ data class WorkspaceView(
 
     @Column(name = "deleted", nullable = false)
     var deleted: Boolean = false
-)
+) {
+    fun getMemberIdsList(): Set<String> {
+        return if (memberIds.isBlank()) emptySet()
+        else memberIds.split(",").map { it.trim() }.toSet()
+    }
+}
 
-@Entity
-@Table
+@Table(name = "project_view")
 data class ProjectView(
     @Id
     @Column(name = "id")
@@ -74,8 +75,7 @@ data class ProjectView(
     var deleted: Boolean = false
 )
 
-@Entity
-@Table
+@Table(name = "task_view")
 data class TaskView(
     @Id
     @Column(name = "id")
@@ -129,8 +129,7 @@ data class TaskView(
     var deleted: Boolean = false
 )
 
-@Entity
-@Table
+@Table(name = "user_view")
 data class UserView(
     @Id
     @Column(name = "id")

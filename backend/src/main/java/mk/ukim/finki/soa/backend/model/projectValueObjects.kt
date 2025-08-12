@@ -22,5 +22,5 @@ data class ProjectDescription(val value: String) : Serializable {
 }
 
 enum class ProjectStatus {
-    PLANNING, IN_PROGRESS, COMPLETED
+    PLANNING, IN_PROGRESS, COMPLETED, CANCELLED
 }

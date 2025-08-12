@@ -1,22 +1,24 @@
 package mk.ukim.finki.soa.backend.service.impl
 
-import mk.ukim.finki.soa.backend.model.WorkspaceId
-import mk.ukim.finki.soa.backend.model.WorkspaceNotFoundException
-import mk.ukim.finki.soa.backend.model.WorkspaceView
-import mk.ukim.finki.soa.backend.repository.WorkspaceViewJpaRepository
+import mk.ukim.finki.soa.backend.model.*
+import mk.ukim.finki.soa.backend.repository.WorkspaceViewRepository
 import mk.ukim.finki.soa.backend.service.WorkspaceViewReadService
+import mk.ukim.finki.soa.backend.specification.WorkspaceSpecifications
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 
 @Service
 class WorkspaceViewReadServiceImpl(
-    val workspaceViewJpaRepository: WorkspaceViewJpaRepository,
+    private val workspaceViewRepository: WorkspaceViewRepository
 ) : WorkspaceViewReadService {
+
     override fun findById(workspaceId: WorkspaceId): WorkspaceView {
-        return workspaceViewJpaRepository.findById(workspaceId).orElseThrow { WorkspaceNotFoundException(workspaceId) }
+        return workspaceViewRepository.findById(workspaceId)
+            .orElseThrow { WorkspaceNotFoundException(workspaceId) }
     }
 
     override fun findAll(): List<WorkspaceView> {
-        return workspaceViewJpaRepository.findAll()
+        return workspaceViewRepository.findAll(WorkspaceSpecifications.isNotDeleted())
     }
 
     override fun findAllFilter(
@@ -26,37 +28,21 @@ class WorkspaceViewReadServiceImpl(
         archived: Boolean?
     ): List<WorkspaceView> {
         if (workspaceId != null) {
-            this.findById(workspaceId);
+            return listOf(findById(workspaceId))
         }
 
-        if (ownerId != null && memberId != null && archived != null) {
-            return workspaceViewJpaRepository.findByMemberIdsContainingAndOwnerIdAndArchived(memberId, ownerId, archived);
-        }
+        val specs = listOfNotNull(
+            WorkspaceSpecifications.hasOwnerId(ownerId),
+            WorkspaceSpecifications.hasMemberId(memberId),
+            WorkspaceSpecifications.isArchived(archived),
+            WorkspaceSpecifications.isNotDeleted()
+        )
 
-        if (ownerId != null && memberId != null) {
-            return workspaceViewJpaRepository.findByMemberIdsContainingAndOwnerId(memberId, ownerId);
+        return if (specs.isEmpty()) {
+            workspaceViewRepository.findAll()
+        } else {
+            val combinedSpec = specs.reduce { acc, spec -> acc.and(spec) }
+            workspaceViewRepository.findAll(combinedSpec)
         }
-
-        if (ownerId != null && archived != null) {
-            return workspaceViewJpaRepository.findByOwnerIdAndArchived(ownerId, archived);
-        }
-
-        if (memberId != null && archived != null) {
-            return workspaceViewJpaRepository.findByMemberIdsContainingAndArchived(memberId, archived);
-        }
-
-        if (ownerId != null) {
-            return workspaceViewJpaRepository.findByOwnerId(ownerId);
-        }
-
-        if (memberId != null) {
-            return workspaceViewJpaRepository.findByMemberIdsContaining(memberId);
-        }
-
-        if (archived != null) {
-            return workspaceViewJpaRepository.findByArchived(archived);
-        }
-
-        return workspaceViewJpaRepository.findAll();
     }
 }

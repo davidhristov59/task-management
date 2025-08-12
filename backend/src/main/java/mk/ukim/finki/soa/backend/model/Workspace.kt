@@ -171,4 +171,25 @@ class Workspace {
             throw IllegalStateException("Cannot modify an archived workspace")
         }
     }
+
+    @CommandHandler
+    fun handle(command: UpdateWorkspaceOwnerCommand) {
+        validateNotArchived()
+
+        if (ownerId == command.newOwnerId) {
+            // No change needed
+            return
+        }
+
+        if (!memberIds.contains(command.newOwnerId)) {
+            throw IllegalArgumentException("New owner must be a member of the workspace")
+        }
+
+        AggregateLifecycle.apply(
+            WorkspaceOwnerUpdatedEvent(
+                workspaceId = id,
+                ownerId = command.newOwnerId
+            )
+        )
+    }
 }

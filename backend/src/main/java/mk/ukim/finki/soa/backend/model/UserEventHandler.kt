@@ -1,11 +1,11 @@
 package mk.ukim.finki.soa.backend.model
 
-import mk.ukim.finki.soa.backend.repository.UserViewJpaRepository
+import mk.ukim.finki.soa.backend.repository.UserViewRepository
 import org.axonframework.eventhandling.EventHandler
 import org.springframework.stereotype.Component
 
 @Component
-class UserEventHandler(private val repository: UserViewJpaRepository) {
+class UserEventHandler(private val repository: UserViewRepository) {
 
     @EventHandler
     fun on(event: UserCreatedEvent) {

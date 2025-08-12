@@ -119,4 +119,54 @@ class Project {
             throw IllegalStateException("Cannot modify an archived project")
         }
     }
+
+    @CommandHandler
+    fun handle(command: UpdateProjectStatusCommand) {
+        validateNotArchived()
+
+        if (status == command.status) {
+            // No change needed
+            return
+        }
+
+        // Validate status transition
+        when (command.status) {
+            ProjectStatus.COMPLETED -> {
+                if (status == ProjectStatus.CANCELLED) {
+                    throw IllegalStateException("Cannot complete a cancelled project")
+                }
+            }
+            ProjectStatus.CANCELLED -> {
+                if (status == ProjectStatus.COMPLETED) {
+                    throw IllegalStateException("Cannot cancel a completed project")
+                }
+            }
+            else -> {
+            }
+        }
+
+        AggregateLifecycle.apply(
+            ProjectStatusUpdatedEvent(
+                projectId = id,
+                status = command.status
+            )
+        )
+
+        @CommandHandler
+        fun handle(command: UpdateProjectOwnerCommand) {
+            validateNotArchived()
+
+            if (ownerId == command.newOwnerId) {
+                // No change needed
+                return
+            }
+
+            AggregateLifecycle.apply(
+                ProjectOwnerUpdatedEvent(
+                    projectId = id,
+                    ownerId = command.newOwnerId
+                )
+            )
+        }
+    }
 }

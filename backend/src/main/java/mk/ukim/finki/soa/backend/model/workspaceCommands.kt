@@ -45,3 +45,9 @@ data class ArchiveWorkspaceCommand(
 data class DeleteWorkspaceCommand(
     override val workspaceId: WorkspaceId
 ) : WorkspaceCommand(workspaceId)
+
+data class UpdateWorkspaceOwnerCommand(
+    @TargetAggregateIdentifier
+    override val workspaceId: WorkspaceId,
+    val newOwnerId: String
+) : WorkspaceCommand(workspaceId)

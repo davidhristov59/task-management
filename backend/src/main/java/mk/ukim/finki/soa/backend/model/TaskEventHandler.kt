@@ -2,7 +2,7 @@ package mk.ukim.finki.soa.backend.model
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import mk.ukim.finki.soa.backend.repository.TaskViewJpaRepository
+import mk.ukim.finki.soa.backend.repository.TaskViewRepository
 import org.axonframework.eventhandling.EventHandler
 import org.springframework.stereotype.Component
 import java.time.Instant
@@ -10,7 +10,7 @@ import java.util.function.Consumer
 
 @Component
 class TaskEventHandler(
-    private val repository: TaskViewJpaRepository,
+    private val repository: TaskViewRepository,
     private val objectMapper: ObjectMapper
 ) {
 

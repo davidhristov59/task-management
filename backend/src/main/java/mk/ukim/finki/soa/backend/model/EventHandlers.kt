@@ -1,11 +1,11 @@
 package mk.ukim.finki.soa.backend.model
 
-import mk.ukim.finki.soa.backend.repository.WorkspaceViewJpaRepository
+import mk.ukim.finki.soa.backend.repository.WorkspaceViewRepository
 import org.axonframework.eventhandling.EventHandler
 import org.springframework.stereotype.Component
 
 @Component
-class WorkspaceEventHandler(private val repository: WorkspaceViewJpaRepository) {
+class WorkspaceEventHandler(private val repository: WorkspaceViewRepository) {
 
     @EventHandler
     fun on(event: WorkspaceCreatedEvent) {
@@ -14,11 +14,10 @@ class WorkspaceEventHandler(private val repository: WorkspaceViewJpaRepository) 
             title = event.title.toString(),
             description = event.description,
             ownerId = event.ownerId,
+            memberIds = event.memberIds.joinToString(","),
             createdAt = event.timestamp,
             lastModifiedAt = event.timestamp
         )
-
-        event.memberIds.forEach { workspace.memberIds.add(it) }
 
         repository.save(workspace)
     }
@@ -53,8 +52,7 @@ class WorkspaceEventHandler(private val repository: WorkspaceViewJpaRepository) 
     @EventHandler
     fun on(event: WorkspaceMembersUpdatedEvent) {
         repository.findById(event.workspaceId).ifPresent { workspace ->
-            workspace.memberIds.clear()
-            event.memberIds.forEach { workspace.memberIds.add(it) }
+            workspace.memberIds = event.memberIds.joinToString(",")
             workspace.lastModifiedAt = event.timestamp
             repository.save(workspace)
         }
@@ -63,7 +61,9 @@ class WorkspaceEventHandler(private val repository: WorkspaceViewJpaRepository) 
     @EventHandler
     fun on(event: MemberAddedToWorkspaceEvent) {
         repository.findById(event.workspaceId).ifPresent { workspace ->
-            workspace.memberIds.add(event.memberId)
+            val currentMembers = workspace.getMemberIdsList().toMutableSet()
+            currentMembers.add(event.memberId)
+            workspace.memberIds = currentMembers.joinToString(",")
             workspace.lastModifiedAt = event.timestamp
             repository.save(workspace)
         }
@@ -72,7 +72,9 @@ class WorkspaceEventHandler(private val repository: WorkspaceViewJpaRepository) 
     @EventHandler
     fun on(event: MemberRemovedFromWorkspaceEvent) {
         repository.findById(event.workspaceId).ifPresent { workspace ->
-            workspace.memberIds.remove(event.memberId)
+            val currentMembers = workspace.getMemberIdsList().toMutableSet()
+            currentMembers.remove(event.memberId)
+            workspace.memberIds = currentMembers.joinToString(",")
             workspace.lastModifiedAt = event.timestamp
             repository.save(workspace)
         }
@@ -99,7 +101,9 @@ class WorkspaceEventHandler(private val repository: WorkspaceViewJpaRepository) 
     @EventHandler
     fun on(event: WorkspaceDeletedEvent) {
         repository.findById(event.workspaceId).ifPresent { workspace ->
-            repository.delete(workspace)
+            workspace.deleted = true
+            workspace.lastModifiedAt = event.timestamp
+            repository.save(workspace)
         }
     }
 }

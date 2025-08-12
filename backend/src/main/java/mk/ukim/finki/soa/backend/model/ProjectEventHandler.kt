@@ -1,13 +1,13 @@
 package mk.ukim.finki.soa.backend.model
 
-import mk.ukim.finki.soa.backend.repository.ProjectViewJpaRepository
+import mk.ukim.finki.soa.backend.repository.ProjectViewRepository
 import org.axonframework.eventhandling.EventHandler
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.util.function.Consumer
 
 @Component
-class ProjectEventHandler(private val repository: ProjectViewJpaRepository) {
+class ProjectEventHandler(private val repository: ProjectViewRepository) {
 
     @EventHandler
     fun on(event: ProjectCreatedEvent) {

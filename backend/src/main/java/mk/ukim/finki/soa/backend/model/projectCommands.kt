@@ -30,3 +30,17 @@ data class ArchiveProjectCommand(
 data class DeleteProjectCommand(
     override val projectId: ProjectId
 ) : ProjectCommand(projectId)
+
+data class UpdateProjectStatusCommand(
+    @TargetAggregateIdentifier
+    override val projectId: ProjectId,
+    val status: ProjectStatus,
+    val updatedBy: String? = null,
+    val reason: String? = null
+) : ProjectCommand(projectId)
+
+data class UpdateProjectOwnerCommand(
+    @TargetAggregateIdentifier
+    override val projectId: ProjectId,
+    val newOwnerId: String
+) : ProjectCommand(projectId)

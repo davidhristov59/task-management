@@ -23,7 +23,7 @@ data class TaskDescription(val value: String) : Serializable {
 }
 
 enum class TaskStatus {
-    PENDING, IN_PROGRESS, COMPLETED
+    PENDING, IN_PROGRESS, COMPLETED, CANCELLED
 }
 
 enum class TaskPriority {
