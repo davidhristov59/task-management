@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice 1101</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            color: #333;
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh; /* Changed from height to min-height for better compatibility */
+            box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
+        }
+
+        .invoice-container {
+            width: 8.5in; /* Standard letter paper width */
+            min-height: 11in; /* Standard letter paper height, using min-height */
+            padding: 0.5in; /* Some padding for printer margins */
+            box-sizing: border-box;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #eee; /* Light line below header */
+            margin-bottom: 20px;
+        }
+
+        .logo-container {
+            width: 100px; /* Adjust as needed */
+            height: 100px; /* Adjust as needed */
+            background-color: #00A99D; /* Teal color */
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative; /* For positioning the segments */
+        }
+
+        .logo-segment {
+            position: absolute;
+            width: 40%;
+            height: 40%;
+            background-color: #fff;
+        }
+
+        /* Approximating the "CODE CHEMISTRY" logo style */
+        /* This is a simplified CSS representation. A perfect replica of the logo might require SVG or an image. */
+        .logo-segment:nth-child(1) { transform: rotate(0deg) translate(35%, -35%) skewX(-15deg) skewY(-15deg); opacity: 0.8; }
+        .logo-segment:nth-child(2) { transform: rotate(45deg) translate(35%, -35%) skewX(-15deg) skewY(-15deg); opacity: 0.7; }
+        .logo-segment:nth-child(3) { transform: rotate(90deg) translate(35%, -35%) skewX(-15deg) skewY(-15deg); opacity: 0.6;}
+        .logo-segment:nth-child(4) { transform: rotate(135deg) translate(35%, -35%) skewX(-15deg) skewY(-15deg); opacity: 0.5;}
+        .logo-segment:nth-child(5) { transform: rotate(180deg) translate(35%, -35%) skewX(-15deg) skewY(-15deg); opacity: 0.6;}
+        .logo-segment:nth-child(6) { transform: rotate(225deg) translate(35%, -35%) skewX(-15deg) skewY(-15deg); opacity: 0.7;}
+        .logo-segment:nth-child(7) { transform: rotate(270deg) translate(35%, -35%) skewX(-15deg) skewY(-15deg); opacity: 0.8;}
+        .logo-segment:nth-child(8) { transform: rotate(315deg) translate(35%, -35%) skewX(-15deg) skewY(-15deg); opacity: 0.9;}
+
+        .logo-text-overlay {
+            position: absolute;
+            font-size: 10px; /* Adjust as needed */
+            font-weight: bold;
+            color: #fff;
+            text-align: center;
+            line-height: 1.2;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+
+        .invoice-title-section {
+            text-align: right;
+        }
+
+        .invoice-title-section h1 {
+            font-size: 48px; /* Large "INVOICE" text */
+            margin: 0 0 10px 0;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .invoice-title-section p {
+            margin: 2px 0;
+            font-size: 12px;
+            color: #555;
+        }
+
+        .bill-to-section {
+            margin-bottom: 30px;
+            display: flex; /* Using flex to align bill to and invoice details */
+            justify-content: space-between;
+        }
+
+        .bill-to-section .bill-to,
+        .bill-to-section .invoice-details {
+            width: 48%; /* Adjust as needed */
+        }
+
+
+        .bill-to-section h2 {
+            font-size: 10px;
+            color: #00A99D; /* Teal color */
+            margin: 0 0 5px 0;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .bill-to-section p {
+            font-size: 12px;
+            margin: 2px 0;
+            line-height: 1.4;
+        }
+
+        .invoice-details {
+            text-align: right;
+        }
+
+        .invoice-details p {
+            font-size: 12px;
+            margin: 5px 0;
+            line-height: 1.6;
+        }
+        .invoice-details p strong {
+            color: #333;
+            margin-right: 10px;
+        }
+        .invoice-details p span {
+            color: #555;
+        }
+        .invoice-details .amount-due-highlight {
+            font-weight: bold;
+            color: #000;
+        }
+
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .items-table th, .items-table td {
+            padding: 10px 0; /* Reduced horizontal padding */
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .items-table th {
+            border-bottom: 2px solid #000;
+            color: #555;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .items-table td {
+            border-bottom: 1px solid #eee;
+        }
+
+        .items-table th:nth-child(1), .items-table td:nth-child(1) { width: 60%; padding-left: 0;}
+        .items-table th:nth-child(2), .items-table td:nth-child(2) { width: 15%; text-align: right; padding-right: 10px;}
+        .items-table th:nth-child(3), .items-table td:nth-child(3) { width: 15%; text-align: right; padding-right: 10px;}
+        .items-table th:nth-child(4), .items-table td:nth-child(4) { width: 10%; text-align: right; padding-right: 0;}
+
+
+        .totals-section {
+            margin-top: 20px; /* Add some space above totals */
+            display: flex;
+            justify-content: flex-end; /* Align totals to the right */
+        }
+
+        .totals-section table {
+            width: 40%; /* Adjust width as needed */
+        }
+
+        .totals-section td {
+            padding: 8px 0; /* Reduced horizontal padding */
+            font-size: 12px;
+        }
+
+        .totals-section .label {
+            text-align: right;
+            padding-right: 20px;
+            color: #555;
+        }
+        .totals-section .value {
+            text-align: right;
+            font-weight: normal; /* Subtotal and Total labels are not bold in image */
+            color: #000;
+        }
+        .totals-section .amount-due-final .value {
+            font-weight: bold;
+            color: #000;
+        }
+
+        .totals-section .subtotal-row td, .totals-section .total-row td {
+            border-top: 1px solid #eee;
+        }
+        .totals-section .amount-due-final td {
+            border-top: 2px solid #000;
+            padding-top: 10px;
+        }
+
+
+        .notes-terms-section {
+            margin-top: 40px;
+            font-size: 10px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .notes-terms-section h3 {
+            font-size: 11px;
+            color: #00A99D; /* Teal color */
+            margin: 0 0 8px 0;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .notes-terms-section p {
+            margin: 3px 0;
+        }
+
+        .footer-note {
+            margin-top: auto; /* Pushes footer to the bottom if there's space */
+            padding-top: 20px; /* Space above the footer note */
+            font-size: 9px;
+            color: #777;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+
+        /* Specific style for the amount due where it's highlighted */
+        .amount-due-highlight strong {
+            color: #333 !important; /* Ensure this overrides other p strong */
+        }
+         .amount-due-highlight span {
+            font-weight: bold;
+            color: #000 !important;
+        }
+
+
+        /* Print specific styles */
+        @media print {
+            body {
+                background-color: #fff; /* Ensure background is white for printing */
+                -webkit-print-color-adjust: exact; /* Chrome, Safari */
+                color-adjust: exact; /* Standard */
+                display: block; /* Remove flex for print */
+                min-height: unset;
+            }
+            .invoice-container {
+                width: 100%; /* Use full available width */
+                min-height: unset;
+                padding: 0; /* Remove padding, rely on browser margins or set explicit @page margins */
+                box-shadow: none; /* Remove any shadow if present */
+                border: none; /* Remove any border if present */
+            }
+             /* Consider adding @page rule for margins if needed */
+            @page {
+                margin: 0.5in; /* Example: Set browser print margins */
+                size: letter;
+            }
+            .footer-note {
+                 position: fixed; /* Try to keep footer at bottom of page */
+                 bottom: 0.5in; /* Adjust based on @page margin */
+                 width: calc(100% - 1in); /* Adjust based on @page margin */
+                 left: 0.5in;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <header>
+            <div class="logo-container">
+                <div class="logo-segment"></div>
+                <div class="logo-segment"></div>
+                <div class="logo-segment"></div>
+                <div class="logo-segment"></div>
+                <div class="logo-segment"></div>
+                <div class="logo-segment"></div>
+                <div class="logo-segment"></div>
+                <div class="logo-segment"></div>
+                <div class="logo-text-overlay">CODE<br>CHEMISTRY</div>
+            </div>
+            <div class="invoice-title-section">
+                <h1>INVOICE</h1>
+                <p>KodHem DOOEL Skopje</p>
+                <p>Mito Hadzivasilev Jasmin br.18</p>
+                <p>Skopje1000</p>
+                <p>North Macedonia</p>
+            </div>
+        </header>
+
+        <section class="bill-to-section">
+            <div class="bill-to">
+                <h2>BILL TO</h2>
+                <p><strong>CODE CHEMISTRY INC</strong></p>
+                <p>Apt 14, 3870 Rue Saint-Hubert</p>
+                <p>Montreal, Quebec H2L4A5</p>
+                <p>Canada</p>
+            </div>
+            <div class="invoice-details">
+                <p><strong>Invoice Number:</strong> <span>1101</span></p>
+                <p><strong>Invoice Date:</strong> <span>02-03-2020</span></p>
+                <p><strong>Payment Due:</strong> <span>02-04-2020</span></p>
+                <p class="amount-due-highlight"><strong>Amount Due (USD):</strong> <span>$1.00</span></p>
+            </div>
+        </section>
+
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Items</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Development hours 1</td>
+                    <td>1</td>
+                    <td>$1.00</td>
+                    <td>$1.00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <section class="totals-section">
+            <table>
+                <tr class="subtotal-row">
+                    <td class="label">Subtotal:</td>
+                    <td class="value">$1.00</td>
+                </tr>
+                <tr class="total-row">
+                    <td class="label">Total:</td>
+                    <td class="value">$1.00</td>
+                </tr>
+                <tr class="amount-due-final">
+                    <td class="label">Amount Due (USD):</td>
+                    <td class="value">$1.00</td>
+                </tr>
+            </table>
+        </section>
+
+        <section class="notes-terms-section">
+            <h3>Notes / Terms</h3>
+            <p>Swift Code: TUTNMK22</p>
+            <p>IBAN: MK07210701001185830</p>
+            <p>Bank name: NLB Tutunska banka AD Skopje</p>
+            <p>Bank address: Vodnjanska 1, 1000 Skopje, Republic of North Macedonia</p>
+            <p>Relieved from VAT according to Article 14 paragraph 3 item 4</p>
+        </section>
+
+        <footer class="footer-note">
+            Any invoice which remains unpaid for longer than 10 working days from due date will incur 2% interest on the total of the invoice and will increase by 2% every 10 days.
+        </footer>
+    </div>
+</body>
+</html>

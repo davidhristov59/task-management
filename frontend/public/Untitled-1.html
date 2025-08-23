@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Invoice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      color: #333;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 10px;
+    }
+    .logo {
+      width: 100px;
+    }
+    .invoice-title {
+      text-align: right;
+    }
+    .invoice-title h1 {
+      color: #1a1a1a;
+      font-size: 32px;
+      margin: 0;
+    }
+    .invoice-info {
+      text-align: right;
+      font-size: 14px;
+      color: #3b3b3b;
+    }
+    .bill-to {
+      margin-top: 20px;
+    }
+    .bill-to h3 {
+      margin-bottom: 5px;
+    }
+    .invoice-details {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    .invoice-details div {
+      font-size: 14px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f5f5f5;
+    }
+    .totals {
+      margin-top: 20px;
+      width: 100%;
+      text-align: right;
+    }
+    .totals td {
+      padding: 5px 8px;
+    }
+    .notes {
+      margin-top: 30px;
+      font-size: 12px;
+    }
+    .bold {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div><img src="logo.png" alt="Logo" class="logo"></div>
+    <div class="invoice-title">
+      <h1>INVOICE</h1>
+      <div class="invoice-info">
+        <div><strong>KodHem DOOEL Skopje</strong></div>
+        <div>Mito Hadzivasilev Jasmin br.18</div>
+        <div>Skopje1000</div>
+        <div>North Macedonia</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bill-to">
+    <h3>BILL TO</h3>
+    <div>CODE CHEMISTRY INC</div>
+    <div>Apt 14, 3870 Rue Saint-Hubert</div>
+    <div>Montreal, Quebec H2L4A5</div>
+    <div>Canada</div>
+  </div>
+
+  <div class="invoice-details">
+    <div>
+      <div><strong>Invoice Number:</strong> 1101</div>
+      <div><strong>Invoice Date:</strong> 02-03-2020</div>
+    </div>
+    <div>
+      <div><strong>Payment Due:</strong> 02-04-2020</div>
+      <div><strong>Amount Due (USD):</strong> $1.00</div>
+    </div>
+  </div>
+
+  <table>
+    <tr>
+      <th>Items</th>
+      <th>Quantity</th>
+      <th>Price</th>
+      <th>Amount</th>
+    </tr>
+    <tr>
+      <td>Development hours 1</td>
+      <td>1</td>
+      <td>$1.00</td>
+      <td>$1.00</td>
+    </tr>
+  </table>
+
+  <table class="totals">
+    <tr>
+      <td class="bold">Subtotal:</td>
+      <td>$1.00</td>
+    </tr>
+    <tr>
+      <td class="bold">Total:</td>
+      <td>$1.00</td>
+    </tr>
+    <tr>
+      <td class="bold">Amount Due (USD):</td>
+      <td>$1.00</td>
+    </tr>
+  </table>
+
+  <div class="notes">
+    <p><strong>Notes / Terms</strong></p>
+    <p>Swift Code: TUTNMK22<br>
+    IBAN: MK0721000101185830<br>
+    Bank name: NLB Tutunska banka AD Skopje<br>
+    Bank address: Vodnjanska 1, 1000 Skopje, Republic of North Macedonia<br>
+    Relieved from VAT according to Article 14 paragraph 3 item 4.</p>
+    <p><em>Any invoice which remains unpaid for longer than 10 working days from due date will incur 2% interest on the total of the invoice and will be increased by 2% every 10 days.</em></p>
+  </div>
+</body>
+</html>
