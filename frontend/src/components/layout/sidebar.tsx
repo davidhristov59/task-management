@@ -1,275 +1,209 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useWorkspaceStore } from "@/lib/store/workspace-store";
-import { useProjectStore } from "@/lib/store/project-store";
+import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
+  Home,
+  Briefcase,
+  FolderOpen,
   ChevronRight,
   ChevronDown,
-  ChevronLeft,
-  Folder,
-  FolderOpen,
-  File,
-  PanelLeft,
-} from "lucide-react";
-import { Button } from "../ui/button";
-import { cn } from "@/lib/utils";
-
-interface TreeItemProps {
-  id: string;
-  name: string;
-  type: "workspace" | "project";
-  isExpanded: boolean;
-  onToggle: () => void;
-  children?: React.ReactNode;
-  isActive: boolean;
-}
-
-function TreeItem({
-  id,
-  name,
-  type,
-  isExpanded,
-  onToggle,
-  children,
-  isActive,
-}: TreeItemProps) {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const handleClick = () => {
-    if (type === "workspace") {
-      navigate(`/workspace/${id}`);
-    } else {
-      navigate(`/board/${id}`);
-    }
-  };
-
-  return (
-    <div className="w-full">
-      <div
-        className={cn(
-          "flex items-center gap-1 px-2 py-1 rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800",
-          isActive && "bg-gray-100 dark:bg-gray-800"
-        )}
-        onClick={handleClick}
-      >
-        {type === "workspace" && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0 hover:bg-transparent"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggle();
-            }}
-          >
-            {isExpanded ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
-          </Button>
-        )}
-        {type === "workspace" ? (
-          isExpanded ? (
-            <FolderOpen className="h-4 w-4" />
-          ) : (
-            <Folder className="h-4 w-4" />
-          )
-        ) : (
-          <File className="h-4 w-4" />
-        )}
-        <span className="ml-1 text-sm">{name}</span>
-      </div>
-      {isExpanded && children && (
-        <div className="ml-4 border-l border-gray-200 dark:border-gray-700">
-          {children}
-        </div>
-      )}
-    </div>
-  );
-}
+  Plus
+} from 'lucide-react';
+import { useUIStore } from '@/stores';
+import { useWorkspaces } from '@/hooks';
+import { cn } from '@/lib/utils';
 
 export function Sidebar() {
-  const [isOpen, setIsOpen] = useState(true);
-  const [expandedWorkspaces, setExpandedWorkspaces] = useState<Set<string>>(
-    new Set()
-  );
-  const { workspaces, currentWorkspace, fetchWorkspaces } = useWorkspaceStore();
-  const { fetchProjects, getProjectsForWorkspace } = useProjectStore();
   const location = useLocation();
-  const [projectsByWorkspace, setProjectsByWorkspace] = useState<
-    Record<string, boolean>
-  >({});
+  const { sidebarCollapsed, currentWorkspaceId, setCurrentWorkspace } = useUIStore();
 
-  useEffect(() => {
-    fetchWorkspaces();
-  }, [fetchWorkspaces]);
+  // Only fetch workspaces when sidebar is expanded to avoid API calls when collapsed
+  const { data: workspaces = [], isLoading, error } = useWorkspaces();
+  const [expandedWorkspaces, setExpandedWorkspaces] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    const loadAllProjects = async () => {
-      for (const workspace of workspaces) {
-        if (!projectsByWorkspace[workspace.id]) {
-          await fetchProjects(workspace.id);
-          setProjectsByWorkspace((prev) => ({ ...prev, [workspace.id]: true }));
-        }
-      }
-    };
-
-    if (workspaces.length > 0) {
-      loadAllProjects();
+  const toggleWorkspaceExpansion = (workspaceId: string) => {
+    const newExpanded = new Set(expandedWorkspaces);
+    if (newExpanded.has(workspaceId)) {
+      newExpanded.delete(workspaceId);
+    } else {
+      newExpanded.add(workspaceId);
     }
-  }, [workspaces, fetchProjects, projectsByWorkspace]);
-
-  useEffect(() => {
-    if (currentWorkspace) {
-      fetchProjects(currentWorkspace.id);
-    }
-  }, [currentWorkspace, fetchProjects]);
-
-  const toggleWorkspace = (workspaceId: string) => {
-    setExpandedWorkspaces((prev) => {
-      const next = new Set(prev);
-      if (next.has(workspaceId)) {
-        next.delete(workspaceId);
-      } else {
-        next.add(workspaceId);
-
-        fetchProjects(workspaceId);
-      }
-      return next;
-    });
+    setExpandedWorkspaces(newExpanded);
   };
 
-  const isWorkspaceActive = (workspaceId: string) => {
-    return location.pathname.startsWith(`/workspace/${workspaceId}`);
-  };
+  const isActive = (path: string) => location.pathname === path;
 
-  const isProjectActive = (projectId: string) => {
-    return location.pathname === `/board/${projectId}`;
-  };
-
-  const ownedWorkspaces = workspaces.filter(
-    (workspace) => workspace.role === "owner"
-  );
-  const sharedWorkspaces = workspaces.filter(
-    (workspace) => workspace.role !== "owner"
-  );
   return (
-    <>
-      {isOpen && (
-        <div className="fixed left-0 top-16 bottom-0 bg-surface-light dark:bg-surface-dark transition-all duration-300 z-10 w-64 border-r border-gray-200 dark:border-gray-700 shadow-sm">
-          <div className="p-4 h-full flex flex-col">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="mb-4 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 flex-shrink-0"
-              onClick={() => setIsOpen(false)}
-            >
-              <PanelLeft className="h-5 w-5" />
-            </Button>
-
-            <div className="h-px bg-gray-200 dark:bg-gray-700 mb-4 flex-shrink-0" />
-
-            <div className="space-y-1 flex-grow overflow-y-auto pr-2 custom-scrollbar">
-              <div className="px-2 py-1 text-sm font-medium text-gray-500 dark:text-gray-400">
-                Workspaces
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <div className="px-2 py-1 text-xs font-medium text-gray-400 dark:text-gray-500">
-                    Created By Me
-                  </div>
-                  <div className="space-y-1">
-                    {ownedWorkspaces.length > 0 ? (
-                      ownedWorkspaces.map((workspace) => (
-                        <TreeItem
-                          key={workspace.id}
-                          id={workspace.id}
-                          name={workspace.name}
-                          type="workspace"
-                          isExpanded={expandedWorkspaces.has(workspace.id)}
-                          onToggle={() => toggleWorkspace(workspace.id)}
-                          isActive={isWorkspaceActive(workspace.id)}
-                        >
-                          {expandedWorkspaces.has(workspace.id) &&
-                            getProjectsForWorkspace(workspace.id).map(
-                              (project) => (
-                                <TreeItem
-                                  key={project.id}
-                                  id={project.id}
-                                  name={project.name}
-                                  type="project"
-                                  isExpanded={false}
-                                  onToggle={() => {}}
-                                  isActive={isProjectActive(project.id)}
-                                />
-                              )
-                            )}
-                        </TreeItem>
-                      ))
-                    ) : (
-                      <div className="pl-5 px-2 py-1 text-xs text-gray-400 dark:text-gray-500">
-                        No workspaces
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="px-2 py-1 text-xs font-medium text-gray-400 dark:text-gray-500">
-                    Shared with Me
-                  </div>
-                  <div className="space-y-1">
-                    {sharedWorkspaces.length > 0 ? (
-                      sharedWorkspaces.map((workspace) => (
-                        <TreeItem
-                          key={workspace.id}
-                          id={workspace.id}
-                          name={workspace.name}
-                          type="workspace"
-                          isExpanded={expandedWorkspaces.has(workspace.id)}
-                          onToggle={() => toggleWorkspace(workspace.id)}
-                          isActive={isWorkspaceActive(workspace.id)}
-                        >
-                          {expandedWorkspaces.has(workspace.id) &&
-                            getProjectsForWorkspace(workspace.id).map(
-                              (project) => (
-                                <TreeItem
-                                  key={project.id}
-                                  id={project.id}
-                                  name={project.name}
-                                  type="project"
-                                  isExpanded={false}
-                                  onToggle={() => {}}
-                                  isActive={isProjectActive(project.id)}
-                                />
-                              )
-                            )}
-                        </TreeItem>
-                      ))
-                    ) : (
-                      <div className="pl-5 px-2 py-1 text-xs text-gray-400 dark:text-gray-500">
-                        No workspaces
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+    <aside
+      className={cn(
+        "h-[calc(100vh-4rem)] bg-white/95 backdrop-blur-sm border-r border-gray-200/60 transition-all duration-300 ease-in-out overflow-y-auto shadow-lg",
+        sidebarCollapsed ? "w-16" : "w-64"
       )}
-      {!isOpen && (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="fixed left-4 top-20 z-20 bg-surface-light dark:bg-surface-dark rounded-md shadow-sm hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700"
-          onClick={() => setIsOpen(true)}
+    >
+      <nav className={cn("p-4 space-y-3", sidebarCollapsed && "px-2")}>
+        {/* Home/Workspaces Link */}
+        <Link
+          to="/"
+          className={cn(
+            "flex items-center rounded-xl transition-all duration-200 group",
+            sidebarCollapsed ? "justify-center p-3" : "space-x-3 px-4 py-3",
+            isActive('/')
+              ? "bg-black text-white shadow-lg shadow-black/25"
+              : "text-gray-700 hover:bg-gray-100/80 hover:shadow-md hover:scale-[1.02]"
+          )}
+          title={sidebarCollapsed ? "Workspaces" : undefined}
         >
-          <PanelLeft className="h-5 w-5" />
-        </Button>
-      )}
-    </>
+          <Home className={cn(
+            "h-5 w-5 flex-shrink-0 transition-transform duration-200",
+            isActive('/') ? "text-white" : "text-gray-600 group-hover:text-gray-900",
+            !sidebarCollapsed && "group-hover:scale-110"
+          )} />
+          {!sidebarCollapsed && (
+            <span className="font-medium">Workspaces</span>
+          )}
+        </Link>
+
+        {/* Workspace List - Only show when expanded */}
+        {!sidebarCollapsed && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between px-4 py-3 bg-gray-50/80 rounded-xl">
+              <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Your Workspaces
+              </span>
+              <button
+                className="p-1.5 hover:bg-white/80 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 group"
+                aria-label="Create workspace"
+              >
+                <Plus className="h-4 w-4 text-gray-500 group-hover:text-blue-600 transition-colors" />
+              </button>
+            </div>
+
+            {/* Loading state */}
+            {isLoading && (
+              <div className="px-4 py-3 text-sm text-gray-500 bg-gray-50/50 rounded-xl">
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                  <span>Loading workspaces...</span>
+                </div>
+              </div>
+            )}
+
+            {/* Error state */}
+            {error && (
+              <div className="px-4 py-3 text-sm text-red-600 bg-red-50/80 rounded-xl border border-red-200/50">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <span>Failed to load workspaces</span>
+                </div>
+              </div>
+            )}
+
+            {/* Workspaces list */}
+            {!isLoading && !error && workspaces.length === 0 && (
+              <div className="px-4 py-6 text-center">
+                <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                  <Briefcase className="h-6 w-6 text-gray-400" />
+                </div>
+                <p className="text-sm text-gray-500 mb-1">No workspaces yet</p>
+                <p className="text-xs text-gray-400">Create your first workspace to get started</p>
+              </div>
+            )}
+
+            {workspaces.map((workspace) => {
+              const isExpanded = expandedWorkspaces.has(workspace.workspaceId);
+              const isCurrentWorkspace = currentWorkspaceId === workspace.workspaceId;
+
+              return (
+                <div key={workspace.workspaceId} className="space-y-1">
+                  <div className="flex items-center group">
+                    <button
+                      onClick={() => toggleWorkspaceExpansion(workspace.workspaceId)}
+                      className="p-1.5 hover:bg-gray-100/80 rounded-lg mr-2 transition-all duration-200 hover:scale-110 active:scale-95"
+                    >
+                      {isExpanded ? (
+                        <ChevronDown className="h-4 w-4 text-gray-500" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4 text-gray-500" />
+                      )}
+                    </button>
+
+                    <Link
+                      to={`/workspaces/${workspace.workspaceId}`}
+                      onClick={() => setCurrentWorkspace(workspace.workspaceId)}
+                      className={cn(
+                        "flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-all duration-200 flex-1 group",
+                        isCurrentWorkspace
+                          ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25"
+                          : "text-gray-700 hover:bg-gray-100/80 hover:shadow-md hover:scale-[1.02]"
+                      )}
+                    >
+                      <div className={cn(
+                        "w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200",
+                        isCurrentWorkspace
+                          ? "bg-white/20"
+                          : "bg-gradient-to-br from-blue-100 to-purple-100 group-hover:from-blue-200 group-hover:to-purple-200"
+                      )}>
+                        <Briefcase className={cn(
+                          "h-4 w-4 transition-colors",
+                          isCurrentWorkspace ? "text-white" : "text-blue-600"
+                        )} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className={cn(
+                          "font-medium truncate block",
+                          isCurrentWorkspace ? "text-white" : "text-gray-900"
+                        )}>
+                          {workspace.title}
+                        </span>
+                        <span className={cn(
+                          "text-xs truncate block",
+                          isCurrentWorkspace ? "text-white/80" : "text-gray-500"
+                        )}>
+                          {workspace.description || "No description"}
+                        </span>
+                      </div>
+                    </Link>
+                  </div>
+
+                  {/* Projects under workspace - placeholder for now */}
+                  {isExpanded && (
+                    <div className="ml-8 space-y-1 pl-4 border-l-2 border-gray-100">
+                      <div className="flex items-center space-x-3 px-3 py-2 text-sm text-gray-500 bg-gray-50/50 rounded-lg">
+                        <FolderOpen className="h-4 w-4 text-gray-400" />
+                        <span>Projects will appear here</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Collapsed state - show workspace icons */}
+        {sidebarCollapsed && workspaces.length > 0 && (
+          <div className="space-y-3">
+            {workspaces.slice(0, 5).map((workspace) => (
+              <Link
+                key={workspace.workspaceId}
+                to={`/workspaces/${workspace.workspaceId}`}
+                onClick={() => setCurrentWorkspace(workspace.workspaceId)}
+                className={cn(
+                  "flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 group relative",
+                  currentWorkspaceId === workspace.workspaceId
+                    ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25"
+                    : "bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600 hover:from-blue-100 hover:to-purple-100 hover:text-blue-600 hover:shadow-md"
+                )}
+                title={workspace.title}
+              >
+                <Briefcase className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+                {currentWorkspaceId === workspace.workspaceId && (
+                  <div className="absolute -right-1 -top-1 w-3 h-3 bg-white rounded-full border-2 border-emerald-500"></div>
+                )}
+              </Link>
+            ))}
+          </div>
+        )}
+      </nav>
+    </aside>
   );
 }

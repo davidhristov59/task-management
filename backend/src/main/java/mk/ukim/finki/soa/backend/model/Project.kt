@@ -151,22 +151,22 @@ class Project {
                 status = command.status
             )
         )
+    }
 
-        @CommandHandler
-        fun handle(command: UpdateProjectOwnerCommand) {
-            validateNotArchived()
+    @CommandHandler
+    fun handle(command: UpdateProjectOwnerCommand) {
+        validateNotArchived()
 
-            if (ownerId == command.newOwnerId) {
-                // No change needed
-                return
-            }
-
-            AggregateLifecycle.apply(
-                ProjectOwnerUpdatedEvent(
-                    projectId = id,
-                    ownerId = command.newOwnerId
-                )
-            )
+        if (ownerId == command.newOwnerId) {
+            // No change needed
+            return
         }
+
+        AggregateLifecycle.apply(
+            ProjectOwnerUpdatedEvent(
+                projectId = id,
+                ownerId = command.newOwnerId
+            )
+        )
     }
 }

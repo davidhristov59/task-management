@@ -4,6 +4,7 @@ import jakarta.persistence.*
 import java.time.Instant
 import java.time.LocalDateTime
 
+@Entity
 @Table(name = "workspace_view")
 data class WorkspaceView(
     @Id
@@ -40,6 +41,7 @@ data class WorkspaceView(
     }
 }
 
+@Entity
 @Table(name = "project_view")
 data class ProjectView(
     @Id
@@ -75,6 +77,7 @@ data class ProjectView(
     var deleted: Boolean = false
 )
 
+@Entity
 @Table(name = "task_view")
 data class TaskView(
     @Id
@@ -129,6 +132,7 @@ data class TaskView(
     var deleted: Boolean = false
 )
 
+@Entity
 @Table(name = "user_view")
 data class UserView(
     @Id

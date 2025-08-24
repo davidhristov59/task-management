@@ -1,6 +1,7 @@
 package mk.ukim.finki.soa.backend.messaging.consumer
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import mk.ukim.finki.soa.backend.model.*
 import mk.ukim.finki.soa.backend.service.TaskIntegrationService
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.KafkaHeaders
@@ -32,16 +33,52 @@ class ExternalEventSubscriber(
                 "UserCreated" -> {
                     val userId = event["userId"] as String
                     val userName = event["userName"] as String
-                    taskIntegrationService.handleUserCreated(userId, userName)
+                    val userEmail = event["userEmail"] as? String ?: ""
+                    val userRole = event["userRole"] as? String ?: "STUDENT"
+                    
+                    val userCreatedEvent = UserCreatedEvent(
+                        userId = UserId(userId),
+                        name = UserName(userName),
+                        email = UserEmail(userEmail),
+                        role = UserRole.valueOf(userRole)
+                    )
+                    taskIntegrationService.handleUserCreated(userCreatedEvent)
                 }
                 "UserDeactivated" -> {
                     val userId = event["userId"] as String
-                    taskIntegrationService.handleUserDeactivated(userId)
+                    val userDeactivatedEvent = UserDeactivatedEvent(
+                        userId = UserId(userId)
+                    )
+                    taskIntegrationService.handleUserDeactivated(userDeactivatedEvent)
                 }
-                "UserUpdated" -> {
+                "UserNameUpdated" -> {
                     val userId = event["userId"] as String
-                    val userData = event["userData"] as Map<String, Any>
-                    taskIntegrationService.handleUserUpdated(userId, userData)
+                    val userName = event["userName"] as String
+                    val userNameUpdatedEvent = UserNameUpdatedEvent(
+                        userId = UserId(userId),
+                        name = UserName(userName)
+                    )
+                    taskIntegrationService.handleUserNameUpdated(userNameUpdatedEvent)
+                }
+                "UserEmailUpdated" -> {
+                    val userId = event["userId"] as String
+                    val userEmail = event["userEmail"] as String
+                    val userEmailUpdatedEvent = UserEmailUpdatedEvent(
+                        userId = UserId(userId),
+                        email = UserEmail(userEmail)
+                    )
+                    taskIntegrationService.handleUserEmailUpdated(userEmailUpdatedEvent)
+                }
+                "UserRoleChanged" -> {
+                    val userId = event["userId"] as String
+                    val oldRole = event["oldRole"] as String
+                    val newRole = event["newRole"] as String
+                    val userRoleChangedEvent = UserRoleChangedEvent(
+                        userId = UserId(userId),
+                        old_role = UserRole.valueOf(oldRole),
+                        new_role = UserRole.valueOf(newRole)
+                    )
+                    taskIntegrationService.handleUserRoleChanged(userRoleChangedEvent)
                 }
             }
         } catch (e: Exception) {
@@ -65,17 +102,37 @@ class ExternalEventSubscriber(
             when (event["eventType"] as String) {
                 "ProjectCreated" -> {
                     val projectId = event["projectId"] as String
-                    val projectName = event["projectName"] as String
-                    taskIntegrationService.handleProjectCreated(projectId, projectName)
+                    val projectTitle = event["projectTitle"] as String
+                    val projectDescription = event["projectDescription"] as? String ?: ""
+                    val workspaceId = event["workspaceId"] as String
+                    val ownerId = event["ownerId"] as String
+                    val status = event["status"] as? String ?: "PLANNING"
+                    
+                    val projectCreatedEvent = ProjectCreatedEvent(
+                        projectId = ProjectId(projectId),
+                        title = ProjectTitle(projectTitle),
+                        description = ProjectDescription(projectDescription),
+                        workspaceId = WorkspaceId(workspaceId),
+                        ownerId = ownerId,
+                        status = ProjectStatus.valueOf(status)
+                    )
+                    taskIntegrationService.handleProjectCreated(projectCreatedEvent)
                 }
-                "ProjectStatusChanged" -> {
+                "ProjectStatusUpdated" -> {
                     val projectId = event["projectId"] as String
-                    val newStatus = event["newStatus"] as String
-                    taskIntegrationService.handleProjectStatusChanged(projectId, newStatus)
+                    val newStatus = event["status"] as String
+                    val projectStatusUpdatedEvent = ProjectStatusUpdatedEvent(
+                        projectId = ProjectId(projectId),
+                        status = ProjectStatus.valueOf(newStatus)
+                    )
+                    taskIntegrationService.handleProjectStatusUpdated(projectStatusUpdatedEvent)
                 }
                 "ProjectDeleted" -> {
                     val projectId = event["projectId"] as String
-                    taskIntegrationService.handleProjectDeleted(projectId)
+                    val projectDeletedEvent = ProjectDeletedEvent(
+                        projectId = ProjectId(projectId)
+                    )
+                    taskIntegrationService.handleProjectDeleted(projectDeletedEvent)
                 }
             }
         } catch (e: Exception) {

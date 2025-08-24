@@ -17,25 +17,25 @@ open class TaskIntegrationService(
 ) {
 
     @EventHandler
-    fun handleUserCreated(userId: String, userName: String) {
-        println("Processing user created event: $userId - $userName")
+    fun handleUserCreated(event: UserCreatedEvent) {
+        println("Processing user created event: ${event.userId} - ${event.name}")
         // Update assignable users cache or notification lists
         // In a real system, you might update a cache or send notifications
 
         // Example: Find all unassigned tasks and potentially suggest assignment
         val unassignedTasks = findUnassignedTasks()
-        println("Found ${unassignedTasks.size} unassigned tasks that could be assigned to new user $userName")
+        println("Found ${unassignedTasks.size} unassigned tasks that could be assigned to new user ${event.name}")
     }
 
     @EventHandler
-    fun handleUserDeactivated(userId: String) {
-        println("Processing user deactivated event: $userId")
+    fun handleUserDeactivated(event: UserDeactivatedEvent) {
+        println("Processing user deactivated event: ${event.userId}")
 
         // Find all tasks assigned to this user
-        val userTasks = findTasksByAssignedUser(userId)
+        val userTasks = findTasksByAssignedUser(event.userId.value)
 
         userTasks.forEach { task ->
-            println("Reassigning task ${task.taskId} from deactivated user $userId")
+            println("Reassigning task ${task.taskId} from deactivated user ${event.userId}")
 
             // Remove assignment from deactivated user
             val command = RemoveTaskAssigneeCommand(task.taskId)
@@ -49,58 +49,59 @@ open class TaskIntegrationService(
                 }
         }
 
-        println("Processed ${userTasks.size} tasks for deactivated user $userId")
+        println("Processed ${userTasks.size} tasks for deactivated user ${event.userId}")
     }
 
     @EventHandler
-    fun handleUserUpdated(userId: String, userData: Map<String, Any>) {
-        println("Processing user updated event: $userId")
-
+    fun handleUserNameUpdated(event: UserNameUpdatedEvent) {
+        println("Processing user name updated event: ${event.userId} - ${event.name}")
         // Update local user data cache if maintained
-        val userName = userData["name"] as? String
-        val userRole = userData["role"] as? String
-        val userActive = userData["active"] as? Boolean
-
-        println("Updated user data: name=$userName, role=$userRole, active=$userActive")
-
-        // If user became inactive, handle like deactivation
-        if (userActive == false) {
-            handleUserDeactivated(userId)
-        }
     }
 
     @EventHandler
-    fun handleProjectCreated(projectId: String, projectName: String) {
-        println("Processing project created event: $projectId - $projectName")
+    fun handleUserEmailUpdated(event: UserEmailUpdatedEvent) {
+        println("Processing user email updated event: ${event.userId} - ${event.email}")
+        // Update local user data cache if maintained
+    }
+
+    @EventHandler
+    fun handleUserRoleChanged(event: UserRoleChangedEvent) {
+        println("Processing user role changed event: ${event.userId} - ${event.old_role} -> ${event.new_role}")
+        // Update local user data cache if maintained
+    }
+
+    @EventHandler
+    fun handleProjectCreated(event: ProjectCreatedEvent) {
+        println("Processing project created event: ${event.projectId} - ${event.title}")
 
         // Create default tasks for new project
-        createDefaultTasksForProject(ProjectId(projectId), projectName)
+        createDefaultTasksForProject(event.projectId, event.title.value, event.workspaceId)
     }
 
     @EventHandler
-    fun handleProjectStatusChanged(projectId: String, newStatus: String) {
-        println("Processing project status change: $projectId -> $newStatus")
+    fun handleProjectStatusUpdated(event: ProjectStatusUpdatedEvent) {
+        println("Processing project status change: ${event.projectId} -> ${event.status}")
 
         // Update task statuses based on project status
-        when (newStatus.uppercase()) {
-            "COMPLETED" -> {
-                completeAllProjectTasks(ProjectId(projectId))
+        when (event.status) {
+            ProjectStatus.COMPLETED -> {
+                completeAllProjectTasks(event.projectId)
             }
-            "CANCELLED" -> {
-                cancelAllProjectTasks(ProjectId(projectId))
+            ProjectStatus.CANCELLED -> {
+                cancelAllProjectTasks(event.projectId)
             }
-            "ON_HOLD" -> {
-                pauseAllProjectTasks(ProjectId(projectId))
+            else -> {
+                // No action needed for PLANNING or IN_PROGRESS statuses
             }
         }
     }
 
     @EventHandler
-    fun handleProjectDeleted(projectId: String) {
-        println("Processing project deleted event: $projectId")
+    fun handleProjectDeleted(event: ProjectDeletedEvent) {
+        println("Processing project deleted event: ${event.projectId}")
 
         // Archive or soft delete all tasks in the project
-        val projectTasks = findTasksByProject(ProjectId(projectId))
+        val projectTasks = findTasksByProject(event.projectId)
 
         projectTasks.forEach { task ->
             val command = DeleteTaskCommand(task.taskId)
@@ -114,7 +115,7 @@ open class TaskIntegrationService(
                 }
         }
 
-        println("Processed ${projectTasks.size} tasks for deleted project $projectId")
+        println("Processed ${projectTasks.size} tasks for deleted project ${event.projectId}")
     }
 
     fun handleNotificationDelivered(taskId: String?, userId: String) {
@@ -157,7 +158,7 @@ open class TaskIntegrationService(
         return taskViewRepository.findAll(spec)
     }
 
-    private fun createDefaultTasksForProject(projectId: ProjectId, projectName: String) {
+    private fun createDefaultTasksForProject(projectId: ProjectId, projectName: String, workspaceId: WorkspaceId) {
         val defaultTasks = listOf(
             "Project Setup" to "Initialize project structure and documentation",
             "Requirements Analysis" to "Analyze and document project requirements",
@@ -169,13 +170,11 @@ open class TaskIntegrationService(
 
         defaultTasks.forEach { (title, description) ->
             val taskId = TaskId(UUID.randomUUID().toString())
-            // You'd need to get workspace ID from project
-            // This is simplified - in reality you'd query the project first
             val command = CreateTaskCommand(
                 taskId = taskId,
                 title = TaskTitle(title),
                 description = TaskDescription(description),
-                workspaceId = WorkspaceId(""), // Would need to resolve from project
+                workspaceId = workspaceId,
                 projectId = projectId,
                 priority = TaskPriority.MEDIUM,
                 deadline = null,
