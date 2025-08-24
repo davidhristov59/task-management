@@ -4,7 +4,6 @@ import type {
   CreateWorkspaceRequest,
   UpdateWorkspaceRequest,
   AddWorkspaceMemberRequest,
-  WorkspacesResponse,
   WorkspaceResponse,
   ApiResponse
 } from '../types';
@@ -12,8 +11,8 @@ import type {
 export const workspaceService = {
   // Get all workspaces
   getWorkspaces: async (): Promise<Workspace[]> => {
-    const response = await api.get<WorkspacesResponse>('/workspaces');
-    return response.data.data;
+    const response = await api.get<Workspace[]>('/workspaces');
+    return response.data;
   },
 
   // Get workspace by ID
@@ -23,15 +22,15 @@ export const workspaceService = {
   },
 
   // Create new workspace
-  createWorkspace: async (workspace: CreateWorkspaceRequest): Promise<Workspace> => {
-    const response = await api.post<WorkspaceResponse>('/workspaces', workspace);
-    return response.data.data;
+  createWorkspace: async (workspace: CreateWorkspaceRequest): Promise<string> => {
+    const response = await api.post<string>('/workspaces', workspace);
+    return response.data; // API returns just the workspace ID as a string
   },
 
   // Update workspace
-  updateWorkspace: async (workspaceId: string, workspace: UpdateWorkspaceRequest): Promise<Workspace> => {
-    const response = await api.put<WorkspaceResponse>(`/workspaces/${workspaceId}`, workspace);
-    return response.data.data;
+  updateWorkspace: async (workspaceId: string, workspace: UpdateWorkspaceRequest): Promise<void> => {
+    await api.put(`/workspaces/${workspaceId}`, workspace);
+    // API returns just 200 OK status, no body
   },
 
   // Delete workspace

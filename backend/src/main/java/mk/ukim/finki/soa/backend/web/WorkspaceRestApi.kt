@@ -77,7 +77,10 @@ class WorkspaceRestApi(
         return workspaceModificationService.updateWorkspace(command)
             .thenApply { ResponseEntity.ok().build<Void>() }
             .exceptionally { e ->
-                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+                when (e.cause) {
+                    is IllegalStateException -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+                    else -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+                }
             }
     }
 
@@ -90,7 +93,10 @@ class WorkspaceRestApi(
         return workspaceModificationService.deleteWorkspace(command)
             .thenApply { ResponseEntity.noContent().build<Void>() }
             .exceptionally { e ->
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+                when (e.cause) {
+                    is IllegalStateException -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+                    else -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+                }
             }
     }
 
@@ -100,12 +106,15 @@ class WorkspaceRestApi(
         @RequestBody memberId: String
     ) : CompletableFuture<ResponseEntity<Void>> {
 
-        val command =AddMemberToWorkspaceCommand(workspaceId = WorkspaceId(workspaceId), memberId = memberId)
+        val command = AddMemberToWorkspaceCommand(workspaceId = WorkspaceId(workspaceId), memberId = memberId)
 
         return workspaceModificationService.addMemberToWorkspace(command)
             .thenApply { ResponseEntity.noContent().build<Void>() }
             .exceptionally { e ->
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+                when (e.cause) {
+                    is IllegalStateException -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+                    else -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+                }
             }
     }
 
@@ -120,7 +129,10 @@ class WorkspaceRestApi(
         return workspaceModificationService.removeMemberFromWorkspace(command)
             .thenApply { ResponseEntity.noContent().build<Void>() }
             .exceptionally{ e ->
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+                when (e.cause) {
+                    is IllegalStateException -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+                    else -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+                }
             }
 
     }

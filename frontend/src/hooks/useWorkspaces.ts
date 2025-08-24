@@ -34,12 +34,12 @@ export const useCreateWorkspace = () => {
 
   return useMutation({
     mutationFn: workspaceService.createWorkspace,
-    onSuccess: (newWorkspace) => {
+    onSuccess: (workspaceId: string) => {
       // Invalidate and refetch workspaces list
       queryClient.invalidateQueries({ queryKey: workspaceKeys.lists() });
       
-      // Add the new workspace to the cache
-      queryClient.setQueryData(workspaceKeys.detail(newWorkspace.workspaceId), newWorkspace);
+      // Note: We can't add to cache since we only have the ID, not the full workspace object
+      // The list refetch will get the complete workspace data
     },
     onError: (error) => {
       console.error('Failed to create workspace:', error);
@@ -54,11 +54,9 @@ export const useUpdateWorkspace = () => {
   return useMutation({
     mutationFn: ({ workspaceId, data }: { workspaceId: string; data: UpdateWorkspaceRequest }) =>
       workspaceService.updateWorkspace(workspaceId, data),
-    onSuccess: (updatedWorkspace) => {
-      // Update the workspace in cache
-      queryClient.setQueryData(workspaceKeys.detail(updatedWorkspace.workspaceId), updatedWorkspace);
-      
-      // Invalidate workspaces list to reflect changes
+    onSuccess: (_, { workspaceId }) => {
+      // Invalidate workspace detail and list to refetch updated data
+      queryClient.invalidateQueries({ queryKey: workspaceKeys.detail(workspaceId) });
       queryClient.invalidateQueries({ queryKey: workspaceKeys.lists() });
     },
     onError: (error) => {

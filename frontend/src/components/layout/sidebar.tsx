@@ -43,18 +43,19 @@ export function Sidebar() {
         {/* Home/Workspaces Link */}
         <Link
           to="/"
+          onClick={() => setCurrentWorkspace(null)} // Clear current workspace when going home
           className={cn(
             "flex items-center rounded-xl transition-all duration-200 group",
             sidebarCollapsed ? "justify-center p-3" : "space-x-3 px-4 py-3",
             isActive('/')
               ? "bg-black text-white shadow-lg shadow-black/25"
-              : "text-gray-700 hover:bg-gray-100/80 hover:shadow-md hover:scale-[1.02]"
+              : "text-black hover:bg-gray-100/80 hover:shadow-md hover:scale-[1.02]"
           )}
           title={sidebarCollapsed ? "Workspaces" : undefined}
         >
           <Home className={cn(
             "h-5 w-5 flex-shrink-0 transition-transform duration-200",
-            isActive('/') ? "text-white" : "text-gray-600 group-hover:text-gray-900",
+            isActive('/') ? "text-white" : "text-black group-hover:text-black",
             !sidebarCollapsed && "group-hover:scale-110"
           )} />
           {!sidebarCollapsed && (
@@ -97,7 +98,7 @@ export function Sidebar() {
               </div>
             )}
 
-            {/* Workspaces list */}
+            {/* Empty workspaces state */}
             {!isLoading && !error && workspaces.length === 0 && (
               <div className="px-4 py-6 text-center">
                 <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3">
@@ -131,32 +132,32 @@ export function Sidebar() {
                       onClick={() => setCurrentWorkspace(workspace.workspaceId)}
                       className={cn(
                         "flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-all duration-200 flex-1 group",
-                        isCurrentWorkspace
-                          ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25"
-                          : "text-gray-700 hover:bg-gray-100/80 hover:shadow-md hover:scale-[1.02]"
+                        isCurrentWorkspace && !isActive('/')
+                          ? "bg-black text-white shadow-lg shadow-black/25"
+                          : "text-black hover:bg-gray-100/80 hover:shadow-md hover:scale-[1.02]"
                       )}
                     >
                       <div className={cn(
                         "w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200",
-                        isCurrentWorkspace
+                        isCurrentWorkspace && !isActive('/')
                           ? "bg-white/20"
-                          : "bg-gradient-to-br from-blue-100 to-purple-100 group-hover:from-blue-200 group-hover:to-purple-200"
+                          : "bg-gray-100 group-hover:bg-gray-200"
                       )}>
                         <Briefcase className={cn(
                           "h-4 w-4 transition-colors",
-                          isCurrentWorkspace ? "text-white" : "text-blue-600"
+                          isCurrentWorkspace && !isActive('/') ? "text-white" : "text-black"
                         )} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <span className={cn(
                           "font-medium truncate block",
-                          isCurrentWorkspace ? "text-white" : "text-gray-900"
+                          isCurrentWorkspace && !isActive('/') ? "text-white" : "text-black"
                         )}>
                           {workspace.title}
                         </span>
                         <span className={cn(
                           "text-xs truncate block",
-                          isCurrentWorkspace ? "text-white/80" : "text-gray-500"
+                          isCurrentWorkspace && !isActive('/') ? "text-white/80" : "text-gray-500"
                         )}>
                           {workspace.description || "No description"}
                         </span>
@@ -189,15 +190,15 @@ export function Sidebar() {
                 onClick={() => setCurrentWorkspace(workspace.workspaceId)}
                 className={cn(
                   "flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 group relative",
-                  currentWorkspaceId === workspace.workspaceId
-                    ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25"
-                    : "bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600 hover:from-blue-100 hover:to-purple-100 hover:text-blue-600 hover:shadow-md"
+                  currentWorkspaceId === workspace.workspaceId && !isActive('/')
+                    ? "bg-black text-white shadow-lg shadow-black/25"
+                    : "bg-gray-100 text-black hover:bg-gray-200 hover:shadow-md"
                 )}
                 title={workspace.title}
               >
                 <Briefcase className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
-                {currentWorkspaceId === workspace.workspaceId && (
-                  <div className="absolute -right-1 -top-1 w-3 h-3 bg-white rounded-full border-2 border-emerald-500"></div>
+                {currentWorkspaceId === workspace.workspaceId && !isActive('/') && (
+                  <div className="absolute -right-1 -top-1 w-3 h-3 bg-white rounded-full border-2 border-black"></div>
                 )}
               </Link>
             ))}

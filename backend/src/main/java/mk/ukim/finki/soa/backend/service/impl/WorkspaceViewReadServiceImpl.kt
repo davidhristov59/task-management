@@ -13,8 +13,14 @@ class WorkspaceViewReadServiceImpl(
 ) : WorkspaceViewReadService {
 
     override fun findById(workspaceId: WorkspaceId): WorkspaceView {
-        return workspaceViewRepository.findById(workspaceId)
+        val workspace = workspaceViewRepository.findById(workspaceId)
             .orElseThrow { WorkspaceNotFoundException(workspaceId) }
+        
+        if (workspace.deleted) {
+            throw WorkspaceNotFoundException(workspaceId)
+        }
+        
+        return workspace
     }
 
     override fun findAll(): List<WorkspaceView> {
@@ -28,7 +34,11 @@ class WorkspaceViewReadServiceImpl(
         archived: Boolean?
     ): List<WorkspaceView> {
         if (workspaceId != null) {
-            return listOf(findById(workspaceId))
+            return try {
+                listOf(findById(workspaceId))
+            } catch (e: WorkspaceNotFoundException) {
+                emptyList()
+            }
         }
 
         val specs = listOfNotNull(
@@ -39,7 +49,7 @@ class WorkspaceViewReadServiceImpl(
         )
 
         return if (specs.isEmpty()) {
-            workspaceViewRepository.findAll()
+            workspaceViewRepository.findAll(WorkspaceSpecifications.isNotDeleted())
         } else {
             val combinedSpec = specs.reduce { acc, spec -> acc.and(spec) }
             workspaceViewRepository.findAll(combinedSpec)
