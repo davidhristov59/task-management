@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 
-export function ProjectDetailPage() {
+function ProjectDetailPage() {
   const { workspaceId, projectId } = useParams();
 
   return (
@@ -18,3 +18,5 @@ export function ProjectDetailPage() {
     </div>
   );
 }
+
+export default ProjectDetailPage;

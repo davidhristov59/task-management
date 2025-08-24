@@ -9,20 +9,20 @@ import type {
 export const attachmentService = {
   // Get all attachments for a task
   getAttachments: async (taskId: string): Promise<Attachment[]> => {
-    const response = await api.get<AttachmentsResponse>(`/tasks/${taskId}/attachments`);
-    return response.data.data;
+    const response = await api.get<Attachment[]>(`/tasks/${taskId}/attachments`);
+    return response.data;
   },
 
   // Get attachment by ID
   getAttachment: async (taskId: string, attachmentId: string): Promise<Attachment> => {
-    const response = await api.get<AttachmentResponse>(`/tasks/${taskId}/attachments/${attachmentId}`);
-    return response.data.data;
+    const response = await api.get<Attachment>(`/tasks/${taskId}/attachments/${attachmentId}`);
+    return response.data;
   },
 
   // Create new attachment (upload file)
   createAttachment: async (taskId: string, attachment: CreateAttachmentRequest): Promise<Attachment> => {
-    const response = await api.post<AttachmentResponse>(`/tasks/${taskId}/attachments`, attachment);
-    return response.data.data;
+    const response = await api.post<Attachment>(`/tasks/${taskId}/attachments`, attachment);
+    return response.data;
   },
 
   // Upload file attachment with FormData
@@ -33,12 +33,12 @@ export const attachmentService = {
     formData.append('fileType', file.type);
     formData.append('fileSize', file.size.toString());
 
-    const response = await api.post<AttachmentResponse>(`/tasks/${taskId}/attachments/upload`, formData, {
+    const response = await api.post<Attachment>(`/tasks/${taskId}/attachments/upload`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
-    return response.data.data;
+    return response.data;
   },
 
   // Delete attachment

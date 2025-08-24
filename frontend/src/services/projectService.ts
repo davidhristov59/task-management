@@ -2,34 +2,36 @@ import api from './api';
 import type {
   Project,
   CreateProjectRequest,
-  UpdateProjectRequest,
-  ProjectsResponse,
-  ProjectResponse
+  UpdateProjectRequest
 } from '../types';
 
 export const projectService = {
   // Get all projects in a workspace
   getProjects: async (workspaceId: string): Promise<Project[]> => {
-    const response = await api.get<ProjectsResponse>(`/workspaces/${workspaceId}/projects`);
-    return response.data.data;
+    const response = await api.get<Project[]>(`/workspaces/${workspaceId}/projects`);
+    return response.data;
   },
 
   // Get project by ID
   getProject: async (workspaceId: string, projectId: string): Promise<Project> => {
-    const response = await api.get<ProjectResponse>(`/workspaces/${workspaceId}/projects/${projectId}`);
-    return response.data.data;
+    const response = await api.get<Project>(`/workspaces/${workspaceId}/projects/${projectId}`);
+    return response.data;
   },
 
   // Create new project
   createProject: async (workspaceId: string, project: CreateProjectRequest): Promise<Project> => {
-    const response = await api.post<ProjectResponse>(`/workspaces/${workspaceId}/projects`, project);
-    return response.data.data;
+    console.log('Creating project:', { workspaceId, project });
+    const response = await api.post<Project>(`/workspaces/${workspaceId}/projects`, project);
+    console.log('Create project response:', response.data);
+    return response.data;
   },
 
   // Update project
   updateProject: async (workspaceId: string, projectId: string, project: UpdateProjectRequest): Promise<Project> => {
-    const response = await api.put<ProjectResponse>(`/workspaces/${workspaceId}/projects/${projectId}`, project);
-    return response.data.data;
+    console.log('Updating project:', { workspaceId, projectId, project });
+    const response = await api.put<Project>(`/workspaces/${workspaceId}/projects/${projectId}`, project);
+    console.log('Update project response:', response.data);
+    return response.data;
   },
 
   // Delete project
@@ -49,7 +51,7 @@ export const projectService = {
 
   // Get archived projects
   getArchivedProjects: async (workspaceId: string): Promise<Project[]> => {
-    const response = await api.get<ProjectsResponse>(`/workspaces/${workspaceId}/projects?archived=true`);
-    return response.data.data;
+    const response = await api.get<Project[]>(`/workspaces/${workspaceId}/projects?archived=true`);
+    return response.data;
   }
 };

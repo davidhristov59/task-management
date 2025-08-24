@@ -39,14 +39,20 @@ export const useCreateProject = () => {
     mutationFn: ({ workspaceId, data }: { workspaceId: string; data: CreateProjectRequest }) =>
       projectService.createProject(workspaceId, data),
     onSuccess: (newProject, { workspaceId }) => {
+      console.log('Create project success:', newProject);
       // Invalidate and refetch projects list for this workspace
       queryClient.invalidateQueries({ queryKey: projectKeys.list(workspaceId) });
       
-      // Add the new project to the cache
-      queryClient.setQueryData(
-        projectKeys.detail(workspaceId, newProject.projectId), 
-        newProject
-      );
+      // Also invalidate all project lists to ensure sidebar updates
+      queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
+      
+      // Add the new project to the cache if it has the expected structure
+      if (newProject && newProject.projectId && newProject.projectId.value) {
+        queryClient.setQueryData(
+          projectKeys.detail(workspaceId, newProject.projectId.value), 
+          newProject
+        );
+      }
     },
     onError: (error) => {
       console.error('Failed to create project:', error);
@@ -69,14 +75,20 @@ export const useUpdateProject = () => {
       data: UpdateProjectRequest 
     }) => projectService.updateProject(workspaceId, projectId, data),
     onSuccess: (updatedProject, { workspaceId }) => {
-      // Update the project in cache
-      queryClient.setQueryData(
-        projectKeys.detail(workspaceId, updatedProject.projectId), 
-        updatedProject
-      );
+      console.log('Update project success:', updatedProject);
+      // Update the project in cache if it has the expected structure
+      if (updatedProject && updatedProject.projectId && updatedProject.projectId.value) {
+        queryClient.setQueryData(
+          projectKeys.detail(workspaceId, updatedProject.projectId.value), 
+          updatedProject
+        );
+      }
       
       // Invalidate projects list to reflect changes
       queryClient.invalidateQueries({ queryKey: projectKeys.list(workspaceId) });
+      
+      // Also invalidate all project lists to ensure sidebar updates
+      queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
     },
     onError: (error) => {
       console.error('Failed to update project:', error);
@@ -111,8 +123,17 @@ export const useArchiveProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceId, projectId }: { workspaceId: string; projectId: string }) =>
-      projectService.archiveProject(workspaceId, projectId),
+    mutationFn: ({ workspaceId, projectId, archived }: { 
+      workspaceId: string; 
+      projectId: string; 
+      archived: boolean 
+    }) => {
+      if (archived) {
+        return projectService.archiveProject(workspaceId, projectId);
+      } else {
+        return projectService.unarchiveProject(workspaceId, projectId);
+      }
+    },
     onSuccess: (_, { workspaceId, projectId }) => {
       // Invalidate project detail and projects list to refetch with updated status
       queryClient.invalidateQueries({ 

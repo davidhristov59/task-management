@@ -17,8 +17,8 @@ export const workspaceService = {
 
   // Get workspace by ID
   getWorkspace: async (workspaceId: string): Promise<Workspace> => {
-    const response = await api.get<WorkspaceResponse>(`/workspaces/${workspaceId}`);
-    return response.data.data;
+    const response = await api.get<Workspace>(`/workspaces/${workspaceId}`);
+    return response.data;
   },
 
   // Create new workspace
@@ -50,7 +50,7 @@ export const workspaceService = {
 
   // Get workspace members
   getMembers: async (workspaceId: string): Promise<string[]> => {
-    const response = await api.get<ApiResponse<string[]>>(`/workspaces/${workspaceId}/members`);
-    return response.data.data;
+    const response = await api.get<string[]>(`/workspaces/${workspaceId}/members`);
+    return response.data;
   }
 };

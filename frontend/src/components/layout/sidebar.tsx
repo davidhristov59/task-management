@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useUIStore } from '@/stores';
 import { useWorkspaces } from '@/hooks';
+import { useProjects } from '@/hooks/useProjects';
 import { cn } from '@/lib/utils';
 
 export function Sidebar() {
@@ -74,7 +75,7 @@ export function Sidebar() {
                 className="p-1.5 hover:bg-white/80 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 group"
                 aria-label="Create workspace"
               >
-                <Plus className="h-4 w-4 text-gray-500 group-hover:text-blue-600 transition-colors" />
+                <Plus className="h-4 w-4 text-gray-500 group-hover:text-gray-600 transition-colors" />
               </button>
             </div>
 
@@ -82,7 +83,7 @@ export function Sidebar() {
             {isLoading && (
               <div className="px-4 py-3 text-sm text-gray-500 bg-gray-50/50 rounded-xl">
                 <div className="flex items-center space-x-2">
-                  <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-500 rounded-full animate-spin"></div>
                   <span>Loading workspaces...</span>
                 </div>
               </div>
@@ -165,15 +166,8 @@ export function Sidebar() {
                     </Link>
                   </div>
 
-                  {/* Projects under workspace - placeholder for now */}
-                  {isExpanded && (
-                    <div className="ml-8 space-y-1 pl-4 border-l-2 border-gray-100">
-                      <div className="flex items-center space-x-3 px-3 py-2 text-sm text-gray-500 bg-gray-50/50 rounded-lg">
-                        <FolderOpen className="h-4 w-4 text-gray-400" />
-                        <span>Projects will appear here</span>
-                      </div>
-                    </div>
-                  )}
+                  {/* Projects under workspace */}
+                  {isExpanded && <WorkspaceProjects workspaceId={workspace.workspaceId} />}
                 </div>
               );
             })}
@@ -206,5 +200,66 @@ export function Sidebar() {
         )}
       </nav>
     </aside>
+  );
+}
+
+// Component to show projects for a specific workspace
+function WorkspaceProjects({ workspaceId }: { workspaceId: string }) {
+  const { data: projects = [], isLoading } = useProjects(workspaceId);
+  const location = useLocation();
+
+  if (isLoading) {
+    return (
+      <div className="ml-8 space-y-1 pl-4 border-l-2 border-gray-100">
+        <div className="flex items-center space-x-3 px-3 py-2 text-sm text-gray-500 bg-gray-50/50 rounded-lg">
+          <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-500 rounded-full animate-spin"></div>
+          <span>Loading projects...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (projects.length === 0) {
+    return (
+      <div className="ml-8 space-y-1 pl-4 border-l-2 border-gray-100">
+        <div className="flex items-center space-x-3 px-3 py-2 text-sm text-gray-500 bg-gray-50/50 rounded-lg">
+          <FolderOpen className="h-4 w-4 text-gray-400" />
+          <span>No projects yet</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="ml-8 space-y-1 pl-4 border-l-2 border-gray-100">
+      {projects.slice(0, 5).map((project) => {
+        const projectPath = `/workspaces/${workspaceId}/projects/${project.projectId.value}`;
+        const isActive = location.pathname === projectPath;
+        
+        return (
+          <Link
+            key={project.projectId.value}
+            to={projectPath}
+            className={cn(
+              "mt-2 flex items-center space-x-3 px-3 py-2 text-sm rounded-lg transition-all duration-200 group",
+              isActive
+                ? "bg-gray-100 text-gray-900 shadow-sm"
+                : "text-gray-600 hover:bg-gray-100/80 hover:text-gray-900"
+            )}
+          >
+            <FolderOpen className={cn(
+              "h-4 w-4 transition-colors",
+              isActive ? "text-gray-600" : "text-gray-400 group-hover:text-gray-600"
+            )} />
+            <span className="truncate font-medium">{project.title}</span>
+          </Link>
+        );
+      })}
+      {projects.length > 5 && (
+        <div className="px-3 py-2 text-xs text-gray-400">
+          +{projects.length - 5} more projects
+        </div>
+      )}
+    </div>
   );
 }

@@ -10,26 +10,26 @@ import type {
 export const commentService = {
   // Get all comments for a task
   getComments: async (taskId: string): Promise<Comment[]> => {
-    const response = await api.get<CommentsResponse>(`/tasks/${taskId}/comments`);
-    return response.data.data;
+    const response = await api.get<Comment[]>(`/tasks/${taskId}/comments`);
+    return response.data;
   },
 
   // Get comment by ID
   getComment: async (taskId: string, commentId: string): Promise<Comment> => {
-    const response = await api.get<CommentResponse>(`/tasks/${taskId}/comments/${commentId}`);
-    return response.data.data;
+    const response = await api.get<Comment>(`/tasks/${taskId}/comments/${commentId}`);
+    return response.data;
   },
 
   // Create new comment
   createComment: async (taskId: string, comment: CreateCommentRequest): Promise<Comment> => {
-    const response = await api.post<CommentResponse>(`/tasks/${taskId}/comments`, comment);
-    return response.data.data;
+    const response = await api.post<Comment>(`/tasks/${taskId}/comments`, comment);
+    return response.data;
   },
 
   // Update comment
   updateComment: async (taskId: string, commentId: string, comment: UpdateCommentRequest): Promise<Comment> => {
-    const response = await api.put<CommentResponse>(`/tasks/${taskId}/comments/${commentId}`, comment);
-    return response.data.data;
+    const response = await api.put<Comment>(`/tasks/${taskId}/comments/${commentId}`, comment);
+    return response.data;
   },
 
   // Delete comment
@@ -39,7 +39,7 @@ export const commentService = {
 
   // Get comments by author
   getCommentsByAuthor: async (taskId: string, authorId: string): Promise<Comment[]> => {
-    const response = await api.get<CommentsResponse>(`/tasks/${taskId}/comments?authorId=${authorId}`);
-    return response.data.data;
+    const response = await api.get<Comment[]>(`/tasks/${taskId}/comments?authorId=${authorId}`);
+    return response.data;
   }
 };

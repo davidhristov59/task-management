@@ -11,26 +11,26 @@ import type {
 export const taskService = {
   // Get all tasks in a project
   getTasks: async (workspaceId: string, projectId: string): Promise<Task[]> => {
-    const response = await api.get<TasksResponse>(`/workspaces/${workspaceId}/projects/${projectId}/tasks`);
-    return response.data.data;
+    const response = await api.get<Task[]>(`/workspaces/${workspaceId}/projects/${projectId}/tasks`);
+    return response.data;
   },
 
   // Get task by ID
   getTask: async (taskId: string): Promise<Task> => {
-    const response = await api.get<TaskResponse>(`/tasks/${taskId}`);
-    return response.data.data;
+    const response = await api.get<Task>(`/tasks/${taskId}`);
+    return response.data;
   },
 
   // Create new task
   createTask: async (workspaceId: string, projectId: string, task: CreateTaskRequest): Promise<Task> => {
-    const response = await api.post<TaskResponse>(`/workspaces/${workspaceId}/projects/${projectId}/tasks`, task);
-    return response.data.data;
+    const response = await api.post<Task>(`/workspaces/${workspaceId}/projects/${projectId}/tasks`, task);
+    return response.data;
   },
 
   // Update task
   updateTask: async (taskId: string, task: UpdateTaskRequest): Promise<Task> => {
-    const response = await api.put<TaskResponse>(`/tasks/${taskId}`, task);
-    return response.data.data;
+    const response = await api.put<Task>(`/tasks/${taskId}`, task);
+    return response.data;
   },
 
   // Delete task
@@ -60,19 +60,19 @@ export const taskService = {
 
   // Get tasks assigned to a specific user
   getTasksByUser: async (userId: string): Promise<Task[]> => {
-    const response = await api.get<TasksResponse>(`/tasks?assignedUserId=${userId}`);
-    return response.data.data;
+    const response = await api.get<Task[]>(`/tasks?assignedUserId=${userId}`);
+    return response.data;
   },
 
   // Get tasks by status
   getTasksByStatus: async (workspaceId: string, projectId: string, status: string): Promise<Task[]> => {
-    const response = await api.get<TasksResponse>(`/workspaces/${workspaceId}/projects/${projectId}/tasks?status=${status}`);
-    return response.data.data;
+    const response = await api.get<Task[]>(`/workspaces/${workspaceId}/projects/${projectId}/tasks?status=${status}`);
+    return response.data;
   },
 
   // Search tasks
   searchTasks: async (workspaceId: string, projectId: string, query: string): Promise<Task[]> => {
-    const response = await api.get<TasksResponse>(`/workspaces/${workspaceId}/projects/${projectId}/tasks?search=${encodeURIComponent(query)}`);
-    return response.data.data;
+    const response = await api.get<Task[]>(`/workspaces/${workspaceId}/projects/${projectId}/tasks?search=${encodeURIComponent(query)}`);
+    return response.data;
   }
 };

@@ -11,6 +11,8 @@ export const workspaceKeys = {
   detail: (id: string) => [...workspaceKeys.details(), id] as const,
 };
 
+
+
 // Get all workspaces
 export const useWorkspaces = () => {
   return useQuery({

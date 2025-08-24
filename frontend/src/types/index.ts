@@ -87,9 +87,11 @@ export interface Workspace {
 }
 
 export interface Project {
-  projectId: string;
+  projectId: {
+    value: string;
+  };
   title: string;
-  description: string;
+  description?: string;
   workspaceId: string;
   ownerId: string;
   status: ProjectStatus;
@@ -120,17 +122,17 @@ export interface Task {
 
 // API Request payload types
 export interface CreateWorkspaceRequest {
-  title: string;
+  title?: string;
   description?: string;
-  ownerId: string;
-  memberIds: string[];
+  ownerId?: string;
+  memberIds?: string[];
 }
 
 export interface UpdateWorkspaceRequest {
-  title: string;
+  title?: string;
   description?: string;
-  ownerId: string;
-  memberIds: string[];
+  ownerId?: string;
+  memberIds?: string[];
 }
 
 export interface AddWorkspaceMemberRequest {
@@ -139,15 +141,16 @@ export interface AddWorkspaceMemberRequest {
 
 export interface CreateProjectRequest {
   title: string;
-  description: string;
+  description?: string;
   ownerId: string;
+  status?: ProjectStatus;
 }
 
 export interface UpdateProjectRequest {
-  title: string;
-  description: string;
-  ownerId: string;
-  status: ProjectStatus;
+  title?: string;
+  description?: string;
+  ownerId?: string;
+  status?: ProjectStatus;
 }
 
 export interface CreateTaskRequest {

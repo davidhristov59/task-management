@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { WorkspaceList } from '@/components';
 import type { Workspace } from '@/types';
 
-export function WorkspacesPage() {
+function WorkspacesPage() {
   const navigate = useNavigate();
 
   const handleWorkspaceClick = (workspace: Workspace) => {
@@ -11,3 +11,5 @@ export function WorkspacesPage() {
 
   return <WorkspaceList onWorkspaceClick={handleWorkspaceClick} />;
 }
+
+export default WorkspacesPage;

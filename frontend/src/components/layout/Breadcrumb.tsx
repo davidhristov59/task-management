@@ -19,7 +19,7 @@ export function Breadcrumb() {
   const { data: tasks = [] } = useTasks(workspaceId || '', projectId || '');
 
   const workspace = workspaces.find(w => w.workspaceId === workspaceId);
-  const project = projects.find(p => p.projectId === projectId);
+  const project = projects.find(p => p.projectId.value === projectId);
   const task = tasks.find(t => t.taskId === taskId);
 
   const buildBreadcrumbs = (): BreadcrumbItem[] => {

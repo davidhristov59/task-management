@@ -8,20 +8,20 @@ import type {
 export const recurringService = {
   // Get recurring task settings
   getRecurringTask: async (taskId: string): Promise<RecurrenceRule> => {
-    const response = await api.get<RecurrenceRuleResponse>(`/tasks/${taskId}/recurring`);
-    return response.data.data;
+    const response = await api.get<RecurrenceRule>(`/tasks/${taskId}/recurring`);
+    return response.data;
   },
 
   // Create recurring task settings
   createRecurringTask: async (taskId: string, recurrence: CreateRecurringTaskRequest): Promise<RecurrenceRule> => {
-    const response = await api.post<RecurrenceRuleResponse>(`/tasks/${taskId}/recurring`, recurrence);
-    return response.data.data;
+    const response = await api.post<RecurrenceRule>(`/tasks/${taskId}/recurring`, recurrence);
+    return response.data;
   },
 
   // Update recurring task settings
   updateRecurringTask: async (taskId: string, recurrence: CreateRecurringTaskRequest): Promise<RecurrenceRule> => {
-    const response = await api.put<RecurrenceRuleResponse>(`/tasks/${taskId}/recurring`, recurrence);
-    return response.data.data;
+    const response = await api.put<RecurrenceRule>(`/tasks/${taskId}/recurring`, recurrence);
+    return response.data;
   },
 
   // Delete recurring task settings
