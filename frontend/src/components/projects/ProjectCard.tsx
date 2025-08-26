@@ -34,7 +34,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, workspaceId, viewMod
   const navigate = useNavigate();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  
+
   const archiveProjectMutation = useArchiveProject();
   const deleteProjectMutation = useDeleteProject();
 
@@ -92,10 +92,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, workspaceId, viewMod
                 {project.createdAt && new Date(project.createdAt).toLocaleDateString()}
               </div>
             </div>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 ml-2">
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 ml-2 hover:bg-gray-100">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -117,7 +117,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, workspaceId, viewMod
                     </>
                   )}
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => setShowDeleteDialog(true)}
                   className="text-red-600"
                 >
@@ -142,10 +142,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, workspaceId, viewMod
               <p className="text-gray-600 text-sm line-clamp-2">{project.description}</p>
             )}
           </div>
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-gray-100">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -167,7 +167,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, workspaceId, viewMod
                   </>
                 )}
               </DropdownMenuItem>
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={() => setShowDeleteDialog(true)}
                 className="text-red-600"
               >
@@ -182,7 +182,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, workspaceId, viewMod
           <Badge className={getStatusColor(project.status)}>
             {project.status.replace('_', ' ')}
           </Badge>
-          
+
           <div className="text-sm text-gray-500">
             {project.createdAt && new Date(project.createdAt).toLocaleDateString()}
           </div>
@@ -207,9 +207,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, workspaceId, viewMod
       </AlertDialog>
 
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-lg p-0">
-          <DialogHeader className="px-6 pt-6 pb-0">
-            <DialogTitle className="text-xl font-bold">Edit Project</DialogTitle>
+        <DialogContent className="sm:max-w-[500px] bg-white border border-gray-200">
+          <DialogHeader>
+            <DialogTitle>Edit Project</DialogTitle>
           </DialogHeader>
           <ProjectForm
             workspaceId={workspaceId}

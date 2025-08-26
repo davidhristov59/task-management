@@ -85,100 +85,79 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
   };
 
   return (
-    <div className="p-6">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-        <div className="space-y-3">
-          <Label htmlFor="title" className="text-base font-semibold text-gray-900">
-            Project Name *
-          </Label>
-          <Input
-            id="title"
-            {...register('title')}
-            placeholder="Enter project name"
-            className={`h-12 text-base ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
-          />
-          {errors.title && (
-            <p className="text-sm text-red-600 mt-2">{errors.title.message}</p>
-          )}
-        </div>
-
-        <div className="space-y-3">
-          <Label htmlFor="description" className="text-base font-semibold text-gray-900">
-            Description
-          </Label>
-          <Textarea
-            id="description"
-            {...register('description')}
-            placeholder="Enter project description (optional)"
-            rows={4}
-            className={`text-base resize-none ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
-          />
-          {errors.description && (
-            <p className="text-sm text-red-600 mt-2">{errors.description.message}</p>
-          )}
-        </div>
-
-        <div className="space-y-3">
-          <Label htmlFor="ownerId" className="text-base font-semibold text-gray-900">
-            Owner ID *
-          </Label>
-          <Input
-            id="ownerId"
-            {...register('ownerId')}
-            placeholder="Enter owner ID"
-            className={`h-12 text-base ${errors.ownerId ? 'border-red-500' : 'border-gray-300'}`}
-          />
-          {errors.ownerId && (
-            <p className="text-sm text-red-600 mt-2">{errors.ownerId.message}</p>
-          )}
-        </div>
-        {/* <div>
-        <Label htmlFor="status">Status</Label>
-        <Select
-          value={watchedStatus}
-          onValueChange={(value) => setValue('status', value as ProjectStatus)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ProjectStatus.PLANNING}>Planning</SelectItem>
-            <SelectItem value={ProjectStatus.IN_PROGRESS}>In Progress</SelectItem>
-            <SelectItem value={ProjectStatus.COMPLETED}>Completed</SelectItem>
-            <SelectItem value={ProjectStatus.CANCELLED}>Cancelled</SelectItem>
-          </SelectContent>
-        </Select>
-      </div> */}
-        {/* Error display */}
-        {(createProjectMutation.error || updateProjectMutation.error) && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-600">
-              Error: {createProjectMutation.error?.message || updateProjectMutation.error?.message}
-            </p>
-          </div>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="title">Project Name *</Label>
+        <Input
+          id="title"
+          {...register('title')}
+          placeholder="Enter project name"
+          className={errors.title ? 'border-red-500' : ''}
+        />
+        {errors.title && (
+          <p className="text-sm text-red-600">{errors.title.message}</p>
         )}
+      </div>
 
-        <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            className="px-6 py-3 text-base"
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            disabled={isSubmitting || createProjectMutation.isPending || updateProjectMutation.isPending}
-            className="px-6 py-3 text-base"
-          >
-            {(isSubmitting || createProjectMutation.isPending || updateProjectMutation.isPending) 
-              ? 'Saving...' 
-              : project ? 'Update Project' : 'Create Project'}
-          </Button>
+      <div className="space-y-2">
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          {...register('description')}
+          placeholder="Enter project description (optional)"
+          rows={3}
+          className={errors.description ? 'border-red-500' : ''}
+        />
+        {errors.description && (
+          <p className="text-sm text-red-600">{errors.description.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="ownerId">Owner ID *</Label>
+        <Input
+          id="ownerId"
+          {...register('ownerId')}
+          placeholder="Enter owner user ID"
+          className={errors.ownerId ? 'border-red-500' : ''}
+        />
+        {errors.ownerId && (
+          <p className="text-sm text-red-600">{errors.ownerId.message}</p>
+        )}
+        <p className="text-xs text-gray-500">
+          This should be the user ID of the project owner
+        </p>
+      </div>
+
+      {/* Error display */}
+      {(createProjectMutation.error || updateProjectMutation.error) && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-600">
+            Error: {createProjectMutation.error?.message || updateProjectMutation.error?.message}
+          </p>
         </div>
-      </form>
-    </div>
+      )}
+
+      <div className="flex justify-end space-x-3 pt-4">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={isSubmitting}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          disabled={isSubmitting || createProjectMutation.isPending || updateProjectMutation.isPending}
+          className="bg-black hover:bg-gray-800 text-white"
+        >
+          {(isSubmitting || createProjectMutation.isPending || updateProjectMutation.isPending) 
+            ? (project ? 'Updating...' : 'Creating...') 
+            : (project ? 'Update Project' : 'Create Project')}
+        </Button>
+      </div>
+    </form>
   );
 };
 

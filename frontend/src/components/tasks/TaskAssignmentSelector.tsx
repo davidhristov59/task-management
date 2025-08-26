@@ -36,7 +36,7 @@ function TaskAssignmentSelector({
           variant="ghost"
           size="sm"
           disabled={disabled}
-          className={compact ? "h-6 px-1 text-xs" : "h-8 px-2 text-xs"}
+          className={compact ? "h-6 px-1 text-xs hover:bg-gray-100" : "h-8 px-2 text-xs hover:bg-gray-100"}
         >
           {currentUser ? (
             <>

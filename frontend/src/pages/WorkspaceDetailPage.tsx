@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Users, Edit, Trash2, ArrowLeft } from 'lucide-react';
+import { Users, Edit, Trash2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useWorkspace, useDeleteWorkspace } from '@/hooks/useWorkspaces';
 import { useProjects } from '@/hooks/useProjects';
@@ -8,7 +8,7 @@ import ProjectList from '@/components/projects/ProjectList';
 import ProjectForm from '@/components/projects/ProjectForm';
 import { WorkspaceForm } from '@/components/workspace/WorkspaceForm';
 import { WorkspaceMemberManager } from '@/components/workspace/WorkspaceMemberManager';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -165,6 +165,19 @@ const WorkspaceDetailPage: React.FC = () => {
         workspaceId={workspaceId!}
         onCreateProject={() => setIsCreateDialogOpen(true)}
       />
+
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="sm:max-w-[500px] bg-white border border-gray-200">
+          <DialogHeader>
+            <DialogTitle>Create New Project</DialogTitle>
+          </DialogHeader>
+          <ProjectForm
+            workspaceId={workspaceId!}
+            onSuccess={() => setIsCreateDialogOpen(false)}
+            onCancel={() => setIsCreateDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Workspace Form */}
       {showEditForm && (

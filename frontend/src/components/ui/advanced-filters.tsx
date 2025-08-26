@@ -126,7 +126,7 @@ export function AdvancedFilters({
       <div className="flex items-center gap-2 flex-wrap">
         <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="bg-white border-gray-300 shadow-sm">
+            <Button variant="outline" size="sm" className="bg-white border-gray-300 shadow-sm hover:bg-gray-50">
               <Filter className="h-4 w-4 mr-2" />
               Filters
               {activeFilterCount > 0 && (

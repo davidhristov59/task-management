@@ -51,7 +51,7 @@ function TaskStatusSelector({
           variant="ghost"
           size="sm"
           disabled={disabled}
-          className="h-8 px-2 text-xs"
+          className="h-8 px-2 text-xs hover:bg-gray-100"
         >
           <CurrentIcon className="h-3 w-3 mr-1" />
           {statusConfig[currentStatus].label}
