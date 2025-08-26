@@ -24,7 +24,7 @@ import {
 import { Badge } from '../ui/badge';
 import { TaskPriority, TaskStatus } from '../../types';
 import type { CreateTaskRequest, UpdateTaskRequest } from '../../types';
-import type { NormalizedTask, Tag, Category } from '../../utils/taskUtils';
+import type { NormalizedTask } from '../../utils/taskUtils';
 
 const taskFormSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title must be less than 200 characters'),

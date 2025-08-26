@@ -35,7 +35,7 @@ export const taskService = {
 
   // Delete task
   deleteTask: async (workspaceId: string, projectId: string, taskId: string): Promise<void> => {
-    const response = await api.delete(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}`);
+    await api.delete(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}`);
     // Handle 204 No Content response - no data to return
     return;
   },

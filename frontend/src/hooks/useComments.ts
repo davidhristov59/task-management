@@ -6,15 +6,15 @@ import type { CreateCommentRequest, UpdateCommentRequest } from '../types';
 export const commentKeys = {
   all: ['comments'] as const,
   lists: () => [...commentKeys.all, 'list'] as const,
-  list: (taskId: string) => [...commentKeys.lists(), taskId] as const,
+  list: (workspaceId: string, projectId: string, taskId: string) => [...commentKeys.lists(), workspaceId, projectId, taskId] as const,
 };
 
 // Get comments for a task
-export const useComments = (taskId: string) => {
+export const useComments = (workspaceId: string, projectId: string, taskId: string) => {
   return useQuery({
-    queryKey: commentKeys.list(taskId),
-    queryFn: () => commentService.getComments(taskId),
-    enabled: !!taskId,
+    queryKey: commentKeys.list(workspaceId, projectId, taskId),
+    queryFn: () => commentService.getComments(workspaceId, projectId, taskId),
+    enabled: !!workspaceId && !!projectId && !!taskId,
   });
 };
 
@@ -24,15 +24,19 @@ export const useCreateComment = () => {
 
   return useMutation({
     mutationFn: ({ 
+      workspaceId,
+      projectId,
       taskId, 
       data 
     }: { 
+      workspaceId: string;
+      projectId: string;
       taskId: string; 
       data: CreateCommentRequest 
-    }) => commentService.createComment(taskId, data),
-    onSuccess: (_, { taskId }) => {
+    }) => commentService.createComment(workspaceId, projectId, taskId, data),
+    onSuccess: (_, { workspaceId, projectId, taskId }) => {
       // Invalidate and refetch comments list for this task
-      queryClient.invalidateQueries({ queryKey: commentKeys.list(taskId) });
+      queryClient.invalidateQueries({ queryKey: commentKeys.list(workspaceId, projectId, taskId) });
     },
     onError: (error) => {
       console.error('Failed to create comment:', error);
@@ -46,17 +50,21 @@ export const useUpdateComment = () => {
 
   return useMutation({
     mutationFn: ({ 
+      workspaceId,
+      projectId,
       taskId, 
       commentId, 
       data 
     }: { 
+      workspaceId: string;
+      projectId: string;
       taskId: string; 
       commentId: string; 
       data: UpdateCommentRequest 
-    }) => commentService.updateComment(taskId, commentId, data),
-    onSuccess: (_, { taskId }) => {
+    }) => commentService.updateComment(workspaceId, projectId, taskId, commentId, data),
+    onSuccess: (_, { workspaceId, projectId, taskId }) => {
       // Invalidate comments list to reflect changes
-      queryClient.invalidateQueries({ queryKey: commentKeys.list(taskId) });
+      queryClient.invalidateQueries({ queryKey: commentKeys.list(workspaceId, projectId, taskId) });
     },
     onError: (error) => {
       console.error('Failed to update comment:', error);
@@ -69,11 +77,11 @@ export const useDeleteComment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ taskId, commentId }: { taskId: string; commentId: string }) =>
-      commentService.deleteComment(taskId, commentId),
-    onSuccess: (_, { taskId }) => {
+    mutationFn: ({ workspaceId, projectId, taskId, commentId }: { workspaceId: string; projectId: string; taskId: string; commentId: string }) =>
+      commentService.deleteComment(workspaceId, projectId, taskId, commentId),
+    onSuccess: (_, { workspaceId, projectId, taskId }) => {
       // Invalidate comments list
-      queryClient.invalidateQueries({ queryKey: commentKeys.list(taskId) });
+      queryClient.invalidateQueries({ queryKey: commentKeys.list(workspaceId, projectId, taskId) });
     },
     onError: (error) => {
       console.error('Failed to delete comment:', error);
