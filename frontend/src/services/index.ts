@@ -5,6 +5,7 @@ export { taskService } from './taskService';
 export { commentService } from './commentService';
 export { attachmentService } from './attachmentService';
 export { recurringService } from './recurringService';
+export { globalSearchService } from './globalSearchService';
 
 // Export API utilities
 export { default as api, getApiError, isNetworkError, isServerError, isClientError } from './api';

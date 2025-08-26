@@ -66,6 +66,7 @@ const WorkspaceDetailPage: React.FC = () => {
         projects={projects || []}
         isLoading={projectsLoading}
         workspaceId={workspaceId!}
+        onCreateProject={() => setIsCreateDialogOpen(true)}
       />
     </div>
   );

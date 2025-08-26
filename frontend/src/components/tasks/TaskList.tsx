@@ -1,21 +1,8 @@
 import { useState, useMemo } from 'react';
-import { Search, SortAsc, Plus, Grid, Kanban } from 'lucide-react';
+import { Plus, Grid, Kanban } from 'lucide-react';
 import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import { TaskStatus, TaskPriority } from '../../types';
+import { AdvancedFilters, type FilterOptions, type SortOptions } from '../ui/advanced-filters';
+import { TaskStatus } from '../../types';
 import type { NormalizedTask } from '../../utils/taskUtils';
 import TaskCard from './TaskCard';
 import TaskBoard from './TaskBoard';
@@ -32,9 +19,6 @@ interface TaskListProps {
   isLoading?: boolean;
 }
 
-type SortOption = 'title' | 'priority' | 'status' | 'deadline' | 'created';
-type SortDirection = 'asc' | 'desc';
-
 function TaskList({
   tasks,
   onTaskClick,
@@ -45,43 +29,93 @@ function TaskList({
   onCreateTask,
   isLoading = false,
 }: TaskListProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<TaskStatus | 'all'>('all');
-  const [priorityFilter, setPriorityFilter] = useState<TaskPriority | 'all'>('all');
-  const [assignmentFilter, setAssignmentFilter] = useState<'assigned' | 'unassigned' | 'all'>('all');
-  const [sortBy, setSortBy] = useState<SortOption>('created');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [filters, setFilters] = useState<FilterOptions>({
+    search: '',
+    status: 'all',
+    priority: 'all',
+    assignment: 'all',
+    tags: [],
+    categories: [],
+  });
+  const [sortOptions, setSortOptions] = useState<SortOptions>({
+    field: 'created',
+    direction: 'desc',
+  });
   
   const { taskViewMode, setTaskViewMode } = useUIStore();
+
+  // Extract available tags and categories from tasks
+  const availableTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    tasks.forEach(task => {
+      task.tags.forEach(tag => tagSet.add(tag.name));
+    });
+    return Array.from(tagSet).sort();
+  }, [tasks]);
+
+  const availableCategories = useMemo(() => {
+    const categorySet = new Set<string>();
+    tasks.forEach(task => {
+      task.categories.forEach(category => categorySet.add(category.name));
+    });
+    return Array.from(categorySet).sort();
+  }, [tasks]);
 
   const filteredAndSortedTasks = useMemo(() => {
     let filtered = tasks.filter((task) => {
       // Search filter
-      const matchesSearch = searchQuery === '' || 
-        task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        task.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        task.tags.some(tag => tag.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        task.categories.some(cat => cat.name.toLowerCase().includes(searchQuery.toLowerCase()));
+      const matchesSearch = !filters.search || 
+        task.title.toLowerCase().includes(filters.search.toLowerCase()) ||
+        task.description.toLowerCase().includes(filters.search.toLowerCase()) ||
+        task.tags.some(tag => tag.name.toLowerCase().includes(filters?.search!.toLowerCase())) ||
+        task.categories.some(cat => cat.name.toLowerCase().includes(filters?.search!.toLowerCase()));
 
       // Status filter
-      const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
+      const matchesStatus = filters.status === 'all' || task.status === filters.status;
 
       // Priority filter
-      const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
+      const matchesPriority = filters.priority === 'all' || task.priority === filters.priority;
 
       // Assignment filter
-      const matchesAssignment = assignmentFilter === 'all' ||
-        (assignmentFilter === 'assigned' && task.assignedUserId) ||
-        (assignmentFilter === 'unassigned' && !task.assignedUserId);
+      const matchesAssignment = filters.assignment === 'all' ||
+        (filters.assignment === 'assigned' && task.assignedUserId) ||
+        (filters.assignment === 'unassigned' && !task.assignedUserId);
 
-      return matchesSearch && matchesStatus && matchesPriority && matchesAssignment;
+      // Tags filter
+      const matchesTags = !filters.tags || filters.tags.length === 0 ||
+        filters.tags.every(filterTag => task.tags.some(taskTag => taskTag.name === filterTag));
+
+      // Categories filter
+      const matchesCategories = !filters.categories || filters.categories.length === 0 ||
+        filters.categories.every(filterCategory => task.categories.some(taskCategory => taskCategory.name === filterCategory));
+
+      // Date range filter
+      const matchesDateRange = !filters.dateRange || 
+        (!filters.dateRange.from && !filters.dateRange.to) ||
+        (() => {
+          const taskDate = new Date(task.deadline || task.createdAt);
+          const fromDate = filters.dateRange.from ? new Date(filters.dateRange.from) : null;
+          const toDate = filters.dateRange.to ? new Date(filters.dateRange.to) : null;
+          
+          if (fromDate && toDate) {
+            return taskDate >= fromDate && taskDate <= toDate;
+          } else if (fromDate) {
+            return taskDate >= fromDate;
+          } else if (toDate) {
+            return taskDate <= toDate;
+          }
+          return true;
+        })();
+
+      return matchesSearch && matchesStatus && matchesPriority && matchesAssignment && 
+             matchesTags && matchesCategories && matchesDateRange;
     });
 
     // Sort tasks
     filtered.sort((a, b) => {
       let comparison = 0;
 
-      switch (sortBy) {
+      switch (sortOptions.field) {
         case 'title':
           comparison = a.title.localeCompare(b.title);
           break;
@@ -104,23 +138,20 @@ function TaskList({
           break;
       }
 
-      return sortDirection === 'asc' ? comparison : -comparison;
+      return sortOptions.direction === 'asc' ? comparison : -comparison;
     });
 
     return filtered;
-  }, [tasks, searchQuery, statusFilter, priorityFilter, assignmentFilter, sortBy, sortDirection]);
+  }, [tasks, filters, sortOptions]);
 
-  const clearFilters = () => {
-    setSearchQuery('');
-    setStatusFilter('all');
-    setPriorityFilter('all');
-    setAssignmentFilter('all');
-    setSortBy('created');
-    setSortDirection('desc');
-  };
-
-  const hasActiveFilters = searchQuery !== '' || statusFilter !== 'all' || 
-    priorityFilter !== 'all' || assignmentFilter !== 'all';
+  const hasActiveFilters = 
+    filters.search ||
+    (filters.status && filters.status !== 'all') ||
+    (filters.priority && filters.priority !== 'all') ||
+    (filters.assignment && filters.assignment !== 'all') ||
+    (filters.tags && filters.tags.length > 0) ||
+    (filters.categories && filters.categories.length > 0) ||
+    filters.dateRange;
 
   if (isLoading) {
     return (
@@ -140,18 +171,19 @@ function TaskList({
 
   return (
     <div className="space-y-6">
-      {/* Header with search and actions */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="flex-1 max-w-md">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              placeholder="Search tasks..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+      {/* Header with filters and actions on same line */}
+      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+        <div className="flex-1">
+          <AdvancedFilters
+            filters={filters}
+            onFiltersChange={setFilters}
+            sortOptions={sortOptions}
+            onSortChange={setSortOptions}
+            availableTags={availableTags}
+            availableCategories={availableCategories}
+            showTaskFilters={true}
+            showProjectFilters={false}
+          />
         </div>
 
         <div className="flex items-center gap-2">
@@ -197,101 +229,25 @@ function TaskList({
         </div>
       </div>
 
-      {/* Filters and sorting - only show in grid mode */}
-      {taskViewMode === 'grid' && (
-        <div className="flex flex-wrap gap-4 items-center">
-        <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as TaskStatus | 'all')}>
-          <SelectTrigger className="w-40 bg-white border-gray-300 shadow-sm">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent className="bg-white">
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value={TaskStatus.PENDING}>Pending</SelectItem>
-            <SelectItem value={TaskStatus.IN_PROGRESS}>In Progress</SelectItem>
-            <SelectItem value={TaskStatus.COMPLETED}>Completed</SelectItem>
-            <SelectItem value={TaskStatus.CANCELLED}>Cancelled</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select value={priorityFilter} onValueChange={(value) => setPriorityFilter(value as TaskPriority | 'all')}>
-          <SelectTrigger className="w-40 bg-white border-gray-300 shadow-sm">
-            <SelectValue placeholder="Priority" />
-          </SelectTrigger>
-          <SelectContent className="bg-white">
-            <SelectItem value="all">All Priority</SelectItem>
-            <SelectItem value={TaskPriority.HIGH}>High</SelectItem>
-            <SelectItem value={TaskPriority.MEDIUM}>Medium</SelectItem>
-            <SelectItem value={TaskPriority.LOW}>Low</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select value={assignmentFilter} onValueChange={(value) => setAssignmentFilter(value as 'assigned' | 'unassigned' | 'all')}>
-          <SelectTrigger className="w-40 bg-white border-gray-300 shadow-sm">
-            <SelectValue placeholder="Assignment" />
-          </SelectTrigger>
-          <SelectContent className="bg-white">
-            <SelectItem value="all">All Tasks</SelectItem>
-            <SelectItem value="assigned">Assigned</SelectItem>
-            <SelectItem value="unassigned">Unassigned</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="bg-white border-gray-300 shadow-sm">
-              <SortAsc className="h-4 w-4 mr-2" />
-              Sort by {sortBy}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-white">
-            <DropdownMenuItem onClick={() => setSortBy('title')}>
-              Title
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setSortBy('priority')}>
-              Priority
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setSortBy('status')}>
-              Status
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setSortBy('deadline')}>
-              Deadline
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setSortBy('created')}>
-              Created Date
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
-          className="bg-white border-gray-300 shadow-sm"
-        >
-          {sortDirection === 'asc' ? '↑' : '↓'}
-        </Button>
-
-        {hasActiveFilters && (
-          <Button variant="ghost" size="sm" onClick={clearFilters}>
-            Clear Filters
-          </Button>
-        )}
-        </div>
-      )}
-
       {/* Render based on view mode */}
       {taskViewMode === 'board' ? (
-        <TaskBoard
-          tasks={tasks}
-          onTaskClick={onTaskClick}
-          onTaskEdit={onTaskEdit}
-          onTaskDelete={onTaskDelete}
-          onTaskStatusChange={onTaskStatusChange}
-          onTaskAssignmentChange={onTaskAssignmentChange}
-          onCreateTask={onCreateTask}
-          isLoading={isLoading}
-          searchQuery={searchQuery}
-        />
+        <>
+          {/* Results count for board view */}
+          <div className="text-sm text-gray-600">
+            Showing {filteredAndSortedTasks.length} of {tasks.length} tasks
+          </div>
+          <TaskBoard
+            tasks={filteredAndSortedTasks}
+            onTaskClick={onTaskClick}
+            onTaskEdit={onTaskEdit}
+            onTaskDelete={onTaskDelete}
+            onTaskStatusChange={onTaskStatusChange}
+            onTaskAssignmentChange={onTaskAssignmentChange}
+            onCreateTask={onCreateTask}
+            isLoading={isLoading}
+            searchQuery={filters.search || ''}
+          />
+        </>
       ) : (
         <>
           {/* Results count */}
@@ -309,6 +265,18 @@ function TaskList({
                 <Button onClick={onCreateTask}>
                   <Plus className="h-4 w-4 mr-2" />
                   Create your first task
+                </Button>
+              )}
+              {hasActiveFilters && tasks.length > 0 && (
+                <Button variant="outline" onClick={() => setFilters({
+                  search: '',
+                  status: 'all',
+                  priority: 'all',
+                  assignment: 'all',
+                  tags: [],
+                  categories: [],
+                })}>
+                  Clear Filters
                 </Button>
               )}
             </div>

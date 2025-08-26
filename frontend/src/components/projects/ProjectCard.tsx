@@ -27,9 +27,10 @@ import ProjectForm from './ProjectForm';
 interface ProjectCardProps {
   project: Project;
   workspaceId: string;
+  viewMode?: 'grid' | 'list';
 }
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ project, workspaceId }) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({ project, workspaceId, viewMode = 'grid' }) => {
   const navigate = useNavigate();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -71,6 +72,65 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, workspaceId }) => {
   const handleCardClick = () => {
     navigate(`/workspaces/${workspaceId}/projects/${project.projectId.value}`);
   };
+
+  if (viewMode === 'list') {
+    return (
+      <>
+        <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow cursor-pointer">
+          <div className="flex items-center justify-between">
+            <div className="flex-1 flex items-center gap-4" onClick={handleCardClick}>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900">{project.title}</h3>
+                {project.description && (
+                  <p className="text-gray-600 text-sm line-clamp-1">{project.description}</p>
+                )}
+              </div>
+              <Badge className={getStatusColor(project.status)}>
+                {project.status.replace('_', ' ')}
+              </Badge>
+              <div className="text-sm text-gray-500 min-w-0">
+                {project.createdAt && new Date(project.createdAt).toLocaleDateString()}
+              </div>
+            </div>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 ml-2">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleArchiveToggle}>
+                  {project.archived ? (
+                    <>
+                      <ArchiveRestore className="h-4 w-4 mr-2" />
+                      Unarchive
+                    </>
+                  ) : (
+                    <>
+                      <Archive className="h-4 w-4 mr-2" />
+                      Archive
+                    </>
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setShowDeleteDialog(true)}
+                  className="text-red-600"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

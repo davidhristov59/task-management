@@ -11,9 +11,8 @@ import {
     arrayMove,
 } from '@dnd-kit/sortable';
 import type { DragEndEvent, DragStartEvent, DragOverEvent } from '@dnd-kit/core';
-import { Search, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Button } from '../ui/button';
-import { Input } from '../ui/input';
 import {
     Select,
     SelectContent,
@@ -298,43 +297,6 @@ function TaskBoard({
 
     return (
         <div className="space-y-6">
-            {/* Board-specific filters */}
-            <div className="flex flex-wrap gap-4 items-center">
-                <Select value={priorityFilter} onValueChange={(value) => setPriorityFilter(value as TaskPriority | 'all')}>
-                    <SelectTrigger className="w-40 bg-white border-gray-300 shadow-sm">
-                        <SelectValue placeholder="Priority" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white">
-                        <SelectItem value="all">All Priority</SelectItem>
-                        <SelectItem value={TaskPriority.HIGH}>High</SelectItem>
-                        <SelectItem value={TaskPriority.MEDIUM}>Medium</SelectItem>
-                        <SelectItem value={TaskPriority.LOW}>Low</SelectItem>
-                    </SelectContent>
-                </Select>
-
-                <Select value={assignmentFilter} onValueChange={(value) => setAssignmentFilter(value as 'assigned' | 'unassigned' | 'all')}>
-                    <SelectTrigger className="w-40 bg-white border-gray-300 shadow-sm">
-                        <SelectValue placeholder="Assignment" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white">
-                        <SelectItem value="all">All Tasks</SelectItem>
-                        <SelectItem value="assigned">Assigned</SelectItem>
-                        <SelectItem value="unassigned">Unassigned</SelectItem>
-                    </SelectContent>
-                </Select>
-
-                {hasActiveFilters && (
-                    <Button variant="ghost" size="sm" onClick={clearFilters}>
-                        Clear Filters
-                    </Button>
-                )}
-            </div>
-
-            {/* Results count */}
-            <div className="text-sm text-gray-600">
-                Showing {filteredTasks.length} of {tasks.length} tasks
-            </div>
-
             {/* Kanban Board */}
             <DndContext
                 sensors={sensors}

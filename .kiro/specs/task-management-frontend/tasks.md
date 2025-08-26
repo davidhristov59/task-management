@@ -151,7 +151,14 @@
   - Create toggle between list and board views for tasks
   - _Requirements: 3.1, 3.5, 9.3_
 
-- [-] 12. Add search and filtering capabilities
+- [x] 12. Add search and filtering capabilities
+
+
+
+
+
+
+
 
 
   - Implement global search functionality across workspaces, projects, and tasks
@@ -168,15 +175,7 @@
   - Implement offline state detection and user feedback
   - _Requirements: 8.3, 8.4, 8.5_
 
-- [ ] 14. Add responsive design and accessibility
-  - Implement responsive layouts for mobile, tablet, and desktop breakpoints
-  - Add keyboard navigation support for all interactive elements
-  - Ensure proper focus management and ARIA labels
-  - Test and fix color contrast for accessibility compliance
-  - Add touch-friendly interactions for mobile devices
-  - _Requirements: 7.3, 7.4, 7.5_
-
-- [ ] 15. Implement bulk operations and advanced features
+- [ ] 14. Implement bulk operations and advanced features
   - Add bulk selection functionality for tasks and projects
   - Implement batch operations (delete, archive, status update)
   - Create empty state components with helpful call-to-action messages
@@ -184,7 +183,7 @@
   - Implement optimistic UI updates with rollback on failure
   - _Requirements: 9.5_
 
-- [ ] 16. Final integration and testing
+- [ ] 15. Final integration and testing
   - Write unit tests for critical components using React Testing Library
   - Test all API integrations with the backend
   - Verify all requirement acceptance criteria are met

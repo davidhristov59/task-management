@@ -227,3 +227,25 @@ export type AttachmentResponse = ApiResponse<Attachment>;
 export type RecurrenceRuleResponse = ApiResponse<RecurrenceRule>;
 export type UsersResponse = ApiResponse<User[]>;
 export type UserResponse = ApiResponse<User>;
+
+// Global search types
+export interface GlobalSearchResult {
+  id: string;
+  type: 'workspace' | 'project' | 'task';
+  title: string;
+  description?: string;
+  workspaceId?: string;
+  projectId?: string;
+  breadcrumb?: string;
+  priority?: TaskPriority;
+  status?: TaskStatus | ProjectStatus;
+  tags?: string[];
+}
+
+export interface GlobalSearchRequest {
+  query: string;
+  types?: ('workspace' | 'project' | 'task')[];
+  limit?: number;
+}
+
+export type GlobalSearchResponse = ApiResponse<GlobalSearchResult[]>;

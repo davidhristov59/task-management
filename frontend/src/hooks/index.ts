@@ -15,3 +15,6 @@ export * from './useAttachments';
 
 // Recurring task hooks
 export * from './useRecurringTasks';
+
+// Global search hooks
+export * from './useGlobalSearch';
