@@ -1,7 +1,10 @@
 import { useState } from 'react';
-import { Plus, Briefcase, Search, Grid, List } from 'lucide-react';
+import { Plus, Briefcase, Search, Grid, List, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { GridSkeleton, WorkspaceCardSkeleton } from '@/components/ui/loading-skeletons';
+import { OfflineIndicator } from '@/components/ui/offline-indicator';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { WorkspaceCard } from './WorkspaceCard';
 import { WorkspaceForm } from './WorkspaceForm';
 import { WorkspaceMemberManager } from './WorkspaceMemberManager.tsx';
@@ -13,8 +16,9 @@ interface WorkspaceListProps {
 }
 
 export function WorkspaceList({ onWorkspaceClick }: WorkspaceListProps) {
-  const { data: workspaces = [], isLoading, error, refetch } = useWorkspaces();
+  const { data: workspaces = [], isLoading, error, refetch, isFetching } = useWorkspaces();
   const deleteWorkspaceMutation = useDeleteWorkspace();
+  const { isFullyConnected } = useOnlineStatus();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -67,13 +71,19 @@ export function WorkspaceList({ onWorkspaceClick }: WorkspaceListProps) {
             <h1 className="text-3xl font-bold text-black">Workspaces</h1>
             <p className="text-gray-600 mt-1">Organize your projects and collaborate with your team</p>
           </div>
+          <div className="w-32 h-10 bg-gray-200 rounded animate-pulse" />
         </div>
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center space-y-4">
-            <div className="w-8 h-8 border-2 border-gray-300 border-t-black rounded-full animate-spin mx-auto"></div>
-            <p className="text-gray-600">Loading workspaces...</p>
+        
+        {/* Search bar skeleton */}
+        <div className="flex items-center justify-between">
+          <div className="relative flex-1 max-w-md">
+            <div className="h-10 bg-gray-200 rounded animate-pulse" />
           </div>
+          <div className="w-32 h-10 bg-gray-200 rounded animate-pulse" />
         </div>
+        
+        {/* Grid skeleton */}
+        <GridSkeleton count={6} ItemSkeleton={WorkspaceCardSkeleton} />
       </div>
     );
   }
@@ -87,17 +97,40 @@ export function WorkspaceList({ onWorkspaceClick }: WorkspaceListProps) {
             <p className="text-gray-600 mt-1">Organize your projects and collaborate with your team</p>
           </div>
         </div>
+        
+        {/* Show offline indicator if applicable */}
+        {!isFullyConnected && <OfflineIndicator showDetails />}
+        
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
           <h3 className="text-lg font-semibold text-red-800 mb-2">Unable to load workspaces</h3>
           <p className="text-red-600 mb-4">
             {error instanceof Error ? error.message : 'An unexpected error occurred'}
           </p>
-          <Button 
-            onClick={() => refetch()}
-            className="bg-red-600 hover:bg-red-700"
-          >
-            Try Again
-          </Button>
+          <div className="flex justify-center gap-3">
+            <Button 
+              onClick={() => refetch()}
+              disabled={isFetching}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isFetching ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Retrying...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Try Again
+                </>
+              )}
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => window.location.reload()}
+            >
+              Reload Page
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -105,16 +138,28 @@ export function WorkspaceList({ onWorkspaceClick }: WorkspaceListProps) {
 
   return (
     <div className="space-y-6">
+      {/* Offline indicator */}
+      {!isFullyConnected && <OfflineIndicator showDetails />}
+      
       {/* Header Section */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-black">Workspaces</h1>
           <p className="text-gray-600 mt-1">Organize your projects and collaborate with your team</p>
         </div>
-        <Button onClick={handleCreateWorkspace} className="bg-black hover:bg-gray-800 text-white">
-          <Plus className="h-4 w-4 mr-2" />
-          Create Workspace
-        </Button>
+        <div className="flex items-center gap-2">
+          {isFetching && (
+            <RefreshCw className="h-4 w-4 animate-spin text-gray-400" />
+          )}
+          <Button 
+            onClick={handleCreateWorkspace} 
+            disabled={!isFullyConnected}
+            className="bg-black hover:bg-gray-800 text-white disabled:opacity-50"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Create Workspace
+          </Button>
+        </div>
       </div>
 
       {/* Search and View Controls */}

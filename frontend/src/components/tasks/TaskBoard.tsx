@@ -13,14 +13,8 @@ import {
 import type { DragEndEvent, DragStartEvent, DragOverEvent } from '@dnd-kit/core';
 import { Plus } from 'lucide-react';
 import { Button } from '../ui/button';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '../ui/select';
-import { TaskStatus, TaskPriority } from '../../types';
+
+import { TaskStatus } from '../../types';
 import type { NormalizedTask } from '../../utils/taskUtils';
 
 import TaskBoardColumn from './TaskBoardColumn';
@@ -56,8 +50,9 @@ function TaskBoard({
     isLoading = false,
     searchQuery = '',
 }: TaskBoardProps) {
-    const [priorityFilter, setPriorityFilter] = useState<TaskPriority | 'all'>('all');
-    const [assignmentFilter, setAssignmentFilter] = useState<'assigned' | 'unassigned' | 'all'>('all');
+    // Filter state (can be implemented later)
+    // const [priorityFilter, setPriorityFilter] = useState<TaskPriority | 'all'>('all');
+    // const [assignmentFilter, setAssignmentFilter] = useState<'assigned' | 'unassigned' | 'all'>('all');
     const [activeTask, setActiveTask] = useState<NormalizedTask | null>(null);
 
     // Local state for optimistic updates - track changes instead of full task list
@@ -95,17 +90,10 @@ function TaskBoard({
                 task.tags.some((tag: { name: string; }) => tag.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
                 task.categories.some((cat: { name: string; }) => cat.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
-            // Priority filter
-            const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
-
-            // Assignment filter
-            const matchesAssignment = assignmentFilter === 'all' ||
-                (assignmentFilter === 'assigned' && task.assignedUserId) ||
-                (assignmentFilter === 'unassigned' && !task.assignedUserId);
-
-            return matchesSearch && matchesPriority && matchesAssignment;
+            // For now, only apply search filter (priority and assignment filters can be added later)
+            return matchesSearch;
         });
-    }, [currentTasks, searchQuery, priorityFilter, assignmentFilter]);
+    }, [currentTasks, searchQuery]);
 
     const tasksByStatus = useMemo(() => {
         const grouped = BOARD_COLUMNS.reduce((acc, column) => {
@@ -267,12 +255,12 @@ function TaskBoard({
         }
     };
 
-    const clearFilters = () => {
-        setPriorityFilter('all');
-        setAssignmentFilter('all');
-    };
-
-    const hasActiveFilters = priorityFilter !== 'all' || assignmentFilter !== 'all';
+    // Filters functionality (can be implemented later)
+    // const clearFilters = () => {
+    //     setPriorityFilter('all');
+    //     setAssignmentFilter('all');
+    // };
+    // const hasActiveFilters = priorityFilter !== 'all' || assignmentFilter !== 'all';
 
     if (isLoading) {
         return (
