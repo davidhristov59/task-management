@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, SortAsc, Plus, Grid, List } from 'lucide-react';
+import { Search, SortAsc, Plus, Grid, Kanban } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import {
@@ -18,6 +18,8 @@ import {
 import { TaskStatus, TaskPriority } from '../../types';
 import type { NormalizedTask } from '../../utils/taskUtils';
 import TaskCard from './TaskCard';
+import TaskBoard from './TaskBoard';
+import { useUIStore } from '../../stores/uiStore';
 
 interface TaskListProps {
   tasks: NormalizedTask[];
@@ -32,7 +34,6 @@ interface TaskListProps {
 
 type SortOption = 'title' | 'priority' | 'status' | 'deadline' | 'created';
 type SortDirection = 'asc' | 'desc';
-type ViewMode = 'grid' | 'list';
 
 function TaskList({
   tasks,
@@ -50,7 +51,8 @@ function TaskList({
   const [assignmentFilter, setAssignmentFilter] = useState<'assigned' | 'unassigned' | 'all'>('all');
   const [sortBy, setSortBy] = useState<SortOption>('created');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  
+  const { taskViewMode, setTaskViewMode } = useUIStore();
 
   const filteredAndSortedTasks = useMemo(() => {
     let filtered = tasks.filter((task) => {
@@ -156,11 +158,11 @@ function TaskList({
           {/* View mode toggle */}
           <div className="flex items-center bg-white border border-gray-300 rounded-md shadow-sm">
             <Button
-              variant={viewMode === 'grid' ? 'default' : 'ghost'}
+              variant={taskViewMode === 'grid' ? 'default' : 'ghost'}
               size="sm"
-              onClick={() => setViewMode('grid')}
+              onClick={() => setTaskViewMode('grid')}
               className={`rounded-r-none ${
-                viewMode === 'grid' 
+                taskViewMode === 'grid' 
                   ? 'bg-black text-white hover:bg-gray-700' 
                   : 'bg-white text-gray-700 hover:bg-gray-50'
               }`}
@@ -169,17 +171,17 @@ function TaskList({
               Grid
             </Button>
             <Button
-              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              variant={taskViewMode === 'board' ? 'default' : 'ghost'}
               size="sm"
-              onClick={() => setViewMode('list')}
+              onClick={() => setTaskViewMode('board')}
               className={`rounded-l-none border-l ${
-                viewMode === 'list' 
+                taskViewMode === 'board' 
                   ? 'bg-black text-white hover:bg-gray-700' 
                   : 'bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
-              <List className="h-4 w-4 mr-1" />
-              List
+              <Kanban className="h-4 w-4 mr-1" />
+              Board
             </Button>
           </div>
 
@@ -195,8 +197,9 @@ function TaskList({
         </div>
       </div>
 
-      {/* Filters and sorting */}
-      <div className="flex flex-wrap gap-4 items-center">
+      {/* Filters and sorting - only show in grid mode */}
+      {taskViewMode === 'grid' && (
+        <div className="flex flex-wrap gap-4 items-center">
         <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as TaskStatus | 'all')}>
           <SelectTrigger className="w-40 bg-white border-gray-300 shadow-sm">
             <SelectValue placeholder="Status" />
@@ -273,44 +276,58 @@ function TaskList({
             Clear Filters
           </Button>
         )}
-      </div>
-
-      {/* Results count */}
-      <div className="text-sm text-gray-600">
-        Showing {filteredAndSortedTasks.length} of {tasks.length} tasks
-      </div>
-
-      {/* Tasks grid/list */}
-      {filteredAndSortedTasks.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="text-gray-500 mb-4">
-            {tasks.length === 0 ? 'No tasks yet' : 'No tasks match your filters'}
-          </div>
-          {onCreateTask && tasks.length === 0 && (
-            <Button onClick={onCreateTask}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create your first task
-            </Button>
-          )}
         </div>
+      )}
+
+      {/* Render based on view mode */}
+      {taskViewMode === 'board' ? (
+        <TaskBoard
+          tasks={tasks}
+          onTaskClick={onTaskClick}
+          onTaskEdit={onTaskEdit}
+          onTaskDelete={onTaskDelete}
+          onTaskStatusChange={onTaskStatusChange}
+          onTaskAssignmentChange={onTaskAssignmentChange}
+          onCreateTask={onCreateTask}
+          isLoading={isLoading}
+          searchQuery={searchQuery}
+        />
       ) : (
-        <div className={
-          viewMode === 'grid' 
-            ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
-            : 'space-y-4'
-        }>
-          {filteredAndSortedTasks.map((task) => (
-            <TaskCard
-              key={task.taskId}
-              task={task}
-              onClick={onTaskClick}
-              onEdit={onTaskEdit}
-              onDelete={onTaskDelete}
-              onStatusChange={onTaskStatusChange}
-              onAssignmentChange={onTaskAssignmentChange}
-            />
-          ))}
-        </div>
+        <>
+          {/* Results count */}
+          <div className="text-sm text-gray-600">
+            Showing {filteredAndSortedTasks.length} of {tasks.length} tasks
+          </div>
+
+          {/* Tasks grid */}
+          {filteredAndSortedTasks.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-gray-500 mb-4">
+                {tasks.length === 0 ? 'No tasks yet' : 'No tasks match your filters'}
+              </div>
+              {onCreateTask && tasks.length === 0 && (
+                <Button onClick={onCreateTask}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create your first task
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredAndSortedTasks.map((task) => (
+                <TaskCard
+                  key={task.taskId}
+                  task={task}
+                  onClick={onTaskClick}
+                  onEdit={onTaskEdit}
+                  onDelete={onTaskDelete}
+                  onStatusChange={onTaskStatusChange}
+                  onAssignmentChange={onTaskAssignmentChange}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

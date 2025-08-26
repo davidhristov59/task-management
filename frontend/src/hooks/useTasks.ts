@@ -75,13 +75,20 @@ export const useUpdateTask = () => {
       taskId: string; 
       data: UpdateTaskRequest 
     }) => taskService.updateTask(workspaceId, projectId, taskId, data),
-    onSuccess: (updatedTask, { workspaceId, projectId }) => {
-      // Update the task in cache
-      queryClient.setQueryData(taskKeys.detail(updatedTask.taskId), updatedTask);
+    onSuccess: (updatedTask, { workspaceId, projectId, taskId }) => {
+      // If we got an updated task back, update the cache
+      if (updatedTask) {
+        queryClient.setQueryData(taskKeys.detail(updatedTask.taskId), updatedTask);
+      }
       
-      // Invalidate tasks list to reflect changes
+      // Always invalidate tasks list to reflect changes
       queryClient.invalidateQueries({ 
         queryKey: taskKeys.list(workspaceId, projectId) 
+      });
+      
+      // Also invalidate the specific task detail
+      queryClient.invalidateQueries({ 
+        queryKey: taskKeys.detail(taskId) 
       });
     },
     onError: (error) => {

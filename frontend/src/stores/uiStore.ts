@@ -14,8 +14,8 @@ interface UIState {
   setCurrentProject: (projectId: string | null) => void;
 
   // View preferences
-  taskViewMode: 'list' | 'board';
-  setTaskViewMode: (mode: 'list' | 'board') => void;
+  taskViewMode: 'grid' | 'board';
+  setTaskViewMode: (mode: 'grid' | 'board') => void;
 
   // User preferences
   theme: 'light' | 'dark';
@@ -41,7 +41,7 @@ export const useUIStore = create<UIState>()(
       setCurrentProject: (projectId) => set({ currentProjectId: projectId }),
 
       // View preferences
-      taskViewMode: 'list',
+      taskViewMode: 'board',
       setTaskViewMode: (mode) => set({ taskViewMode: mode }),
 
       // User preferences

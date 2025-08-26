@@ -129,7 +129,7 @@
   - Display attachment file info (name, type, size) with download links
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 5.1, 5.2, 5.3_
 
-- [ ] 10. Add recurring task functionality
+- [x] 10. Add recurring task functionality
 
 
 
@@ -140,14 +140,20 @@
   - Add recurring task settings to TaskForm component
   - _Requirements: 6.1, 6.2, 6.3_
 
-- [ ] 11. Implement Kanban board view for tasks
+- [x] 11. Implement Kanban board view for tasks
+
+
+
+
   - Create TaskBoard component with drag-and-drop columns for task statuses
   - Implement task status updates through drag-and-drop interactions
   - Add task filtering and search functionality to board view
   - Create toggle between list and board views for tasks
   - _Requirements: 3.1, 3.5, 9.3_
 
-- [ ] 12. Add search and filtering capabilities
+- [-] 12. Add search and filtering capabilities
+
+
   - Implement global search functionality across workspaces, projects, and tasks
   - Add filtering options for task priority, status, assignment, and tags
   - Create search and filter UI components with clear/reset functionality

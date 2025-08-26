@@ -11,6 +11,7 @@ interface TaskAssignmentSelectorProps {
   currentUserId?: string;
   onAssignmentChange: (userId: string | null) => void;
   disabled?: boolean;
+  compact?: boolean;
 }
 
 // Mock users for now - in a real app, this would come from a users API
@@ -23,7 +24,8 @@ const mockUsers = [
 function TaskAssignmentSelector({ 
   currentUserId, 
   onAssignmentChange, 
-  disabled = false 
+  disabled = false,
+  compact = false
 }: TaskAssignmentSelectorProps) {
   const currentUser = mockUsers.find(user => user.userId === currentUserId);
 
@@ -34,17 +36,17 @@ function TaskAssignmentSelector({
           variant="ghost"
           size="sm"
           disabled={disabled}
-          className="h-8 px-2 text-xs"
+          className={compact ? "h-6 px-1 text-xs" : "h-8 px-2 text-xs"}
         >
           {currentUser ? (
             <>
               <User className="h-3 w-3 mr-1" />
-              {currentUser.name}
+              {compact ? currentUser.name.split(' ')[0] : currentUser.name}
             </>
           ) : (
             <>
               <UserX className="h-3 w-3 mr-1" />
-              Unassigned
+              {compact ? 'None' : 'Unassigned'}
             </>
           )}
         </Button>

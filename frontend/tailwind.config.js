@@ -6,6 +6,7 @@ export default {
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
   ],
+  plugins: [require('@tailwindcss/line-clamp')],
   theme: {
     extend: {
       colors: {
