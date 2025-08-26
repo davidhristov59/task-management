@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, Repeat } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
@@ -25,6 +25,8 @@ import { Badge } from '../ui/badge';
 import { TaskPriority, TaskStatus } from '../../types';
 import type { CreateTaskRequest, UpdateTaskRequest } from '../../types';
 import type { NormalizedTask } from '../../utils/taskUtils';
+import RecurringTaskForm from './RecurringTaskForm';
+import { useRecurringTask, useCreateRecurringTask, useUpdateRecurringTask, useDeleteRecurringTask } from '../../hooks/useRecurringTasks';
 
 const taskFormSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title must be less than 200 characters'),
@@ -49,6 +51,13 @@ function TaskForm({ isOpen, onClose, onSubmit, task, isLoading = false }: TaskFo
   const [categories, setCategories] = useState<string[]>([]);
   const [newTag, setNewTag] = useState('');
   const [newCategory, setNewCategory] = useState('');
+  const [showRecurringForm, setShowRecurringForm] = useState(false);
+
+  // Recurring task hooks
+  const { data: recurringRule } = useRecurringTask(task?.taskId || '');
+  const createRecurringMutation = useCreateRecurringTask();
+  const updateRecurringMutation = useUpdateRecurringTask();
+  const deleteRecurringMutation = useDeleteRecurringTask();
 
   const {
     register,
@@ -122,6 +131,7 @@ function TaskForm({ isOpen, onClose, onSubmit, task, isLoading = false }: TaskFo
         tags: tags, // Send as string array
         categories: categories, // Send as string array
       };
+      
       onSubmit(createData);
     }
   };
@@ -146,6 +156,40 @@ function TaskForm({ isOpen, onClose, onSubmit, task, isLoading = false }: TaskFo
 
   const removeCategory = (categoryToRemove: string) => {
     setCategories(categories.filter(category => category !== categoryToRemove));
+  };
+
+  const handleRecurringSubmit = (recurringData: any) => {
+    if (!task?.taskId) return;
+
+    if (recurringRule) {
+      updateRecurringMutation.mutate(
+        { taskId: task.taskId, data: recurringData },
+        {
+          onSuccess: () => {
+            setShowRecurringForm(false);
+          },
+        }
+      );
+    } else {
+      createRecurringMutation.mutate(
+        { taskId: task.taskId, data: recurringData },
+        {
+          onSuccess: () => {
+            setShowRecurringForm(false);
+          },
+        }
+      );
+    }
+  };
+
+  const handleRecurringDelete = () => {
+    if (!task?.taskId) return;
+
+    deleteRecurringMutation.mutate(task.taskId, {
+      onSuccess: () => {
+        setShowRecurringForm(false);
+      },
+    });
   };
 
   return (
@@ -314,15 +358,53 @@ function TaskForm({ isOpen, onClose, onSubmit, task, isLoading = false }: TaskFo
             )}
           </div>
 
+          {/* Recurring Task Settings - Only show for existing tasks */}
+          {task && (
+            <div className="space-y-2">
+              <Label>Recurring Task</Label>
+              <div className="flex items-center justify-between p-3 border rounded-md">
+                <div className="flex items-center gap-2">
+                  <Repeat className="h-4 w-4" />
+                  <span className="text-sm">
+                    {recurringRule 
+                      ? `Repeats every ${recurringRule.interval} ${recurringRule.type.toLowerCase()}${recurringRule.interval > 1 ? 's' : ''}`
+                      : 'No recurrence set'
+                    }
+                  </span>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowRecurringForm(true)}
+                >
+                  {recurringRule ? 'Edit' : 'Set Recurrence'}
+                </Button>
+              </div>
+            </div>
+          )}
+
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button className='bg-black text-white' type="submit" disabled={isLoading}>
               {isLoading ? 'Saving...' : task ? 'Update Task' : 'Create Task'}
             </Button>
           </DialogFooter>
         </form>
+
+        {/* Recurring Task Form - Only for existing tasks */}
+        {task && (
+          <RecurringTaskForm
+            isOpen={showRecurringForm}
+            onClose={() => setShowRecurringForm(false)}
+            onSubmit={handleRecurringSubmit}
+            onDelete={recurringRule ? handleRecurringDelete : undefined}
+            existingRule={recurringRule}
+            isLoading={createRecurringMutation.isPending || updateRecurringMutation.isPending || deleteRecurringMutation.isPending}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -1,23 +1,31 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, User, Tag, Folder, Clock, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Tag, Folder, Clock, AlertCircle, Repeat } from 'lucide-react';
 import { useTask, useUpdateTask, useAssignTask, useUnassignTask } from '../hooks/useTasks';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import TaskStatusSelector from '../components/tasks/TaskStatusSelector';
 import TaskAssignmentSelector from '../components/tasks/TaskAssignmentSelector';
-import { CommentSection, AttachmentManager } from '../components/tasks';
+import { CommentSection, AttachmentManager, RecurringTaskForm } from '../components/tasks';
 import { TaskPriority, TaskStatus } from '../types';
+import { useRecurringTask, useCreateRecurringTask, useUpdateRecurringTask, useDeleteRecurringTask } from '../hooks/useRecurringTasks';
 
 function TaskDetailPage() {
   const { workspaceId, projectId, taskId } = useParams();
   const navigate = useNavigate();
+  const [showRecurringForm, setShowRecurringForm] = useState(false);
 
   const { data: task, isLoading, error } = useTask(
     workspaceId || '',
     projectId || '',
     taskId || ''
   );
+
+  const { data: recurringRule } = useRecurringTask(taskId || '');
+  const createRecurringMutation = useCreateRecurringTask();
+  const updateRecurringMutation = useUpdateRecurringTask();
+  const deleteRecurringMutation = useDeleteRecurringTask();
 
   const updateTaskMutation = useUpdateTask();
   const assignTaskMutation = useAssignTask();
@@ -110,6 +118,40 @@ function TaskDetailPage() {
     });
   };
 
+  const handleRecurringSubmit = (recurringData: any) => {
+    if (!taskId) return;
+
+    if (recurringRule) {
+      updateRecurringMutation.mutate(
+        { taskId, data: recurringData },
+        {
+          onSuccess: () => {
+            setShowRecurringForm(false);
+          },
+        }
+      );
+    } else {
+      createRecurringMutation.mutate(
+        { taskId, data: recurringData },
+        {
+          onSuccess: () => {
+            setShowRecurringForm(false);
+          },
+        }
+      );
+    }
+  };
+
+  const handleRecurringDelete = () => {
+    if (!taskId) return;
+
+    deleteRecurringMutation.mutate(taskId, {
+      onSuccess: () => {
+        setShowRecurringForm(false);
+      },
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -164,7 +206,7 @@ function TaskDetailPage() {
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="space-y-2">
-              <CardTitle className="text-2xl">{task.title}</CardTitle>
+              <CardTitle className="text-2xl text-left">{task.title}</CardTitle>
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge className={getPriorityColor(task.priority)}>
                   {task.priority}
@@ -172,6 +214,12 @@ function TaskDetailPage() {
                 <Badge className={getStatusColor(task.status)}>
                   {task.status.replace('_', ' ')}
                 </Badge>
+                {recurringRule && (
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    <Repeat className="h-3 w-3" />
+                    Recurring
+                  </Badge>
+                )}
                 {task.deadline && (
                   <div className="flex items-center gap-1 text-sm text-gray-600">
                     <Calendar className="h-4 w-4" />
@@ -191,15 +239,58 @@ function TaskDetailPage() {
                 onAssignmentChange={handleAssignmentChange}
                 disabled={assignTaskMutation.isPending || unassignTaskMutation.isPending}
               />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowRecurringForm(true)}
+                className="flex items-center gap-1"
+              >
+                <Repeat className="h-4 w-4" />
+                {recurringRule ? 'Edit Recurrence' : 'Make Recurring'}
+              </Button>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Description */}
           <div>
-            <h3 className="font-semibold mb-2">Description</h3>
-            <p className="text-gray-700 whitespace-pre-wrap">{task.description}</p>
+            <h3 className="font-semibold mb-2 text-left">Description</h3>
+            <p className="text-gray-700 whitespace-pre-wrap text-left">{task.description}</p>
           </div>
+
+          {/* Recurring Task Details */}
+          {recurringRule && (
+            <div className="pt-4 border-t">
+              <div className="flex items-center gap-2 mb-3">
+                <Repeat className="h-4 w-4 text-gray-600" />
+                <h3 className="font-semibold">Recurring Task Settings</h3>
+              </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-blue-800">Frequency:</span>
+                    <span className="text-sm text-blue-700">
+                      Every {recurringRule.interval} {recurringRule.type.toLowerCase()}{recurringRule.interval > 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  {recurringRule.endDate && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-blue-800">Ends:</span>
+                      <span className="text-sm text-blue-700">
+                        {formatDate(recurringRule.endDate)}
+                      </span>
+                    </div>
+                  )}
+                  {!recurringRule.endDate && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-blue-800">Duration:</span>
+                      <span className="text-sm text-blue-700">No end date</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Metadata */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
@@ -271,6 +362,16 @@ function TaskDetailPage() {
         workspaceId={workspaceId || ''}
         projectId={projectId || ''}
         taskId={task.taskId}
+      />
+
+      {/* Recurring Task Form */}
+      <RecurringTaskForm
+        isOpen={showRecurringForm}
+        onClose={() => setShowRecurringForm(false)}
+        onSubmit={handleRecurringSubmit}
+        onDelete={recurringRule ? handleRecurringDelete : undefined}
+        existingRule={recurringRule}
+        isLoading={createRecurringMutation.isPending || updateRecurringMutation.isPending || deleteRecurringMutation.isPending}
       />
     </div>
   );

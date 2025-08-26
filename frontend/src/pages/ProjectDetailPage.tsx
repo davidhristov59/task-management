@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Settings } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { TaskList, TaskForm, TaskDeleteConfirmation } from '../components/tasks';
+import { useCreateRecurringTask } from '../hooks/useRecurringTasks';
 import {
   useTasks,
   useCreateTask,
@@ -36,6 +37,7 @@ function ProjectDetailPage() {
   const completeTaskMutation = useCompleteTask();
   const assignTaskMutation = useAssignTask();
   const unassignTaskMutation = useUnassignTask();
+  const createRecurringMutation = useCreateRecurringTask();
 
   const handleCreateTask = () => {
     setEditingTask(undefined);
@@ -47,7 +49,9 @@ function ProjectDetailPage() {
     setIsTaskFormOpen(true);
   };
 
-  const handleTaskFormSubmit = (data: CreateTaskRequest | UpdateTaskRequest) => {
+
+
+  const handleTaskFormSubmit = (data: CreateTaskRequest | UpdateTaskRequest, pendingRecurrence?: any) => {
     if (editingTask) {
       // Update existing task
       updateTaskMutation.mutate(
@@ -74,8 +78,15 @@ function ProjectDetailPage() {
           data: data as CreateTaskRequest
         },
         {
-          onSuccess: () => {
+          onSuccess: (response) => {
             setIsTaskFormOpen(false);
+            // If there's pending recurrence, apply it to the newly created task
+            if (pendingRecurrence && response?.taskId) {
+              createRecurringMutation.mutate({
+                taskId: response.taskId,
+                data: pendingRecurrence
+              });
+            }
             // Tasks will be automatically revalidated by the mutation
           },
         }
