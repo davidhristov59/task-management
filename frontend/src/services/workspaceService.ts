@@ -3,9 +3,7 @@ import type {
   Workspace,
   CreateWorkspaceRequest,
   UpdateWorkspaceRequest,
-  AddWorkspaceMemberRequest,
-  WorkspaceResponse,
-  ApiResponse
+  AddWorkspaceMemberRequest
 } from '../types';
 
 export const workspaceService = {

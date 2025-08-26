@@ -22,11 +22,11 @@ export const useTasks = (workspaceId: string, projectId: string) => {
 };
 
 // Get task by ID
-export const useTask = (taskId: string) => {
+export const useTask = (workspaceId: string, projectId: string, taskId: string) => {
   return useQuery({
     queryKey: taskKeys.detail(taskId),
-    queryFn: () => taskService.getTask(taskId),
-    enabled: !!taskId,
+    queryFn: () => taskService.getTask(workspaceId, projectId, taskId),
+    enabled: !!workspaceId && !!projectId && !!taskId,
   });
 };
 
@@ -64,15 +64,24 @@ export const useUpdateTask = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ taskId, data }: { taskId: string; data: UpdateTaskRequest }) =>
-      taskService.updateTask(taskId, data),
-    onSuccess: (updatedTask) => {
+    mutationFn: ({ 
+      workspaceId, 
+      projectId, 
+      taskId, 
+      data 
+    }: { 
+      workspaceId: string; 
+      projectId: string; 
+      taskId: string; 
+      data: UpdateTaskRequest 
+    }) => taskService.updateTask(workspaceId, projectId, taskId, data),
+    onSuccess: (updatedTask, { workspaceId, projectId }) => {
       // Update the task in cache
       queryClient.setQueryData(taskKeys.detail(updatedTask.taskId), updatedTask);
       
       // Invalidate tasks list to reflect changes
       queryClient.invalidateQueries({ 
-        queryKey: taskKeys.list(updatedTask.workspaceId, updatedTask.projectId) 
+        queryKey: taskKeys.list(workspaceId, projectId) 
       });
     },
     onError: (error) => {
@@ -86,13 +95,21 @@ export const useDeleteTask = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: taskService.deleteTask,
-    onSuccess: (_, taskId) => {
+    mutationFn: ({ 
+      workspaceId, 
+      projectId, 
+      taskId 
+    }: { 
+      workspaceId: string; 
+      projectId: string; 
+      taskId: string 
+    }) => taskService.deleteTask(workspaceId, projectId, taskId),
+    onSuccess: (_, { workspaceId, projectId, taskId }) => {
       // Remove task from cache
       queryClient.removeQueries({ queryKey: taskKeys.detail(taskId) });
       
-      // Invalidate all task lists (we don't know which project it belonged to)
-      queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
+      // Invalidate tasks list for this project
+      queryClient.invalidateQueries({ queryKey: taskKeys.list(workspaceId, projectId) });
     },
     onError: (error) => {
       console.error('Failed to delete task:', error);
@@ -105,11 +122,19 @@ export const useCompleteTask = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: taskService.completeTask,
-    onSuccess: (_, taskId) => {
+    mutationFn: ({ 
+      workspaceId, 
+      projectId, 
+      taskId 
+    }: { 
+      workspaceId: string; 
+      projectId: string; 
+      taskId: string 
+    }) => taskService.completeTask(workspaceId, projectId, taskId),
+    onSuccess: (_, { workspaceId, projectId, taskId }) => {
       // Invalidate task detail and tasks list to refetch with updated status
       queryClient.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
-      queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: taskKeys.list(workspaceId, projectId) });
     },
     onError: (error) => {
       console.error('Failed to complete task:', error);
@@ -122,12 +147,21 @@ export const useAssignTask = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ taskId, userId }: { taskId: string; userId: string }) =>
-      taskService.assignTask(taskId, { userId }),
-    onSuccess: (_, { taskId }) => {
+    mutationFn: ({ 
+      workspaceId, 
+      projectId, 
+      taskId, 
+      userId 
+    }: { 
+      workspaceId: string; 
+      projectId: string; 
+      taskId: string; 
+      userId: string 
+    }) => taskService.assignTask(workspaceId, projectId, taskId, { userId }),
+    onSuccess: (_, { workspaceId, projectId, taskId }) => {
       // Invalidate task detail and tasks list to refetch with updated assignment
       queryClient.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
-      queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: taskKeys.list(workspaceId, projectId) });
     },
     onError: (error) => {
       console.error('Failed to assign task:', error);
@@ -140,11 +174,19 @@ export const useUnassignTask = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: taskService.unassignTask,
-    onSuccess: (_, taskId) => {
+    mutationFn: ({ 
+      workspaceId, 
+      projectId, 
+      taskId 
+    }: { 
+      workspaceId: string; 
+      projectId: string; 
+      taskId: string 
+    }) => taskService.unassignTask(workspaceId, projectId, taskId),
+    onSuccess: (_, { workspaceId, projectId, taskId }) => {
       // Invalidate task detail and tasks list to refetch without assignment
       queryClient.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
-      queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: taskKeys.list(workspaceId, projectId) });
     },
     onError: (error) => {
       console.error('Failed to unassign task:', error);

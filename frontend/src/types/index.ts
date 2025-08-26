@@ -42,16 +42,6 @@ export interface User {
   deleted: boolean;
 }
 
-export interface Tag {
-  id: string;
-  name: string;
-}
-
-export interface Category {
-  id: string;
-  name: string;
-}
-
 export interface Comment {
   commentId: string;
   authorId: string;
@@ -102,21 +92,25 @@ export interface Project {
 }
 
 export interface Task {
-  taskId: string;
+  taskId: {
+    value: string;
+  };
   title: string;
   description: string;
   workspaceId: string;
-  projectId: string;
+  projectId: {
+    value: string;
+  };
   assignedUserId?: string;
   status: TaskStatus;
   priority: TaskPriority;
   deadline?: string; // LocalDateTime as ISO string
   createdAt: string;
   lastModifiedAt?: string;
-  tags: Tag[];
-  categories: Category[];
-  attachments: Attachment[];
-  comments: Comment[];
+  tags: string; // JSON string of Tag[]
+  categories: string; // JSON string of Category[]
+  attachments: string; // JSON string of Attachment[]
+  comments: string; // JSON string of Comment[]
   deleted: boolean;
 }
 
@@ -158,8 +152,8 @@ export interface CreateTaskRequest {
   description: string;
   priority: TaskPriority;
   deadlineDate?: string;
-  tags: Tag[];
-  categories: Category[];
+  tags: string[];
+  categories: string[];
 }
 
 export interface UpdateTaskRequest {
@@ -167,8 +161,8 @@ export interface UpdateTaskRequest {
   description: string;
   priority: TaskPriority;
   deadline?: string;
-  tags: Tag[];
-  categories: Category[];
+  tags: string[];
+  categories: string[];
   status: TaskStatus;
 }
 

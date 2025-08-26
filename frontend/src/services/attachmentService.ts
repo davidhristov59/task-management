@@ -1,9 +1,7 @@
 import api from './api';
 import type {
   Attachment,
-  CreateAttachmentRequest,
-  AttachmentsResponse,
-  AttachmentResponse
+  CreateAttachmentRequest
 } from '../types';
 
 export const attachmentService = {

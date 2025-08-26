@@ -100,7 +100,13 @@
   - Add project archiving functionality and archive status display
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6_
 
-- [ ] 8. Build core task management functionality
+- [x] 8. Build core task management functionality
+
+
+
+
+
+
   - Create ProjectDetailPage showing tasks within selected project
   - Implement TaskList component with search, filter, and sort capabilities
   - Build TaskCard component displaying task info, priority, status, and assignment

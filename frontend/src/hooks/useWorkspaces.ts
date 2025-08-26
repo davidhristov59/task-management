@@ -36,7 +36,7 @@ export const useCreateWorkspace = () => {
 
   return useMutation({
     mutationFn: workspaceService.createWorkspace,
-    onSuccess: (workspaceId: string) => {
+    onSuccess: () => {
       // Invalidate and refetch workspaces list
       queryClient.invalidateQueries({ queryKey: workspaceKeys.lists() });
       

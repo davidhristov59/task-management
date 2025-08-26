@@ -2,9 +2,7 @@ import api from './api';
 import type {
   Comment,
   CreateCommentRequest,
-  UpdateCommentRequest,
-  CommentsResponse,
-  CommentResponse
+  UpdateCommentRequest
 } from '../types';
 
 export const commentService = {

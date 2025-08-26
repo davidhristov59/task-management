@@ -1,8 +1,7 @@
 import api from './api';
 import type {
   RecurrenceRule,
-  CreateRecurringTaskRequest,
-  RecurrenceRuleResponse
+  CreateRecurringTaskRequest
 } from '../types';
 
 export const recurringService = {
