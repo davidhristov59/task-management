@@ -7,16 +7,44 @@ import type {
 } from '../types';
 
 export const workspaceService = {
+  // Helper function to transform API workspace response
+  transformWorkspace: (apiWorkspace: any): Workspace => {
+    // Transform memberIdsList (array of JSON strings) to memberIds (array of strings)
+    let memberIds: string[] = [];
+    
+    if (apiWorkspace.memberIdsList && Array.isArray(apiWorkspace.memberIdsList)) {
+      memberIds = apiWorkspace.memberIdsList.map((memberStr: string) => {
+        try {
+          const memberObj = JSON.parse(memberStr);
+          return memberObj.userId || memberStr;
+        } catch (error) {
+          // If parsing fails, return the string as-is
+          return memberStr;
+        }
+      });
+    } else if (apiWorkspace.memberIds && Array.isArray(apiWorkspace.memberIds)) {
+      // Fallback to memberIds if it exists
+      memberIds = apiWorkspace.memberIds;
+    }
+
+    return {
+      ...apiWorkspace,
+      memberIds,
+      // Remove the original memberIdsList to avoid confusion
+      memberIdsList: undefined,
+    };
+  },
+
   // Get all workspaces
   getWorkspaces: async (): Promise<Workspace[]> => {
-    const response = await api.get<Workspace[]>('/workspaces');
-    return response.data;
+    const response = await api.get<any[]>('/workspaces');
+    return response.data.map(workspaceService.transformWorkspace);
   },
 
   // Get workspace by ID
   getWorkspace: async (workspaceId: string): Promise<Workspace> => {
-    const response = await api.get<Workspace>(`/workspaces/${workspaceId}`);
-    return response.data;
+    const response = await api.get<any>(`/workspaces/${workspaceId}`);
+    return workspaceService.transformWorkspace(response.data);
   },
 
   // Create new workspace

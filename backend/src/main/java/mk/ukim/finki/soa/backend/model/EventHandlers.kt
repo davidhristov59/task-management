@@ -73,7 +73,13 @@ class WorkspaceEventHandler(private val repository: WorkspaceViewRepository) {
     fun on(event: MemberRemovedFromWorkspaceEvent) {
         repository.findById(event.workspaceId).ifPresent { workspace ->
             val currentMembers = workspace.getMemberIdsList().toMutableSet()
-            currentMembers.remove(event.memberId)
+            val memberToRemove = event.memberId
+            val jsonMemberToRemove = "{\"userId\":\"$memberToRemove\"}"
+            
+            val wasRemovedPlain = currentMembers.remove(memberToRemove)
+            val wasRemovedJson = currentMembers.remove(jsonMemberToRemove)
+            val wasRemoved = wasRemovedPlain || wasRemovedJson
+            
             workspace.memberIds = currentMembers.joinToString(",")
             workspace.lastModifiedAt = event.timestamp
             repository.save(workspace)

@@ -264,9 +264,7 @@ export function WorkspaceList({ onWorkspaceClick }: WorkspaceListProps) {
         <WorkspaceForm
           workspace={editingWorkspace}
           onClose={handleFormClose}
-          onSuccess={() => {
-            refetch(); // Explicitly refetch the workspaces
-          }}
+          onSuccess={handleFormClose} // The hooks already handle revalidation
         />
       )}
 
@@ -275,9 +273,6 @@ export function WorkspaceList({ onWorkspaceClick }: WorkspaceListProps) {
         <WorkspaceMemberManager
           workspace={managingMembersWorkspace}
           onClose={handleMemberManagerClose}
-          onMemberChange={() => {
-            refetch(); // Explicitly refetch when members change
-          }}
         />
       )}
     </div>

@@ -141,7 +141,27 @@ export function WorkspaceCard({
             <div className="flex items-center justify-between text-xs text-gray-500">
               <div className="flex items-center space-x-1">
                 <Users className="h-3 w-3" />
-                <span>{(workspace.memberIds || []).length} member{(workspace.memberIds || []).length !== 1 ? 's' : ''}</span>
+                <span>{(() => {
+                  // Helper function to extract member IDs from various formats
+                  const extractMemberIds = (workspace: any): string[] => {
+                    if (Array.isArray(workspace.memberIds)) {
+                      return workspace.memberIds;
+                    }
+                    if (Array.isArray(workspace.memberIdsList)) {
+                      return workspace.memberIdsList.map((memberStr: string) => {
+                        try {
+                          const memberObj = JSON.parse(memberStr);
+                          return memberObj.userId || memberStr;
+                        } catch (error) {
+                          return memberStr;
+                        }
+                      });
+                    }
+                    return [];
+                  };
+                  const memberCount = extractMemberIds(workspace).length;
+                  return `${memberCount} member${memberCount !== 1 ? 's' : ''}`;
+                })()}</span>
               </div>
               <div className="flex items-center space-x-1">
                 <Calendar className="h-3 w-3" />

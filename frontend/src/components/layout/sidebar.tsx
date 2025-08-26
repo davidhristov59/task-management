@@ -60,7 +60,7 @@ export function Sidebar() {
             !sidebarCollapsed && "group-hover:scale-110"
           )} />
           {!sidebarCollapsed && (
-            <span className="font-medium">Workspaces</span>
+            <span className="font-medium">Home</span>
           )}
         </Link>
 

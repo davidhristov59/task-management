@@ -71,12 +71,7 @@ class WorkspaceModificationServiceImpl(
             if (workspace.archived) {
                 CompletableFuture.failedFuture(IllegalStateException("Workspace must not be archived before removing members"))
             } else {
-                val memberIds = workspace.getMemberIdsList()
-                if (!memberIds.contains(command.memberId)) {
-                    CompletableFuture.failedFuture(IllegalStateException("Member does not exist in the workspace"))
-                } else {
-                    commandGateway.send(command)
-                }
+                commandGateway.send<WorkspaceId>(command)
             }
         } catch (e: Exception) {
             CompletableFuture.failedFuture(e)

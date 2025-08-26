@@ -19,22 +19,49 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useAddWorkspaceMember, useRemoveWorkspaceMember } from '@/hooks';
+import { useAddWorkspaceMember, useRemoveWorkspaceMember, useWorkspace } from '@/hooks';
 import type { Workspace } from '@/types';
 
 interface WorkspaceMemberManagerProps {
   workspace: Workspace;
   onClose: () => void;
-  onMemberChange?: () => void; // Optional callback when members change
 }
 
-export function WorkspaceMemberManager({ workspace, onClose, onMemberChange }: WorkspaceMemberManagerProps) {
+export function WorkspaceMemberManager({ workspace, onClose }: WorkspaceMemberManagerProps) {
   const [newMemberUserId, setNewMemberUserId] = useState('');
   const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
   const [isAddingMember, setIsAddingMember] = useState(false);
 
-  // Ensure memberIds is always an array
-  const memberIds = workspace.memberIds || [];
+  // Fetch fresh workspace data from cache to get real-time updates
+  const { data: freshWorkspace } = useWorkspace(workspace.workspaceId);
+
+  // Use fresh data if available, fallback to prop
+  const currentWorkspace = freshWorkspace || workspace;
+
+  // Helper function to extract member IDs from various formats
+  const extractMemberIds = (workspace: any): string[] => {
+    // If memberIds exists and is an array, use it
+    if (Array.isArray(workspace.memberIds)) {
+      return workspace.memberIds;
+    }
+
+    // If memberIdsList exists, parse it
+    if (Array.isArray(workspace.memberIdsList)) {
+      return workspace.memberIdsList.map((memberStr: string) => {
+        try {
+          const memberObj = JSON.parse(memberStr);
+          return memberObj.userId || memberStr;
+        } catch (error) {
+          return memberStr;
+        }
+      });
+    }
+
+    return [];
+  };
+
+  // Ensure memberIds is always an array and handle various data types
+  const memberIds = extractMemberIds(currentWorkspace);
 
   const addMemberMutation = useAddWorkspaceMember();
   const removeMemberMutation = useRemoveWorkspaceMember();
@@ -51,11 +78,11 @@ export function WorkspaceMemberManager({ workspace, onClose, onMemberChange }: W
     try {
       setIsAddingMember(true);
       await addMemberMutation.mutateAsync({
-        workspaceId: workspace.workspaceId,
+        workspaceId: currentWorkspace.workspaceId,
         userId: newMemberUserId.trim(),
       });
       setNewMemberUserId('');
-      onMemberChange?.(); // Notify parent of member change
+      // Don't call onMemberChange here to keep modal open after adding member
     } catch (error) {
       console.error('Failed to add member:', error);
       alert('Failed to add member. Please check the user ID and try again.');
@@ -66,25 +93,25 @@ export function WorkspaceMemberManager({ workspace, onClose, onMemberChange }: W
 
   const handleRemoveMember = async (userId: string) => {
     // Don't allow removing the owner
-    if (userId === workspace.ownerId) {
+    if (userId === currentWorkspace.ownerId) {
       alert('Cannot remove the workspace owner');
       return;
     }
 
     try {
       await removeMemberMutation.mutateAsync({
-        workspaceId: workspace.workspaceId,
+        workspaceId: currentWorkspace.workspaceId,
         userId,
       });
       setRemovingMemberId(null);
-      onMemberChange?.(); // Notify parent of member change
+      // Don't call onMemberChange here to keep modal open after removing member
     } catch (error) {
       console.error('Failed to remove member:', error);
       alert('Failed to remove member. Please try again.');
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleAddMember();
     }
@@ -97,7 +124,7 @@ export function WorkspaceMemberManager({ workspace, onClose, onMemberChange }: W
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2">
               <Users className="h-5 w-5" />
-              <span>Manage Members - {workspace.title}</span>
+              <span>Manage Members - {currentWorkspace.title}</span>
             </DialogTitle>
           </DialogHeader>
 
@@ -111,7 +138,7 @@ export function WorkspaceMemberManager({ workspace, onClose, onMemberChange }: W
                   placeholder="Enter user ID"
                   value={newMemberUserId}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewMemberUserId(e.target.value)}
-                  onKeyPress={handleKeyPress}
+                  onKeyDown={handleKeyDown}
                   className="flex-1"
                 />
                 <Button
@@ -137,7 +164,7 @@ export function WorkspaceMemberManager({ workspace, onClose, onMemberChange }: W
                 <Label>Current Members ({memberIds.length})</Label>
               </div>
 
-              {(workspace.memberIds || []).length === 0 ? (
+              {memberIds.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <Users className="h-8 w-8 mx-auto mb-2 text-gray-300" />
                   <p>No members in this workspace yet</p>
@@ -145,7 +172,7 @@ export function WorkspaceMemberManager({ workspace, onClose, onMemberChange }: W
                 </div>
               ) : (
                 <div className="space-y-2 max-h-60 overflow-y-auto">
-                  {(workspace.memberIds || []).map((memberId) => (
+                  {Array.isArray(memberIds) && memberIds.map((memberId) => (
                     <div
                       key={memberId}
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
@@ -158,13 +185,13 @@ export function WorkspaceMemberManager({ workspace, onClose, onMemberChange }: W
                         </div>
                         <div>
                           <p className="font-medium text-sm">{memberId}</p>
-                          {memberId === workspace.ownerId && (
+                          {memberId === currentWorkspace.ownerId && (
                             <p className="text-xs text-gray-500">Owner</p>
                           )}
                         </div>
                       </div>
-                      
-                      {memberId !== workspace.ownerId && (
+
+                      {memberId !== currentWorkspace.ownerId && (
                         <Button
                           variant="ghost"
                           size="sm"
@@ -182,7 +209,7 @@ export function WorkspaceMemberManager({ workspace, onClose, onMemberChange }: W
 
             {/* Actions */}
             <div className="flex justify-end pt-4 border-t">
-              <Button onClick={onClose} variant="outline">
+              <Button onClick={onClose} variant="outline" className='bg-black text-white'>
                 Done
               </Button>
             </div>
@@ -191,15 +218,15 @@ export function WorkspaceMemberManager({ workspace, onClose, onMemberChange }: W
       </Dialog>
 
       {/* Remove Member Confirmation */}
-      <AlertDialog 
-        open={!!removingMemberId} 
+      <AlertDialog
+        open={!!removingMemberId}
         onOpenChange={() => setRemovingMemberId(null)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Remove Member</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove "{removingMemberId}" from this workspace? 
+              Are you sure you want to remove "{removingMemberId}" from this workspace?
               They will lose access to all projects and tasks within this workspace.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -207,7 +234,7 @@ export function WorkspaceMemberManager({ workspace, onClose, onMemberChange }: W
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => removingMemberId && handleRemoveMember(removingMemberId)}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-red-600 hover:bg-red-700 text-white"
             >
               Remove Member
             </AlertDialogAction>

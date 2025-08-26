@@ -127,10 +127,13 @@ class WorkspaceRestApi(
         val command = RemoveMemberFromWorkspaceCommand(workspaceId = WorkspaceId(workspaceId), memberId = memberId)
 
         return workspaceModificationService.removeMemberFromWorkspace(command)
-            .thenApply { ResponseEntity.noContent().build<Void>() }
+            .thenApply { 
+                ResponseEntity.ok().build<Void>() 
+            }
             .exceptionally{ e ->
-                when (e.cause) {
+                                when (e.cause) {
                     is IllegalStateException -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+                    is IllegalArgumentException -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
                     else -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
                 }
             }
