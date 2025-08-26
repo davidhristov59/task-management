@@ -190,23 +190,10 @@ function TaskList({
           {/* View mode toggle */}
           <div className="flex items-center bg-white border border-gray-300 rounded-md shadow-sm">
             <Button
-              variant={taskViewMode === 'grid' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setTaskViewMode('grid')}
-              className={`rounded-r-none ${
-                taskViewMode === 'grid' 
-                  ? 'bg-black text-white hover:bg-gray-700' 
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              <Grid className="h-4 w-4 mr-1" />
-              Grid
-            </Button>
-            <Button
               variant={taskViewMode === 'board' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setTaskViewMode('board')}
-              className={`rounded-l-none border-l ${
+              className={`rounded-r-none ${
                 taskViewMode === 'board' 
                   ? 'bg-black text-white hover:bg-gray-700' 
                   : 'bg-white text-gray-700 hover:bg-gray-50'
@@ -214,6 +201,19 @@ function TaskList({
             >
               <Kanban className="h-4 w-4 mr-1" />
               Board
+            </Button>
+            <Button
+              variant={taskViewMode === 'grid' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setTaskViewMode('grid')}
+              className={`rounded-l-none border-l ${
+                taskViewMode === 'grid' 
+                  ? 'bg-black text-white hover:bg-gray-700' 
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <Grid className="h-4 w-4 mr-1" />
+              Grid
             </Button>
           </div>
 

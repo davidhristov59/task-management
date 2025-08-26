@@ -105,13 +105,13 @@ const WorkspaceDetailPage: React.FC = () => {
         <div className="flex-1">
           <div className="flex items-center space-x-3 mb-2">
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={() => navigate('/')}
-              className="text-gray-500 hover:text-gray-700"
+              className="flex items-center gap-2 bg-white hover:bg-gray-50 border-gray-300"
             >
               <ArrowLeft className="h-4 w-4 mr-1" />
-              Back
+              Back to Workspaces
             </Button>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 text-left">{workspace.title}</h1>
