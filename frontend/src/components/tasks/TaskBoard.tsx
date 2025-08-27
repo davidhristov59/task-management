@@ -271,7 +271,7 @@ function TaskBoard({
                     <div className="h-8 w-48 bg-gray-200 rounded animate-pulse" />
                     <div className="h-10 w-32 bg-gray-200 rounded animate-pulse" />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                     {BOARD_COLUMNS.map((column) => (
                         <div key={column.id} className="space-y-4">
                             <div className="h-8 bg-gray-200 rounded animate-pulse" />
@@ -295,7 +295,7 @@ function TaskBoard({
                 onDragOver={handleDragOver}
                 onDragEnd={handleDragEnd}
             >
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                     {BOARD_COLUMNS.map((column) => (
                         <TaskBoardColumn
                             key={column.id}

@@ -56,3 +56,110 @@
     color: hsl(var(--foreground));
   }
 }
+
+@layer utilities {
+  /* Responsive text truncation utilities */
+  .text-truncate-responsive {
+    @apply truncate sm:text-clip;
+  }
+  
+  /* Prevent content overflow in containers */
+  .container-safe {
+    @apply min-w-0 max-w-full overflow-hidden;
+  }
+  
+  /* Responsive flex utilities */
+  .flex-responsive {
+    @apply flex flex-col sm:flex-row;
+  }
+  
+  .flex-responsive-reverse {
+    @apply flex flex-col-reverse sm:flex-row;
+  }
+  
+  /* Safe spacing for mobile */
+  .spacing-safe {
+    @apply space-y-2 sm:space-y-0 sm:space-x-4;
+  }
+  
+  /* Responsive grid utilities */
+  .grid-responsive-cards {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+  
+  .grid-responsive-stats {
+    @apply grid grid-cols-2 sm:grid-cols-4;
+  }
+  
+  /* Button responsive utilities */
+  .btn-responsive {
+    @apply px-3 py-2 sm:px-4 sm:py-2;
+  }
+  
+  /* Text responsive utilities */
+  .text-responsive-lg {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+  
+  .text-responsive-xl {
+    @apply text-xl sm:text-2xl lg:text-3xl;
+  }
+  
+  /* Card content safety */
+  .card-content-safe {
+    @apply break-words overflow-hidden;
+  }
+  
+  /* Action button containers */
+  .actions-container {
+    @apply flex flex-col sm:flex-row items-stretch sm:items-center gap-2;
+  }
+  
+  /* Mobile-first responsive containers */
+  .mobile-container {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+  
+  /* Sidebar responsive utilities */
+  .sidebar-mobile {
+    @apply fixed left-0 top-16 z-50 w-64 sm:static sm:z-auto;
+  }
+  
+  /* Prevent horizontal scroll */
+  .no-horizontal-scroll {
+    @apply overflow-x-hidden max-w-full;
+  }
+  
+  /* Badge overflow prevention */
+  .badge-container {
+    @apply flex flex-wrap gap-1 max-w-full overflow-hidden;
+  }
+  
+  .badge-safe {
+    @apply truncate max-w-full inline-block;
+  }
+  
+  /* Task card specific fixes */
+  .task-card-header {
+    @apply flex items-start justify-between gap-2 min-w-0;
+  }
+  
+  .task-card-badges {
+    @apply flex flex-wrap items-center gap-1 flex-shrink-0 max-w-[45%] overflow-hidden;
+  }
+  
+  /* Ensure all card content stays within bounds */
+  .card-bounded {
+    @apply overflow-hidden min-w-0 max-w-full;
+  }
+  
+  /* Force all elements to respect container bounds */
+  .force-bounds * {
+    @apply max-w-full overflow-hidden;
+  }
+  
+  /* Specific badge overflow fixes */
+  .badge-overflow-fix {
+    @apply inline-block max-w-full truncate;
+  }
+}

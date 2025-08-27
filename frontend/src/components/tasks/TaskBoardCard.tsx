@@ -82,7 +82,7 @@ function TaskBoardCard({
       ref={setNodeRef}
       style={style}
       className={`
-        cursor-pointer transition-all duration-200 bg-white
+        cursor-pointer transition-all duration-200 bg-white card-bounded force-bounds
         ${isDragging || isSortableDragging ? 'shadow-lg rotate-3 opacity-90' : 'hover:shadow-md'}
         ${isOver ? 'ring-2 ring-blue-300 ring-opacity-50' : ''}
         ${isOverdue ? 'border-red-200 bg-red-50' : 'border-gray-200'}
@@ -90,20 +90,20 @@ function TaskBoardCard({
       onClick={handleCardClick}
     >
       <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-2">
+        <div className="task-card-header">
           <div className="flex-1 min-w-0">
-            <h4 className="font-medium text-sm leading-tight text-left">
+            <h4 className="font-medium text-sm leading-tight text-left break-words">
               {task.title}
             </h4>
           </div>
-          <div className="flex items-center gap-1">
-            <Badge className={`${getPriorityColor(task.priority)} text-xs`}>
+          <div className="flex items-center gap-1 flex-shrink-0 max-w-[40%] overflow-hidden">
+            <Badge className={`${getPriorityColor(task.priority)} text-xs px-1 py-0.5 badge-safe`}>
               {task.priority}
             </Badge>
             <div
               {...attributes}
               {...listeners}
-              className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded"
+              className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded flex-shrink-0"
             >
               <GripVertical className="h-3 w-3 text-gray-400" />
             </div>
@@ -113,7 +113,7 @@ function TaskBoardCard({
         {/* Task Description - Condensed */}
         {task.description && (
           <div className="mt-2">
-            <p className="text-xs text-gray-600 leading-relaxed text-left">
+            <p className="text-xs text-gray-600 leading-relaxed text-left break-words">
               {task.description.length > 100 ? `${task.description.substring(0, 100)}...` : task.description}
             </p>
           </div>
@@ -137,11 +137,11 @@ function TaskBoardCard({
 
           {/* Tags - Show only first 2 */}
           {task.tags && task.tags.length > 0 && (
-            <div className="flex items-center gap-1 text-xs">
-              <TagIcon className="h-3 w-3" />
-              <div className="flex flex-wrap gap-1">
+            <div className="flex items-start gap-1 text-xs">
+              <TagIcon className="h-3 w-3 flex-shrink-0 mt-0.5" />
+              <div className="flex flex-wrap gap-1 min-w-0">
                 {task.tags.slice(0, 2).map((tag) => (
-                  <Badge key={tag.id} variant="outline" className="text-xs px-1 py-0">
+                  <Badge key={tag.id} variant="outline" className="text-xs px-1 py-0 truncate">
                     {tag.name}
                   </Badge>
                 ))}
@@ -165,7 +165,7 @@ function TaskBoardCard({
           )} */}
 
           {/* Action buttons - Compact */}
-          <div className="flex items-center justify-between pt-1 border-t border-gray-100">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pt-1 border-t border-gray-100">
             <TaskAssignmentSelector
               currentUserId={task.assignedUserId}
               onAssignmentChange={(userId) => onAssignmentChange?.(task.taskId, userId)}
@@ -173,7 +173,7 @@ function TaskBoardCard({
               workspaceMembers={workspaceMembers}
             />
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 flex-shrink-0">
               {onEdit && (
                 <Button
                   variant="ghost"

@@ -77,19 +77,21 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, workspaceId, viewMod
     return (
       <>
         <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow cursor-pointer">
-          <div className="flex items-center justify-between">
-            <div className="flex-1 flex items-center gap-4" onClick={handleCardClick}>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900">{project.title}</h3>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 min-w-0" onClick={handleCardClick}>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-semibold text-gray-900 truncate">{project.title}</h3>
                 {project.description && (
-                  <p className="text-gray-600 text-sm line-clamp-1">{project.description}</p>
+                  <p className="text-gray-600 text-sm line-clamp-1 break-words">{project.description}</p>
                 )}
               </div>
-              <Badge className={getStatusColor(project.status)}>
-                {project.status.replace('_', ' ')}
-              </Badge>
-              <div className="text-sm text-gray-500 min-w-0">
-                {project.createdAt && new Date(project.createdAt).toLocaleDateString()}
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <Badge className={getStatusColor(project.status)}>
+                  {project.status.replace('_', ' ')}
+                </Badge>
+                <div className="text-sm text-gray-500 hidden sm:block">
+                  {project.createdAt && new Date(project.createdAt).toLocaleDateString()}
+                </div>
               </div>
             </div>
 
@@ -134,18 +136,18 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, workspaceId, viewMod
 
   return (
     <>
-      <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1" onClick={handleCardClick}>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">{project.title}</h3>
+      <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow cursor-pointer">
+        <div className="flex items-start justify-between mb-4 gap-2">
+          <div className="flex-1 min-w-0" onClick={handleCardClick}>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2 truncate">{project.title}</h3>
             {project.description && (
-              <p className="text-gray-600 text-sm line-clamp-2">{project.description}</p>
+              <p className="text-gray-600 text-sm line-clamp-2 break-words">{project.description}</p>
             )}
           </div>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-gray-100">
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-gray-100 flex-shrink-0">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -178,7 +180,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, workspaceId, viewMod
           </DropdownMenu>
         </div>
 
-        <div className="flex items-center justify-between" onClick={handleCardClick}>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2" onClick={handleCardClick}>
           <Badge className={getStatusColor(project.status)}>
             {project.status.replace('_', ' ')}
           </Badge>

@@ -34,12 +34,12 @@ export function Sidebar() {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <aside
-      className={cn(
-        "h-[calc(100vh-4rem)] bg-white/95 backdrop-blur-sm border-r border-gray-200/60 transition-all duration-300 ease-in-out overflow-y-auto shadow-lg",
+      <aside
+        className={cn(
+          "h-[calc(100vh-4rem)] bg-white/95 backdrop-blur-sm border-r border-gray-200/60 transition-all duration-300 ease-in-out overflow-y-auto shadow-lg",
         sidebarCollapsed ? "w-16" : "w-64"
-      )}
-    >
+        )}
+      >
       <nav className={cn("p-4 space-y-3", sidebarCollapsed && "px-2")}>
         {/* Home/Workspaces Link */}
         <Link
@@ -71,12 +71,6 @@ export function Sidebar() {
               <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
                 Your Workspaces
               </span>
-              <button
-                className="p-1.5 hover:bg-white/80 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 group"
-                aria-label="Create workspace"
-              >
-                <Plus className="h-4 w-4 text-gray-500 group-hover:text-gray-600 transition-colors" />
-              </button>
             </div>
 
             {/* Loading state */}

@@ -137,17 +137,17 @@ export function WorkspaceList({ onWorkspaceClick }: WorkspaceListProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="mt-2 space-y-6">
       {/* Offline indicator */}
       {!isFullyConnected && <OfflineIndicator showDetails />}
       
       {/* Header Section */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-black">Workspaces</h1>
-          <p className="text-gray-600 mt-1">Organize your projects and collaborate with your team</p>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-black text-left">Workspaces</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base text-left">Organize your projects and collaborate with your team</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           {isFetching && (
             <RefreshCw className="h-4 w-4 animate-spin text-gray-400" />
           )}
@@ -157,14 +157,15 @@ export function WorkspaceList({ onWorkspaceClick }: WorkspaceListProps) {
             className="bg-black hover:bg-gray-800 text-white disabled:opacity-50"
           >
             <Plus className="h-4 w-4 mr-2" />
-            Create Workspace
+            <span className="hidden sm:inline">Create Workspace</span>
+            <span className="sm:hidden">Create</span>
           </Button>
         </div>
       </div>
 
       {/* Search and View Controls */}
       {workspaces.length > 0 && (
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
@@ -174,7 +175,7 @@ export function WorkspaceList({ onWorkspaceClick }: WorkspaceListProps) {
               className="pl-10"
             />
           </div>
-          <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
+          <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1 self-start">
             <Button
               variant="ghost"
               size="sm"
@@ -184,8 +185,8 @@ export function WorkspaceList({ onWorkspaceClick }: WorkspaceListProps) {
                 : 'text-gray-600 hover:text-black hover:bg-gray-200'
               }
             >
-              <Grid className="h-4 w-4 mr-1" />
-              Grid
+              <Grid className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">Grid</span>
             </Button>
             <Button
               variant="ghost"
@@ -196,8 +197,8 @@ export function WorkspaceList({ onWorkspaceClick }: WorkspaceListProps) {
                 : 'text-gray-600 hover:text-black hover:bg-gray-200'
               }
             >
-              <List className="h-4 w-4 mr-1" />
-              List
+              <List className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">List</span>
             </Button>
           </div>
         </div>
@@ -243,7 +244,7 @@ export function WorkspaceList({ onWorkspaceClick }: WorkspaceListProps) {
       {filteredWorkspaces.length > 0 && (
         <div className={
           viewMode === 'grid' 
-            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
             : "space-y-4"
         }>
           {filteredWorkspaces.map((workspace) => (

@@ -172,10 +172,10 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
                 }}
             >
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <div className="w-64 h-10 bg-gray-50 border border-gray-300 rounded-md pl-10 pr-16 flex items-center text-sm text-gray-500 hover:bg-gray-100 transition-colors">
-                    Search everything...
+                <div className="w-48 sm:w-64 h-10 bg-gray-50 border border-gray-300 rounded-md pl-10 pr-12 sm:pr-16 flex items-center text-sm text-gray-500 hover:bg-gray-100 transition-colors">
+                    <span className="truncate">Search everything...</span>
                 </div>
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 hidden sm:block">
                     <kbd className="px-2 py-1 text-xs font-semibold text-gray-500 bg-gray-100 border border-gray-300 rounded">
                         ⌘ + K
                     </kbd>
@@ -189,7 +189,7 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
                     onClick={handleClose}
                 >
                     <div 
-                        className="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[32rem] overflow-hidden"
+                        className="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[80vh] sm:max-h-[32rem] overflow-hidden"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Search input */}

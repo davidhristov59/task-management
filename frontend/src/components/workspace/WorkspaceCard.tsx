@@ -130,18 +130,18 @@ export function WorkspaceCard({
         <CardContent className="pt-0">
           <div className="space-y-3">
             <div>
-              <h3 className="text-lg font-semibold text-black mb-1">
+              <h3 className="text-lg font-semibold text-black mb-1 truncate">
                 {workspace.title}
               </h3>
-              <p className="text-gray-600 text-sm line-clamp-2">
+              <p className="text-gray-600 text-sm line-clamp-2 break-words">
                 {workspace.description || "No description provided"}
               </p>
             </div>
             
-            <div className="flex items-center justify-between text-xs text-gray-500">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-gray-500">
               <div className="flex items-center space-x-1">
-                <Users className="h-3 w-3" />
-                <span>{(() => {
+                <Users className="h-3 w-3 flex-shrink-0" />
+                <span className="truncate">{(() => {
                   // Helper function to extract member IDs from various formats
                   const extractMemberIds = (workspace: any): string[] => {
                     if (Array.isArray(workspace.memberIds)) {
@@ -164,16 +164,16 @@ export function WorkspaceCard({
                 })()}</span>
               </div>
               <div className="flex items-center space-x-1">
-                <Calendar className="h-3 w-3" />
-                <span>Created {formatDate(workspace.createdAt)}</span>
+                <Calendar className="h-3 w-3 flex-shrink-0" />
+                <span className="truncate">Created {formatDate(workspace.createdAt)}</span>
               </div>
             </div>
             
-            <div className="flex items-center justify-between">
-              <div className="text-xs text-gray-400 font-mono">
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-xs text-gray-400 font-mono truncate min-w-0">
                 ID: {workspace.workspaceId.slice(0, 8)}...
               </div>
-              <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+              <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded flex-shrink-0">
                 {workspace.archived ? 'Archived' : 'Active'}
               </div>
             </div>

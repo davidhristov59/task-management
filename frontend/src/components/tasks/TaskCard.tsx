@@ -58,24 +58,24 @@ function TaskCard({
 
   return (
     <Card
-      className={`hover:shadow-md transition-shadow cursor-pointer ${isOverdue ? 'border-red-200 bg-red-50' : ''
+      className={`hover:shadow-md transition-shadow cursor-pointer card-bounded force-bounds ${isOverdue ? 'border-red-200 bg-red-50' : ''
         }`}
       onClick={() => onClick?.(task)}
     >
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-4">
+        <div className="task-card-header">
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-lg truncate text-left">{task.title}</h3>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge className={getPriorityColor(task.priority)}>
+          <div className="task-card-badges">
+            <Badge className={`${getPriorityColor(task.priority)} text-xs px-2 py-1 badge-safe`}>
               {task.priority}
             </Badge>
-            <Badge className={getStatusColor(task.status)}>
+            <Badge className={`${getStatusColor(task.status)} text-xs px-2 py-1 badge-safe`}>
               {task.status.replace('_', ' ')}
             </Badge>
             {/* {recurringRule && (
-              <Badge variant="outline" className="flex items-center gap-1">
+              <Badge variant="outline" className="flex items-center gap-1 text-xs badge-safe">
                 <Repeat className="h-3 w-3" />
                 Recurring
               </Badge>
@@ -86,7 +86,7 @@ function TaskCard({
         {/* Task Description - More prominent */}
         {task.description && (
           <div className="mt-3 p-3 bg-gray-50 rounded-md border-l-4 border-black">
-            <p className="text-sm text-gray-700 leading-relaxed text-left">
+            <p className="text-sm text-gray-700 leading-relaxed text-left break-words">
               {task.description}
             </p>
           </div>
@@ -110,11 +110,11 @@ function TaskCard({
 
           {/* Tags */}
           {task.tags && task.tags.length > 0 && (
-            <div className="flex items-center gap-2 text-sm">
-              <TagIcon className="h-4 w-4" />
-              <div className="flex flex-wrap gap-1">
+            <div className="flex items-start gap-2 text-sm">
+              <TagIcon className="h-4 w-4 flex-shrink-0 mt-0.5" />
+              <div className="flex flex-wrap gap-1 min-w-0">
                 {task.tags.map((tag) => (
-                  <Badge variant="outline" className="text-xs">
+                  <Badge variant="outline" className="text-xs truncate">
                     {tag.name}
                   </Badge>
                 ))}
@@ -126,7 +126,7 @@ function TaskCard({
           {task.categories && task.categories.length > 0 && (
             <div className="flex flex-wrap gap-1">
               {task.categories.map((category) => (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs truncate">
                   {category.name}
                 </Badge>
               ))}
@@ -134,8 +134,8 @@ function TaskCard({
           )}
 
           {/* Action buttons */}
-          <div className="flex items-center justify-between pt-2 border-t">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 min-w-0 flex-1">
               <TaskStatusSelector
                 currentStatus={task.status}
                 onStatusChange={(status) => onStatusChange?.(task.taskId, status)}
@@ -147,7 +147,7 @@ function TaskCard({
               />
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 flex-shrink-0">
               {onEdit && (
                 <Button
                   variant="ghost"
@@ -156,6 +156,7 @@ function TaskCard({
                     e.stopPropagation();
                     onEdit(task);
                   }}
+                  className="text-xs sm:text-sm"
                 >
                   Edit
                 </Button>
@@ -168,7 +169,7 @@ function TaskCard({
                     e.stopPropagation();
                     onDelete(task.taskId);
                   }}
-                  className="text-red-600 hover:text-red-700"
+                  className="text-red-600 hover:text-red-700 text-xs sm:text-sm"
                 >
                   Delete
                 </Button>

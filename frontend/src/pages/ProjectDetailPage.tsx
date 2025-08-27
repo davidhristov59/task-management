@@ -289,43 +289,45 @@ function ProjectDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="mt-2 flex flex-col lg:flex-row items-start justify-between gap-4">
+        <div className="flex items-center gap-4 min-w-0 flex-1">
           <Button
             variant="outline"
             size="sm"
             onClick={handleBackToWorkspace}
-            className="flex items-center gap-2 bg-white hover:bg-gray-50 border-gray-300"
+            className="flex items-center gap-2 bg-white hover:bg-gray-50 border-gray-300 flex-shrink-0"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Workspace
+            <span className="hidden sm:inline">Back to Workspace</span>
+            <span className="sm:hidden">Back</span>
           </Button>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
           <Button
             variant="outline"
             onClick={handleEditProject}
-            className="flex items-center gap-2"
+            className="flex items-center justify-center gap-2"
           >
             <Edit className="h-4 w-4" />
-            Edit
+            <span>Edit</span>
           </Button>
 
           <Button
             variant="outline"
             onClick={handleArchiveProject}
-            className="flex items-center gap-2"
+            className="flex items-center justify-center gap-2"
           >
             {project?.archived ? (
               <>
                 <ArchiveRestore className="h-4 w-4" />
-                Unarchive
+                <span className="hidden sm:inline">Unarchive</span>
+                <span className="sm:hidden">Restore</span>
               </>
             ) : (
               <>
                 <Archive className="h-4 w-4" />
-                Archive
+                <span>Archive</span>
               </>
             )}
           </Button>
@@ -333,23 +335,23 @@ function ProjectDetailPage() {
           <Button
             variant="outline"
             onClick={() => setShowDeleteProjectDialog(true)}
-            className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="flex items-center justify-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
           >
             <Trash2 className="h-4 w-4" />
-            Delete
+            <span>Delete</span>
           </Button>
         </div>
       </div>
 
-      <div>
-        <h1 className="text-3xl font-bold text-left">{project?.title || 'Project'}</h1>
+      <div className="min-w-0">
+        <h1 className="text-2xl sm:text-3xl font-bold text-left truncate">{project?.title || 'Project'}</h1>
         {project?.description && (
-          <p className="text-gray-600 text-left mt-1">{project.description}</p>
+          <p className="text-gray-600 text-left mt-1 break-words">{project.description}</p>
         )}
       </div>
 
       {/* Project Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-lg border">
           <div className="text-2xl font-bold text-blue-600">{tasks.length}</div>
           <div className="text-sm text-gray-600">Total Tasks</div>

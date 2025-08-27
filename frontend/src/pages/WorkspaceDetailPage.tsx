@@ -101,8 +101,8 @@ const WorkspaceDetailPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header Section */}
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
+      <div className="flex flex-col lg:flex-row items-start justify-between gap-4 mt-2">
+        <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-3 mb-2">
             <Button
               variant="outline"
@@ -111,38 +111,40 @@ const WorkspaceDetailPage: React.FC = () => {
               className="flex items-center gap-2 bg-white hover:bg-gray-50 border-gray-300"
             >
               <ArrowLeft className="h-4 w-4 mr-1" />
-              Back to Workspaces
+              <span className="hidden sm:inline">Back to Workspaces</span>
+              <span className="sm:hidden">Back</span>
             </Button>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 text-left">{workspace.title}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 text-left truncate">{workspace.title}</h1>
           {workspace.description && (
-            <p className="text-gray-600 mt-1 text-left">{workspace.description}</p>
+            <p className="text-gray-600 mt-1 text-left break-words">{workspace.description}</p>
           )}
-          <div className="flex items-center space-x-4 mt-3 text-sm text-gray-500">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mt-3 text-sm text-gray-500 gap-2">
             <div className="flex items-center space-x-1">
-              <Users className="h-4 w-4" />
+              <Users className="h-4 w-4 flex-shrink-0" />
               <span>{memberCount} member{memberCount !== 1 ? 's' : ''}</span>
             </div>
-            <div className="text-xs text-gray-400 font-mono">
+            <div className="text-xs text-gray-400 font-mono truncate">
               ID: {workspace.workspaceId.slice(0, 8)}...
             </div>
           </div>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
           <Button
             variant="outline"
             onClick={handleManageMembers}
-            className="flex items-center space-x-2"
+            className="flex items-center justify-center space-x-2"
           >
             <Users className="h-4 w-4" />
-            <span>Manage Members</span>
+            <span className="hidden sm:inline">Manage Members</span>
+            <span className="sm:hidden">Members</span>
           </Button>
 
           <Button
             variant="outline"
             onClick={handleEditWorkspace}
-            className="flex items-center space-x-2"
+            className="flex items-center justify-center space-x-2"
           >
             <Edit className="h-4 w-4" />
             <span>Edit</span>
@@ -151,7 +153,7 @@ const WorkspaceDetailPage: React.FC = () => {
           <Button
             variant="outline"
             onClick={() => setShowDeleteDialog(true)}
-            className="flex items-center space-x-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="flex items-center justify-center space-x-2 text-red-600 hover:text-red-700 hover:bg-red-50"
           >
             <Trash2 className="h-4 w-4" />
             <span>Delete</span>
