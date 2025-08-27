@@ -154,6 +154,17 @@ function TaskBoardCard({
             </div>
           )}
 
+          {/* Categories */}
+          {task.categories && task.categories.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {task.categories.map((category) => (
+                <Badge key={category.id} variant="secondary" className="text-xs truncate">
+                  {category.name}
+                </Badge>
+              ))}
+            </div>
+          )}
+
           {/* Recurring indicator */}
           {/* {recurringRule && (
             <div className="flex items-center gap-1">

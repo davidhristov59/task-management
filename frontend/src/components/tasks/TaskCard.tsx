@@ -82,7 +82,7 @@ function TaskCard({
             )} */}
           </div>
         </div>
-        
+
         {/* Task Description - More prominent */}
         {task.description && (
           <div className="mt-3 p-3 bg-gray-50 rounded-md border-l-4 border-black">
@@ -114,7 +114,7 @@ function TaskCard({
               <TagIcon className="h-4 w-4 flex-shrink-0 mt-0.5" />
               <div className="flex flex-wrap gap-1 min-w-0">
                 {task.tags.map((tag) => (
-                  <Badge variant="outline" className="text-xs truncate">
+                  <Badge key={tag.id} variant="outline" className="text-xs truncate">
                     {tag.name}
                   </Badge>
                 ))}
@@ -126,7 +126,7 @@ function TaskCard({
           {task.categories && task.categories.length > 0 && (
             <div className="flex flex-wrap gap-1">
               {task.categories.map((category) => (
-                <Badge variant="secondary" className="text-xs truncate">
+                <Badge key={category.id} variant="secondary" className="text-xs truncate">
                   {category.name}
                 </Badge>
               ))}

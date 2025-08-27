@@ -150,12 +150,6 @@ export function Sidebar() {
                         )}>
                           {workspace.title}
                         </span>
-                        <span className={cn(
-                          "text-xs truncate block",
-                          isCurrentWorkspace && !isActive('/') ? "text-white/80" : "text-gray-500"
-                        )}>
-                          {workspace.description || "No description"}
-                        </span>
                       </div>
                     </Link>
                   </div>
