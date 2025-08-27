@@ -17,6 +17,7 @@ interface TaskListProps {
   onTaskAssignmentChange?: (taskId: string, userId: string | null) => void;
   onCreateTask?: () => void;
   isLoading?: boolean;
+  workspaceMembers?: string[];
 }
 
 function TaskList({
@@ -28,6 +29,7 @@ function TaskList({
   onTaskAssignmentChange,
   onCreateTask,
   isLoading = false,
+  workspaceMembers = [],
 }: TaskListProps) {
   const [filters, setFilters] = useState<FilterOptions>({
     search: '',
@@ -246,6 +248,7 @@ function TaskList({
             onCreateTask={onCreateTask}
             isLoading={isLoading}
             searchQuery={filters.search || ''}
+            workspaceMembers={workspaceMembers}
           />
         </>
       ) : (
@@ -291,6 +294,7 @@ function TaskList({
                   onDelete={onTaskDelete}
                   onStatusChange={onTaskStatusChange}
                   onAssignmentChange={onTaskAssignmentChange}
+                  workspaceMembers={workspaceMembers}
                 />
               ))}
             </div>

@@ -17,6 +17,7 @@ interface TaskBoardCardProps {
   onDelete?: (taskId: string) => void;
   onClick?: (task: NormalizedTask) => void;
   isDragging?: boolean;
+  workspaceMembers?: string[];
 }
 
 const getPriorityColor = (priority: TaskPriority) => {
@@ -39,6 +40,7 @@ function TaskBoardCard({
   onDelete,
   onClick,
   isDragging = false,
+  workspaceMembers = [],
 }: TaskBoardCardProps) {
   const {
     attributes,
@@ -133,14 +135,6 @@ function TaskBoardCard({
             </div>
           )}
 
-          {/* Assignment */}
-          <div className="flex items-center gap-1 text-xs">
-            <User className="h-3 w-3" />
-            <span className="text-gray-600 truncate">
-              {task.assignedUserId ? `${task.assignedUserId}` : 'Unassigned'}
-            </span>
-          </div>
-
           {/* Tags - Show only first 2 */}
           {task.tags && task.tags.length > 0 && (
             <div className="flex items-center gap-1 text-xs">
@@ -176,6 +170,7 @@ function TaskBoardCard({
               currentUserId={task.assignedUserId}
               onAssignmentChange={(userId) => onAssignmentChange?.(task.taskId, userId)}
               compact={true}
+              workspaceMembers={workspaceMembers}
             />
 
             <div className="flex items-center gap-1">

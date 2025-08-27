@@ -48,7 +48,7 @@ function TaskStatusSelector({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
           disabled={disabled}
           className="h-8 px-2 text-xs hover:bg-gray-100"

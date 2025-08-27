@@ -42,7 +42,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
     defaultValues: {
       title: project?.title || '',
       description: project?.description || '',
-      ownerId: project?.ownerId || 'current-user-id', // Default to current user
+      ownerId: project?.ownerId || 'current-user', // Default to current user
     }
   });
 

@@ -30,6 +30,7 @@ interface TaskBoardProps {
     onCreateTask?: () => void;
     isLoading?: boolean;
     searchQuery?: string;
+    workspaceMembers?: string[];
 }
 
 const BOARD_COLUMNS = [
@@ -49,6 +50,7 @@ function TaskBoard({
     onCreateTask,
     isLoading = false,
     searchQuery = '',
+    workspaceMembers = [],
 }: TaskBoardProps) {
     // Filter state (can be implemented later)
     // const [priorityFilter, setPriorityFilter] = useState<TaskPriority | 'all'>('all');
@@ -305,6 +307,7 @@ function TaskBoard({
                             onTaskEdit={onTaskEdit}
                             onTaskDelete={onTaskDelete}
                             onTaskAssignmentChange={onTaskAssignmentChange}
+                            workspaceMembers={workspaceMembers}
                         />
                     ))}
                 </div>
@@ -314,6 +317,7 @@ function TaskBoard({
                         <TaskBoardCard
                             task={activeTask}
                             isDragging={true}
+                            workspaceMembers={workspaceMembers}
                         />
                     ) : null}
                 </DragOverlay>

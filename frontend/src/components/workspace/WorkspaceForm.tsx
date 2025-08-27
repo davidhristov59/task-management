@@ -47,7 +47,7 @@ export function WorkspaceForm({ workspace, onClose, onSuccess }: WorkspaceFormPr
     defaultValues: {
       title: '',
       description: '',
-      ownerId: 'current-user-id', // TODO: Get from auth context
+      ownerId: 'current-user', // TODO: Get from auth context
       memberIds: [],
     },
   });

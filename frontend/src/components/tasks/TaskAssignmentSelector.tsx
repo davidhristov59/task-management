@@ -12,63 +12,81 @@ interface TaskAssignmentSelectorProps {
   onAssignmentChange: (userId: string | null) => void;
   disabled?: boolean;
   compact?: boolean;
+  workspaceMembers?: string[];
 }
 
-// Mock users for now - in a real app, this would come from a users API
-const mockUsers = [
-  { userId: 'user1', name: 'John Doe', email: 'john@example.com' },
-  { userId: 'user2', name: 'Jane Smith', email: 'jane@example.com' },
-  { userId: 'user3', name: 'Bob Johnson', email: 'bob@example.com' },
-];
+// Simple function to generate display names from user IDs
+const getUserDisplayName = (userId: string): string => {
+  if (userId === 'current-user-id') return 'Current User';
+  
+  // Generate a readable name from the ID
+  const cleanId = userId.replace(/[-_]/g, ' ');
+  return cleanId.split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
+const getUserEmail = (userId: string): string => {
+  // Generate a simple email from the user ID
+  const cleanId = userId.toLowerCase().replace(/[^a-z0-9]/g, '');
+  return `${cleanId}@example.com`;
+};
 
 function TaskAssignmentSelector({ 
   currentUserId, 
   onAssignmentChange, 
   disabled = false,
-  compact = false
+  compact = false,
+  workspaceMembers = []
 }: TaskAssignmentSelectorProps) {
-  const currentUser = mockUsers.find(user => user.userId === currentUserId);
+  const currentUserName = currentUserId ? getUserDisplayName(currentUserId) : null;
+
+  const handleAssignmentClick = (e: React.MouseEvent, userId: string | null) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onAssignmentChange(userId);
+  };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
           disabled={disabled}
           className={compact ? "h-6 px-1 text-xs hover:bg-gray-100" : "h-8 px-2 text-xs hover:bg-gray-100"}
         >
-          {currentUser ? (
+          {currentUserName ? (
             <>
               <User className="h-3 w-3 mr-1" />
-              {compact ? currentUser.name.split(' ')[0] : currentUser.name}
+              {compact ? JSON.parse(currentUserName).userid.split(' ')[0] : JSON.parse(currentUserName).userid}
             </>
           ) : (
             <>
               <UserX className="h-3 w-3 mr-1" />
-              {compact ? 'None' : 'Unassigned'}
+              {compact ? 'Unassigned' : 'Unassigned'}
             </>
           )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="bg-white">
         <DropdownMenuItem
-          onClick={() => onAssignmentChange(null)}
+          onClick={(e) => handleAssignmentClick(e, null)}
           className={!currentUserId ? 'bg-gray-100' : ''}
         >
           <UserX className="h-4 w-4 mr-2 text-gray-600" />
           Unassigned
         </DropdownMenuItem>
-        {mockUsers.map((user) => (
+        {workspaceMembers.map((memberId) => (
           <DropdownMenuItem
-            key={user.userId}
-            onClick={() => onAssignmentChange(user.userId)}
-            className={currentUserId === user.userId ? 'bg-gray-100' : ''}
+            key={memberId}
+            onClick={(e) => handleAssignmentClick(e, memberId)}
+            className={currentUserId === memberId ? 'bg-gray-100' : ''}
           >
             <User className="h-4 w-4 mr-2 text-blue-600" />
             <div className="flex flex-col">
-              <span className="text-sm font-medium">{user.name}</span>
-              <span className="text-xs text-gray-500">{user.email}</span>
+              <span className="text-sm font-medium">{getUserDisplayName(memberId)}</span>
+              <span className="text-xs text-gray-500">{getUserEmail(memberId)}</span>
             </div>
           </DropdownMenuItem>
         ))}

@@ -14,6 +14,7 @@ import {
   useUnassignTask
 } from '../hooks/useTasks';
 import { useProject, useUpdateProject, useDeleteProject, useArchiveProject } from '../hooks/useProjects';
+import { useWorkspace } from '../hooks/useWorkspaces';
 import { TaskStatus } from '../types';
 import type { CreateTaskRequest, UpdateTaskRequest } from '../types';
 import type { NormalizedTask } from '../utils/taskUtils';
@@ -40,8 +41,9 @@ function ProjectDetailPage() {
   const [showEditProjectDialog, setShowEditProjectDialog] = useState(false);
   const [showDeleteProjectDialog, setShowDeleteProjectDialog] = useState(false);
 
-  // Fetch project and tasks data
+  // Fetch project, workspace and tasks data
   const { data: project, isLoading: isProjectLoading } = useProject(workspaceId!, projectId!);
+  const { data: workspace } = useWorkspace(workspaceId!);
   const { data: tasks = [], isLoading: isTasksLoading } = useTasks(workspaceId!, projectId!);
 
   // Task mutations
@@ -382,6 +384,7 @@ function ProjectDetailPage() {
         onTaskAssignmentChange={handleAssignmentChange}
         onCreateTask={handleCreateTask}
         isLoading={isTasksLoading}
+        workspaceMembers={workspace?.memberIds || []}
       />
 
       {/* Task Form Modal */}

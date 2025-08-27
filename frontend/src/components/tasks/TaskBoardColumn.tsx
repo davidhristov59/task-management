@@ -16,6 +16,7 @@ interface TaskBoardColumnProps {
   onTaskEdit?: (task: NormalizedTask) => void;
   onTaskDelete?: (taskId: string) => void;
   onTaskAssignmentChange?: (taskId: string, userId: string | null) => void;
+  workspaceMembers?: string[];
 }
 
 function TaskBoardColumn({
@@ -27,6 +28,7 @@ function TaskBoardColumn({
   onTaskEdit,
   onTaskDelete,
   onTaskAssignmentChange,
+  workspaceMembers = [],
 }: TaskBoardColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id,
@@ -61,6 +63,7 @@ function TaskBoardColumn({
                 onEdit={onTaskEdit}
                 onDelete={onTaskDelete}
                 onAssignmentChange={onTaskAssignmentChange}
+                workspaceMembers={workspaceMembers}
               />
             ))}
             {tasks.length === 0 && (

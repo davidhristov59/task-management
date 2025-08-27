@@ -15,6 +15,7 @@ interface TaskCardProps {
   onEdit?: (task: NormalizedTask) => void;
   onDelete?: (taskId: string) => void;
   onClick?: (task: NormalizedTask) => void;
+  workspaceMembers?: string[];
 }
 
 const getPriorityColor = (priority: TaskPriority) => {
@@ -50,7 +51,8 @@ function TaskCard({
   onAssignmentChange,
   onEdit,
   onDelete,
-  onClick
+  onClick,
+  workspaceMembers = []
 }: TaskCardProps) {
   const isOverdue = task.deadline && new Date(task.deadline) < new Date() && task.status !== TaskStatus.COMPLETED;
 
@@ -106,14 +108,6 @@ function TaskCard({
             </div>
           )}
 
-          {/* Assignment */}
-          <div className="flex items-center gap-2 text-sm">
-            <User className="h-4 w-4" />
-            <span className="text-gray-600">
-              {task.assignedUserId ? `Assigned to: ${task.assignedUserId}` : 'Unassigned'}
-            </span>
-          </div>
-
           {/* Tags */}
           {task.tags && task.tags.length > 0 && (
             <div className="flex items-center gap-2 text-sm">
@@ -149,6 +143,7 @@ function TaskCard({
               <TaskAssignmentSelector
                 currentUserId={task.assignedUserId}
                 onAssignmentChange={(userId) => onAssignmentChange?.(task.taskId, userId)}
+                workspaceMembers={workspaceMembers}
               />
             </div>
 

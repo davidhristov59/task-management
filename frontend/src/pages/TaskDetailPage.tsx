@@ -1,20 +1,24 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, User, Tag, Folder, Clock, AlertCircle, Repeat } from 'lucide-react';
-import { useTask, useUpdateTask, useAssignTask, useUnassignTask } from '../hooks/useTasks';
+import { ArrowLeft, Calendar, User, Tag, Folder, Clock, AlertCircle, Repeat, Edit, Trash2 } from 'lucide-react';
+import { useTask, useUpdateTask, useAssignTask, useUnassignTask, useDeleteTask } from '../hooks/useTasks';
+import { useWorkspace } from '../hooks/useWorkspaces';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import TaskStatusSelector from '../components/tasks/TaskStatusSelector';
 import TaskAssignmentSelector from '../components/tasks/TaskAssignmentSelector';
-import { CommentSection, AttachmentManager, RecurringTaskForm } from '../components/tasks';
-import { TaskPriority, TaskStatus } from '../types';
+import { CommentSection, AttachmentManager, RecurringTaskForm, TaskForm, TaskDeleteConfirmation } from '../components/tasks';
+import { TaskPriority, TaskStatus, type Task } from '../types';
 import { useCreateRecurringTask, useUpdateRecurringTask } from '../hooks/useRecurringTasks';
+import { normalizeTask } from '../utils/taskUtils';
 
 function TaskDetailPage() {
   const { workspaceId, projectId, taskId } = useParams();
   const navigate = useNavigate();
   const [showRecurringForm, setShowRecurringForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const { data: task, isLoading, error } = useTask(
     workspaceId || '',
@@ -22,12 +26,15 @@ function TaskDetailPage() {
     taskId || ''
   );
 
+  const { data: workspace } = useWorkspace(workspaceId || '');
+
   const createRecurringMutation = useCreateRecurringTask();
   const updateRecurringMutation = useUpdateRecurringTask();
 
   const updateTaskMutation = useUpdateTask();
   const assignTaskMutation = useAssignTask();
   const unassignTaskMutation = useUnassignTask();
+  const deleteTaskMutation = useDeleteTask();
 
   const handleBack = () => {
     navigate(`/workspaces/${workspaceId}/projects/${projectId}`);
@@ -134,6 +141,55 @@ function TaskDetailPage() {
     );
   };
 
+  const handleEditTask = () => {
+    setShowEditForm(true);
+  };
+
+  const handleTaskFormSubmit = (data: any) => {
+    if (!task || !workspaceId || !projectId || !taskId) return;
+
+    updateTaskMutation.mutate(
+      {
+        workspaceId,
+        projectId,
+        taskId,
+        data
+      },
+      {
+        onSuccess: () => {
+          setShowEditForm(false);
+        },
+        onError: (error) => {
+          console.error('Failed to update task:', error);
+        }
+      }
+    );
+  };
+
+  const handleDeleteTask = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!workspaceId || !projectId || !taskId) return;
+
+    deleteTaskMutation.mutate(
+      {
+        workspaceId,
+        projectId,
+        taskId
+      },
+      {
+        onSuccess: () => {
+          navigate(`/workspaces/${workspaceId}/projects/${projectId}`);
+        },
+        onError: (error) => {
+          console.error('Failed to delete task:', error);
+        }
+      }
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -215,6 +271,7 @@ function TaskDetailPage() {
                 currentUserId={task.assignedUserId}
                 onAssignmentChange={handleAssignmentChange}
                 disabled={assignTaskMutation.isPending || unassignTaskMutation.isPending}
+                workspaceMembers={workspace?.memberIds || []}
               />
               <Button
                 variant="outline"
@@ -224,6 +281,24 @@ function TaskDetailPage() {
               >
                 <Repeat className="h-4 w-4" />
                 Make Recurring
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleEditTask}
+                className="flex items-center gap-1"
+              >
+                <Edit className="h-4 w-4" />
+                Edit
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDeleteTask}
+                className="flex items-center gap-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete
               </Button>
             </div>
           </div>
@@ -252,7 +327,7 @@ function TaskDetailPage() {
             {task.assignedUserId && (
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <User className="h-4 w-4" />
-                <span>Assigned to: {task.assignedUserId}</span>
+                <span>Assigned to: {JSON.parse(task.assignedUserId).userId}</span>
               </div>
             )}
           </div>
@@ -308,6 +383,30 @@ function TaskDetailPage() {
         projectId={projectId || ''}
         taskId={task.taskId}
       />
+
+      {/* Task Edit Form */}
+      {task && (
+        <TaskForm
+          isOpen={showEditForm}
+          onClose={() => setShowEditForm(false)}
+          onSubmit={handleTaskFormSubmit}
+          task={normalizeTask(task as unknown as Task)}
+          workspaceId={workspaceId}
+          projectId={projectId}
+          isLoading={updateTaskMutation.isPending}
+        />
+      )}
+
+      {/* Task Delete Confirmation */}
+      {task && (
+        <TaskDeleteConfirmation
+          isOpen={showDeleteConfirm}
+          onClose={() => setShowDeleteConfirm(false)}
+          onConfirm={handleConfirmDelete}
+          task={normalizeTask(task as unknown as Task)}
+          isLoading={deleteTaskMutation.isPending}
+        />
+      )}
 
       {/* Recurring Task Form */}
       <RecurringTaskForm
