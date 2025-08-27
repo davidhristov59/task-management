@@ -44,7 +44,7 @@ export const useCreateTask = () => {
       projectId: string; 
       data: CreateTaskRequest 
     }) => taskService.createTask(workspaceId, projectId, data),
-    onSuccess: (result, { workspaceId, projectId }) => {
+    onSuccess: (_result, { workspaceId, projectId }) => {
       
       queryClient.invalidateQueries({ 
         queryKey: taskKeys.list(workspaceId, projectId) 

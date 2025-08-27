@@ -13,7 +13,7 @@ import {
   useAssignTask,
   useUnassignTask
 } from '../hooks/useTasks';
-import { useProject, useUpdateProject, useDeleteProject, useArchiveProject } from '../hooks/useProjects';
+import { useProject, useDeleteProject, useArchiveProject } from '../hooks/useProjects';
 import { useWorkspace } from '../hooks/useWorkspaces';
 import { TaskStatus } from '../types';
 import type { CreateTaskRequest, UpdateTaskRequest } from '../types';
@@ -55,8 +55,6 @@ function ProjectDetailPage() {
   const unassignTaskMutation = useUnassignTask();
   const createRecurringMutation = useCreateRecurringTask();
 
-  
-  const updateProjectMutation = useUpdateProject();
   const deleteProjectMutation = useDeleteProject();
   const archiveProjectMutation = useArchiveProject();
 

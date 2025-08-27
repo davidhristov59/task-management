@@ -6,7 +6,6 @@ import {
   FolderOpen,
   ChevronRight,
   ChevronDown,
-  Plus
 } from 'lucide-react';
 import { useUIStore } from '@/stores';
 import { useWorkspaces } from '@/hooks';

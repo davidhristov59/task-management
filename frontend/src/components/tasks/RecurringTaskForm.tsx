@@ -21,7 +21,7 @@ import {
   DialogFooter,
 } from '../ui/dialog';
 import { RecurrenceType } from '../../types';
-import type { CreateRecurringTaskRequest, RecurrenceRule } from '../../types';
+import type { CreateRecurringTaskRequest } from '../../types';
 
 const recurringTaskSchema = z.object({
   type: z.enum([RecurrenceType.DAILY, RecurrenceType.WEEKLY, RecurrenceType.MONTHLY]),

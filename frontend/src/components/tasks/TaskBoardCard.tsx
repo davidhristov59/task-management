@@ -1,7 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { useDroppable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { Calendar, User, Tag as TagIcon, AlertCircle, Repeat, GripVertical } from 'lucide-react';
+import { Calendar, Tag as TagIcon, AlertCircle, GripVertical } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';

@@ -1,4 +1,4 @@
-import { Calendar, User, Tag as TagIcon, AlertCircle, Repeat } from 'lucide-react';
+import { Calendar, Tag as TagIcon, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
