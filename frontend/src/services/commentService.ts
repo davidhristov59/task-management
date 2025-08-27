@@ -1,8 +1,7 @@
 import api from './api';
 import type {
   Comment,
-  CreateCommentRequest,
-  UpdateCommentRequest
+  CreateCommentRequest
 } from '../types';
 
 export const commentService = {
@@ -14,7 +13,11 @@ export const commentService = {
     
     // Parse comments from JSON string
     try {
-      return JSON.parse(task.comments || '[]');
+      const comments = JSON.parse(task.comments || '[]');
+      // Sort comments from newest to latest (most recent first)
+      return comments.sort((a: Comment, b: Comment) => 
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      );
     } catch {
       return [];
     }

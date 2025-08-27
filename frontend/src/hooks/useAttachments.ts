@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { attachmentService } from '../services';
+import { taskKeys } from './useTasks';
 import type { CreateAttachmentRequest } from '../types';
 
 // Query keys
@@ -23,20 +24,26 @@ export const useCreateAttachment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ 
+    mutationFn: ({
       workspaceId,
       projectId,
-      taskId, 
-      data 
-    }: { 
+      taskId,
+      data
+    }: {
       workspaceId: string;
       projectId: string;
-      taskId: string; 
-      data: CreateAttachmentRequest 
+      taskId: string;
+      data: CreateAttachmentRequest
     }) => attachmentService.createAttachment(workspaceId, projectId, taskId, data),
     onSuccess: (_, { workspaceId, projectId, taskId }) => {
       // Invalidate and refetch attachments list for this task
       queryClient.invalidateQueries({ queryKey: attachmentKeys.list(workspaceId, projectId, taskId) });
+      // Also invalidate task queries since attachments are embedded in task data
+      queryClient.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
+      queryClient.invalidateQueries({ queryKey: taskKeys.list(workspaceId, projectId) });
+      // Force refetch to ensure immediate update
+      queryClient.refetchQueries({ queryKey: attachmentKeys.list(workspaceId, projectId, taskId) });
+      queryClient.refetchQueries({ queryKey: taskKeys.detail(taskId) });
     },
     onError: (error) => {
       console.error('Failed to create attachment:', error);
@@ -49,20 +56,26 @@ export const useUploadAttachment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ 
+    mutationFn: ({
       workspaceId,
       projectId,
-      taskId, 
-      file 
-    }: { 
+      taskId,
+      file
+    }: {
       workspaceId: string;
       projectId: string;
-      taskId: string; 
-      file: File 
+      taskId: string;
+      file: File
     }) => attachmentService.uploadAttachment(workspaceId, projectId, taskId, file),
     onSuccess: (_, { workspaceId, projectId, taskId }) => {
       // Invalidate and refetch attachments list for this task
       queryClient.invalidateQueries({ queryKey: attachmentKeys.list(workspaceId, projectId, taskId) });
+      // Also invalidate task queries since attachments are embedded in task data
+      queryClient.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
+      queryClient.invalidateQueries({ queryKey: taskKeys.list(workspaceId, projectId) });
+      // Force refetch to ensure immediate update
+      queryClient.refetchQueries({ queryKey: attachmentKeys.list(workspaceId, projectId, taskId) });
+      queryClient.refetchQueries({ queryKey: taskKeys.detail(taskId) });
     },
     onError: (error) => {
       console.error('Failed to upload attachment:', error);
@@ -75,11 +88,17 @@ export const useDeleteAttachment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceId, projectId, taskId, attachmentId }: { workspaceId: string; projectId: string; taskId: string; attachmentId: string }) =>
-      attachmentService.deleteAttachment(workspaceId, projectId, taskId, attachmentId),
+    mutationFn: ({ workspaceId, projectId, taskId, fileId }: { workspaceId: string; projectId: string; taskId: string; fileId: string }) =>
+      attachmentService.deleteAttachment(workspaceId, projectId, taskId, fileId),
     onSuccess: (_, { workspaceId, projectId, taskId }) => {
       // Invalidate attachments list
       queryClient.invalidateQueries({ queryKey: attachmentKeys.list(workspaceId, projectId, taskId) });
+      // Also invalidate task queries since attachments are embedded in task data
+      queryClient.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
+      queryClient.invalidateQueries({ queryKey: taskKeys.list(workspaceId, projectId) });
+      // Force refetch to ensure immediate update
+      queryClient.refetchQueries({ queryKey: attachmentKeys.list(workspaceId, projectId, taskId) });
+      queryClient.refetchQueries({ queryKey: taskKeys.detail(taskId) });
     },
     onError: (error) => {
       console.error('Failed to delete attachment:', error);

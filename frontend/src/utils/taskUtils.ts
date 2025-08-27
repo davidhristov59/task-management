@@ -42,6 +42,8 @@ function parseJsonString<T>(jsonString: string, fallback: T): T {
 
 // Convert backend Task to normalized Task for UI
 export function normalizeTask(backendTask: Task): NormalizedTask {
+  const comments = parseJsonString<Comment[]>(backendTask.comments, []);
+  
   return {
     taskId: backendTask.taskId.value,
     title: backendTask.title,
@@ -57,7 +59,10 @@ export function normalizeTask(backendTask: Task): NormalizedTask {
     tags: parseJsonString<Tag[]>(backendTask.tags, []),
     categories: parseJsonString<Category[]>(backendTask.categories, []),
     attachments: parseJsonString<Attachment[]>(backendTask.attachments, []),
-    comments: parseJsonString<Comment[]>(backendTask.comments, []),
+    // Sort comments from newest to latest (most recent first)
+    comments: comments.sort((a, b) => 
+      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    ),
     deleted: backendTask.deleted,
   };
 }

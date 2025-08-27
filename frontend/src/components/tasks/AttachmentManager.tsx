@@ -25,7 +25,7 @@ function AttachmentItem({ attachment, workspaceId, projectId, taskId }: Attachme
   const [isDownloading, setIsDownloading] = useState(false);
 
   const handleDelete = () => {
-    deleteAttachmentMutation.mutate({ workspaceId, projectId, taskId, attachmentId: attachment.fileId });
+    deleteAttachmentMutation.mutate({ workspaceId, projectId, taskId, fileId: attachment.fileId });
   };
 
   const handleDownload = async () => {
@@ -116,10 +116,10 @@ function AttachmentItem({ attachment, workspaceId, projectId, taskId }: Attachme
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleDelete}
-                className="bg-red-600 hover:bg-red-700"
+                className="bg-red-600 hover:bg-red-700 text-white"
                 disabled={deleteAttachmentMutation.isPending}
               >
-                {deleteAttachmentMutation.isPending ? 'Deleting...' : 'Delete'}
+                {deleteAttachmentMutation.isPending ? 'Deleting...' : 'Delete Attachment'}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

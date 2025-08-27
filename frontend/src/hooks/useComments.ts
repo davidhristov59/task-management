@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { commentService } from '../services';
-import type { CreateCommentRequest, UpdateCommentRequest } from '../types';
+import { taskKeys } from './useTasks';
+import type { CreateCommentRequest } from '../types';
 
 // Query keys
 export const commentKeys = {
@@ -38,7 +39,11 @@ export const useCreateComment = () => {
       // Invalidate comments list and task data to get updated comments
       queryClient.invalidateQueries({ queryKey: commentKeys.list(workspaceId, projectId, taskId) });
       // Also invalidate task queries since comments are embedded in task data
-      queryClient.invalidateQueries({ queryKey: ['tasks', workspaceId, projectId, taskId] });
+      queryClient.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
+      queryClient.invalidateQueries({ queryKey: taskKeys.list(workspaceId, projectId) });
+      // Force refetch to ensure immediate update
+      queryClient.refetchQueries({ queryKey: commentKeys.list(workspaceId, projectId, taskId) });
+      queryClient.refetchQueries({ queryKey: taskKeys.detail(taskId) });
     },
     onError: (error) => {
       console.error('Failed to create comment:', error);
@@ -68,7 +73,11 @@ export const useUpdateComment = () => {
       // Invalidate comments list and task data to reflect changes
       queryClient.invalidateQueries({ queryKey: commentKeys.list(workspaceId, projectId, taskId) });
       // Also invalidate task queries since comments are embedded in task data
-      queryClient.invalidateQueries({ queryKey: ['tasks', workspaceId, projectId, taskId] });
+      queryClient.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
+      queryClient.invalidateQueries({ queryKey: taskKeys.list(workspaceId, projectId) });
+      // Force refetch to ensure immediate update
+      queryClient.refetchQueries({ queryKey: commentKeys.list(workspaceId, projectId, taskId) });
+      queryClient.refetchQueries({ queryKey: taskKeys.detail(taskId) });
     },
     onError: (error) => {
       console.error('Failed to update comment:', error);
@@ -87,7 +96,11 @@ export const useDeleteComment = () => {
       // Invalidate comments list and task data
       queryClient.invalidateQueries({ queryKey: commentKeys.list(workspaceId, projectId, taskId) });
       // Also invalidate task queries since comments are embedded in task data
-      queryClient.invalidateQueries({ queryKey: ['tasks', workspaceId, projectId, taskId] });
+      queryClient.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
+      queryClient.invalidateQueries({ queryKey: taskKeys.list(workspaceId, projectId) });
+      // Force refetch to ensure immediate update
+      queryClient.refetchQueries({ queryKey: commentKeys.list(workspaceId, projectId, taskId) });
+      queryClient.refetchQueries({ queryKey: taskKeys.detail(taskId) });
     },
     onError: (error) => {
       console.error('Failed to delete comment:', error);

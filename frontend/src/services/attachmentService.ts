@@ -5,55 +5,57 @@ import type {
 } from '../types';
 
 export const attachmentService = {
-  // Get all attachments for a task
+  // Get all attachments for a task (extracted from task data)
   getAttachments: async (workspaceId: string, projectId: string, taskId: string): Promise<Attachment[]> => {
-    const response = await api.get<Attachment[]>(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/attachments`);
-    return response.data;
+    // Attachments are embedded in task data, so we fetch the task and extract attachments
+    const response = await api.get(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}`);
+    const task = response.data;
+    
+    // Parse attachments from JSON string
+    try {
+      return JSON.parse(task.attachments || '[]');
+    } catch {
+      return [];
+    }
   },
 
-  // Get attachment by ID
-  getAttachment: async (workspaceId: string, projectId: string, taskId: string, attachmentId: string): Promise<Attachment> => {
-    const response = await api.get<Attachment>(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/attachments/${attachmentId}`);
-    return response.data;
-  },
 
-  // Create new attachment (upload file)
-  createAttachment: async (workspaceId: string, projectId: string, taskId: string, attachment: CreateAttachmentRequest): Promise<Attachment> => {
-    const response = await api.post<Attachment>(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/attachments`, attachment);
-    return response.data;
+
+  // Create new attachment
+  createAttachment: async (workspaceId: string, projectId: string, taskId: string, attachment: CreateAttachmentRequest): Promise<void> => {
+    // API responds with 201 Created and no body
+    await api.post(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/attachments`, attachment);
   },
 
   // Upload file attachment with FormData
-  uploadAttachment: async (workspaceId: string, projectId: string, taskId: string, file: File): Promise<Attachment> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('fileName', file.name);
-    formData.append('fileType', file.type);
-    formData.append('fileSize', file.size.toString());
+  uploadAttachment: async (workspaceId: string, projectId: string, taskId: string, file: File): Promise<void> => {
+    // Create attachment metadata first
+    const attachmentData: CreateAttachmentRequest = {
+      fileName: file.name,
+      fileType: file.type || 'application/octet-stream',
+      fileSize: file.size
+    };
 
-    const response = await api.post<Attachment>(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/attachments/upload`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
+    // API responds with 201 Created and no body
+    await api.post(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/attachments`, attachmentData);
   },
 
   // Delete attachment
-  deleteAttachment: async (workspaceId: string, projectId: string, taskId: string, attachmentId: string): Promise<void> => {
-    await api.delete(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/attachments/${attachmentId}`);
+  deleteAttachment: async (workspaceId: string, projectId: string, taskId: string, fileId: string): Promise<void> => {
+    // API responds with 204 No Content and no body
+    await api.delete(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/attachments/${fileId}`);
   },
 
   // Download attachment
-  downloadAttachment: async (workspaceId: string, projectId: string, taskId: string, attachmentId: string): Promise<Blob> => {
-    const response = await api.get(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/attachments/${attachmentId}/download`, {
+  downloadAttachment: async (workspaceId: string, projectId: string, taskId: string, fileId: string): Promise<Blob> => {
+    const response = await api.get(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/attachments/${fileId}/download`, {
       responseType: 'blob',
     });
     return response.data;
   },
 
   // Get attachment download URL
-  getAttachmentDownloadUrl: (workspaceId: string, projectId: string, taskId: string, attachmentId: string): string => {
-    return `${api.defaults.baseURL}/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/attachments/${attachmentId}/download`;
+  getAttachmentDownloadUrl: (workspaceId: string, projectId: string, taskId: string, fileId: string): string => {
+    return `${api.defaults.baseURL}/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/attachments/${fileId}/download`;
   }
 };
