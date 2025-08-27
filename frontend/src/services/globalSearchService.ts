@@ -1,8 +1,7 @@
-import api from './api';
 import { workspaceService } from './workspaceService';
 import { projectService } from './projectService';
 import { taskService } from './taskService';
-import type { GlobalSearchRequest, GlobalSearchResponse, GlobalSearchResult } from '../types';
+import type { GlobalSearchRequest, GlobalSearchResult } from '../types';
 import { 
   workspaceToSearchResult, 
   projectToSearchResult, 
@@ -12,46 +11,19 @@ import {
 } from '../utils/searchUtils';
 
 export const globalSearchService = {
-  // Global search across all entities
+  // Global search across all entities - client-side only
   search: async (params: GlobalSearchRequest): Promise<GlobalSearchResult[]> => {
-    try {
-      // Try to use the backend search endpoint first
-      const { data } = await api.get<GlobalSearchResponse>('/search', { params });
-      return sortSearchResults(data.data, params.query);
-    } catch (error) {
-      // Fallback to client-side search if backend endpoint doesn't exist
-      console.warn('Backend search endpoint not available, falling back to client-side search');
-      return await clientSideGlobalSearch(params);
-    }
+    return await clientSideGlobalSearch(params);
   },
 
-  // Search within specific workspace
+  // Search within specific workspace - client-side only
   searchInWorkspace: async (workspaceId: string, query: string): Promise<GlobalSearchResult[]> => {
-    try {
-      const { data } = await api.get<GlobalSearchResponse>(`/workspaces/${workspaceId}/search`, {
-        params: { query }
-      });
-      return sortSearchResults(data.data, query);
-    } catch (error) {
-      // Fallback to client-side search
-      console.warn('Backend workspace search endpoint not available, falling back to client-side search');
-      return await clientSideWorkspaceSearch(workspaceId, query);
-    }
+    return await clientSideWorkspaceSearch(workspaceId, query);
   },
 
-  // Search within specific project
+  // Search within specific project - client-side only
   searchInProject: async (workspaceId: string, projectId: string, query: string): Promise<GlobalSearchResult[]> => {
-    try {
-      const { data } = await api.get<GlobalSearchResponse>(
-        `/workspaces/${workspaceId}/projects/${projectId}/search`,
-        { params: { query } }
-      );
-      return sortSearchResults(data.data, query);
-    } catch (error) {
-      // Fallback to client-side search
-      console.warn('Backend project search endpoint not available, falling back to client-side search');
-      return await clientSideProjectSearch(workspaceId, projectId, query);
-    }
+    return await clientSideProjectSearch(workspaceId, projectId, query);
   },
 };
 
