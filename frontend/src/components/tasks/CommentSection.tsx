@@ -80,10 +80,10 @@ function CommentItem({ comment, workspaceId, projectId, taskId, onEdit }: Commen
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleDelete}
-                  className="bg-red-600 hover:bg-red-700"
+                  className="bg-red-600 hover:bg-red-700 text-white"
                   disabled={deleteCommentMutation.isPending}
                 >
-                  {deleteCommentMutation.isPending ? 'Deleting...' : 'Delete'}
+                  {deleteCommentMutation.isPending ? 'Deleting...' : 'Delete Comment'}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -113,7 +113,7 @@ export function CommentSection({ workspaceId, projectId, taskId }: CommentSectio
         projectId,
         taskId,
         data: {
-          authorId: 'current-user', // TODO: Replace with actual current user ID
+          authorId: 'current-user',
           content: newComment.trim()
         }
       });
@@ -143,6 +143,7 @@ export function CommentSection({ workspaceId, projectId, taskId }: CommentSectio
         taskId,
         commentId: editingComment.commentId,
         data: {
+          authorId: 'current-user',
           content: editContent.trim()
         }
       });
@@ -252,6 +253,7 @@ export function CommentSection({ workspaceId, projectId, taskId }: CommentSectio
                         size="sm"
                         onClick={handleSubmitEdit}
                         disabled={!editContent.trim() || updateCommentMutation.isPending}
+                        className='bg-black text-white'
                       >
                         {updateCommentMutation.isPending ? 'Saving...' : 'Save'}
                       </Button>

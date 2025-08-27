@@ -35,8 +35,10 @@ export const useCreateComment = () => {
       data: CreateCommentRequest 
     }) => commentService.createComment(workspaceId, projectId, taskId, data),
     onSuccess: (_, { workspaceId, projectId, taskId }) => {
-      // Invalidate and refetch comments list for this task
+      // Invalidate comments list and task data to get updated comments
       queryClient.invalidateQueries({ queryKey: commentKeys.list(workspaceId, projectId, taskId) });
+      // Also invalidate task queries since comments are embedded in task data
+      queryClient.invalidateQueries({ queryKey: ['tasks', workspaceId, projectId, taskId] });
     },
     onError: (error) => {
       console.error('Failed to create comment:', error);
@@ -60,11 +62,13 @@ export const useUpdateComment = () => {
       projectId: string;
       taskId: string; 
       commentId: string; 
-      data: UpdateCommentRequest 
+      data: CreateCommentRequest
     }) => commentService.updateComment(workspaceId, projectId, taskId, commentId, data),
     onSuccess: (_, { workspaceId, projectId, taskId }) => {
-      // Invalidate comments list to reflect changes
+      // Invalidate comments list and task data to reflect changes
       queryClient.invalidateQueries({ queryKey: commentKeys.list(workspaceId, projectId, taskId) });
+      // Also invalidate task queries since comments are embedded in task data
+      queryClient.invalidateQueries({ queryKey: ['tasks', workspaceId, projectId, taskId] });
     },
     onError: (error) => {
       console.error('Failed to update comment:', error);
@@ -80,8 +84,10 @@ export const useDeleteComment = () => {
     mutationFn: ({ workspaceId, projectId, taskId, commentId }: { workspaceId: string; projectId: string; taskId: string; commentId: string }) =>
       commentService.deleteComment(workspaceId, projectId, taskId, commentId),
     onSuccess: (_, { workspaceId, projectId, taskId }) => {
-      // Invalidate comments list
+      // Invalidate comments list and task data
       queryClient.invalidateQueries({ queryKey: commentKeys.list(workspaceId, projectId, taskId) });
+      // Also invalidate task queries since comments are embedded in task data
+      queryClient.invalidateQueries({ queryKey: ['tasks', workspaceId, projectId, taskId] });
     },
     onError: (error) => {
       console.error('Failed to delete comment:', error);

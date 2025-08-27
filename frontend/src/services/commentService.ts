@@ -6,38 +6,35 @@ import type {
 } from '../types';
 
 export const commentService = {
-  // Get all comments for a task
+  // Get all comments for a task (extracted from task data)
   getComments: async (workspaceId: string, projectId: string, taskId: string): Promise<Comment[]> => {
-    const response = await api.get<Comment[]>(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/comments`);
-    return response.data;
-  },
-
-  // Get comment by ID
-  getComment: async (workspaceId: string, projectId: string, taskId: string, commentId: string): Promise<Comment> => {
-    const response = await api.get<Comment>(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/comments/${commentId}`);
-    return response.data;
+    // Comments are embedded in task data, so we fetch the task and extract comments
+    const response = await api.get(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}`);
+    const task = response.data;
+    
+    // Parse comments from JSON string
+    try {
+      return JSON.parse(task.comments || '[]');
+    } catch {
+      return [];
+    }
   },
 
   // Create new comment
-  createComment: async (workspaceId: string, projectId: string, taskId: string, comment: CreateCommentRequest): Promise<Comment> => {
-    const response = await api.post<Comment>(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/comments`, comment);
-    return response.data;
+  createComment: async (workspaceId: string, projectId: string, taskId: string, comment: CreateCommentRequest): Promise<void> => {
+    // API responds with 201 Created and no body
+    await api.post(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/comments`, comment);
   },
 
   // Update comment
-  updateComment: async (workspaceId: string, projectId: string, taskId: string, commentId: string, comment: UpdateCommentRequest): Promise<Comment> => {
-    const response = await api.put<Comment>(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/comments/${commentId}`, comment);
-    return response.data;
+  updateComment: async (workspaceId: string, projectId: string, taskId: string, commentId: string, comment: CreateCommentRequest): Promise<void> => {
+    // API responds with 200 OK and no body
+    await api.put(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/comments/${commentId}`, comment);
   },
 
   // Delete comment
   deleteComment: async (workspaceId: string, projectId: string, taskId: string, commentId: string): Promise<void> => {
+    // API responds with 204 No Content and no body
     await api.delete(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/comments/${commentId}`);
-  },
-
-  // Get comments by author
-  getCommentsByAuthor: async (workspaceId: string, projectId: string, taskId: string, authorId: string): Promise<Comment[]> => {
-    const response = await api.get<Comment[]>(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/comments?authorId=${authorId}`);
-    return response.data;
   }
 };

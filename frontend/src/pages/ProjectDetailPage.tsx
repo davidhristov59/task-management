@@ -298,12 +298,6 @@ function ProjectDetailPage() {
             <ArrowLeft className="h-4 w-4" />
             Back to Workspace
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold">{project?.title || 'Project'}</h1>
-            {project?.description && (
-              <p className="text-gray-600 mt-1">{project.description}</p>
-            )}
-          </div>
         </div>
 
         <div className="flex items-center gap-2">
@@ -343,6 +337,13 @@ function ProjectDetailPage() {
             Delete
           </Button>
         </div>
+      </div>
+
+      <div>
+        <h1 className="text-3xl font-bold text-left">{project?.title || 'Project'}</h1>
+        {project?.description && (
+          <p className="text-gray-600 text-left mt-1">{project.description}</p>
+        )}
       </div>
 
       {/* Project Stats */}
