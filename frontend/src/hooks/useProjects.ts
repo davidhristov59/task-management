@@ -1,15 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { projectService } from '../services';
 import type { CreateProjectRequest, UpdateProjectRequest } from '../types';
+import { taskKeys } from './useTasks';
 
 // Query keys
 export const projectKeys = {
   all: ['projects'] as const,
   lists: () => [...projectKeys.all, 'list'] as const,
-  list: (workspaceId: string, filters?: Record<string, any>) => 
+  list: (workspaceId: string, filters?: Record<string, any>) =>
     [...projectKeys.lists(), workspaceId, { filters }] as const,
   details: () => [...projectKeys.all, 'detail'] as const,
-  detail: (workspaceId: string, projectId: string) => 
+  detail: (workspaceId: string, projectId: string) =>
     [...projectKeys.details(), workspaceId, projectId] as const,
 };
 
@@ -40,23 +41,23 @@ export const useCreateProject = () => {
       projectService.createProject(workspaceId, data),
     onSuccess: (newProject, { workspaceId }) => {
       console.log('Create project success:', newProject);
-      
+
       // Immediately invalidate and refetch projects list for this workspace
-      queryClient.invalidateQueries({ 
+      queryClient.invalidateQueries({
         queryKey: projectKeys.list(workspaceId),
         refetchType: 'active'
       });
-      
+
       // Also invalidate all project lists to ensure sidebar updates
-      queryClient.invalidateQueries({ 
+      queryClient.invalidateQueries({
         queryKey: projectKeys.lists(),
         refetchType: 'active'
       });
-      
+
       // Cache the new project detail if available
       if (newProject && newProject.projectId && newProject.projectId.value) {
         queryClient.setQueryData(
-          projectKeys.detail(workspaceId, newProject.projectId.value), 
+          projectKeys.detail(workspaceId, newProject.projectId.value),
           newProject
         );
       }
@@ -72,41 +73,47 @@ export const useUpdateProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ 
-      workspaceId, 
-      projectId, 
-      data 
-    }: { 
-      workspaceId: string; 
-      projectId: string; 
-      data: UpdateProjectRequest 
+    mutationFn: ({
+      workspaceId,
+      projectId,
+      data
+    }: {
+      workspaceId: string;
+      projectId: string;
+      data: UpdateProjectRequest
     }) => projectService.updateProject(workspaceId, projectId, data),
-    onSuccess: (updatedProject, { workspaceId, projectId }) => {
+    onSuccess: async (updatedProject, { workspaceId, projectId }) => {
       console.log('Update project success:', updatedProject);
-      
+
       // Update the project detail in cache if available
       if (updatedProject && updatedProject.projectId && updatedProject.projectId.value) {
         queryClient.setQueryData(
-          projectKeys.detail(workspaceId, updatedProject.projectId.value), 
+          projectKeys.detail(workspaceId, updatedProject.projectId.value),
           updatedProject
         );
       }
-      
+
       // Immediately invalidate and refetch projects list to reflect changes
-      queryClient.invalidateQueries({ 
+      await queryClient.invalidateQueries({
         queryKey: projectKeys.list(workspaceId),
         refetchType: 'active'
       });
-      
+
       // Also invalidate all project lists to ensure sidebar updates
-      queryClient.invalidateQueries({ 
+      await queryClient.invalidateQueries({
         queryKey: projectKeys.lists(),
         refetchType: 'active'
       });
-      
+
       // Invalidate the specific project detail to ensure it's fresh
-      queryClient.invalidateQueries({ 
+      await queryClient.invalidateQueries({
         queryKey: projectKeys.detail(workspaceId, projectId),
+        refetchType: 'active'
+      });
+
+      // Invalidate tasks for this project to ensure they reflect any project changes
+      await queryClient.invalidateQueries({
+        queryKey: taskKeys.list(workspaceId, projectId),
         refetchType: 'active'
       });
     },
@@ -123,20 +130,20 @@ export const useDeleteProject = () => {
   return useMutation({
     mutationFn: ({ workspaceId, projectId }: { workspaceId: string; projectId: string }) =>
       projectService.deleteProject(workspaceId, projectId),
-    onSuccess: (_, { workspaceId, projectId }) => {
+    onSuccess: async (_, { workspaceId, projectId }) => {
       // Remove project from cache immediately
-      queryClient.removeQueries({ 
-        queryKey: projectKeys.detail(workspaceId, projectId) 
+      queryClient.removeQueries({
+        queryKey: projectKeys.detail(workspaceId, projectId)
       });
-      
+
       // Immediately invalidate and refetch projects list
-      queryClient.invalidateQueries({ 
+      await queryClient.invalidateQueries({
         queryKey: projectKeys.list(workspaceId),
         refetchType: 'active'
       });
-      
+
       // Also invalidate all project lists to ensure sidebar updates
-      queryClient.invalidateQueries({ 
+      await queryClient.invalidateQueries({
         queryKey: projectKeys.lists(),
         refetchType: 'active'
       });
@@ -152,10 +159,10 @@ export const useArchiveProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceId, projectId, archived }: { 
-      workspaceId: string; 
-      projectId: string; 
-      archived: boolean 
+    mutationFn: ({ workspaceId, projectId, archived }: {
+      workspaceId: string;
+      projectId: string;
+      archived: boolean
     }) => {
       if (archived) {
         return projectService.archiveProject(workspaceId, projectId);
@@ -163,22 +170,28 @@ export const useArchiveProject = () => {
         return projectService.unarchiveProject(workspaceId, projectId);
       }
     },
-    onSuccess: (_, { workspaceId, projectId }) => {
+    onSuccess: async (_, { workspaceId, projectId }) => {
       // Immediately invalidate and refetch project detail with updated status
-      queryClient.invalidateQueries({ 
+      await queryClient.invalidateQueries({
         queryKey: projectKeys.detail(workspaceId, projectId),
         refetchType: 'active'
       });
-      
+
       // Immediately invalidate and refetch projects list
-      queryClient.invalidateQueries({ 
+      await queryClient.invalidateQueries({
         queryKey: projectKeys.list(workspaceId),
         refetchType: 'active'
       });
-      
+
       // Also invalidate all project lists to ensure sidebar updates
-      queryClient.invalidateQueries({ 
+      await queryClient.invalidateQueries({
         queryKey: projectKeys.lists(),
+        refetchType: 'active'
+      });
+
+      // Invalidate tasks for this project to ensure they reflect any project changes
+      await queryClient.invalidateQueries({
+        queryKey: taskKeys.list(workspaceId, projectId),
         refetchType: 'active'
       });
     },

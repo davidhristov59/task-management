@@ -46,7 +46,7 @@ export const projectService = {
 
   // Unarchive project
   unarchiveProject: async (workspaceId: string, projectId: string): Promise<void> => {
-    await api.delete(`/workspaces/${workspaceId}/projects/${projectId}/archive`);
+    await api.post(`/workspaces/${workspaceId}/projects/${projectId}/archive`);
   },
 
   // Get archived projects

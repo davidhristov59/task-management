@@ -44,14 +44,14 @@ export const useCreateTask = () => {
       projectId: string; 
       data: CreateTaskRequest 
     }) => taskService.createTask(workspaceId, projectId, data),
-    onSuccess: (newTask, { workspaceId, projectId }) => {
+    onSuccess: (result, { workspaceId, projectId }) => {
       // Invalidate and refetch tasks list for this project
       queryClient.invalidateQueries({ 
         queryKey: taskKeys.list(workspaceId, projectId) 
       });
       
-      // Add the new task to the cache
-      queryClient.setQueryData(taskKeys.detail(newTask.taskId), newTask);
+      // We only get the taskId back, not the full task data
+      // The task list will be refetched due to the invalidation above
     },
     onError: (error) => {
       console.error('Failed to create task:', error);
@@ -75,13 +75,8 @@ export const useUpdateTask = () => {
       taskId: string; 
       data: UpdateTaskRequest 
     }) => taskService.updateTask(workspaceId, projectId, taskId, data),
-    onSuccess: (updatedTask, { workspaceId, projectId, taskId }) => {
-      // If we got an updated task back, update the cache
-      if (updatedTask) {
-        queryClient.setQueryData(taskKeys.detail(updatedTask.taskId), updatedTask);
-      }
-      
-      // Always invalidate tasks list to reflect changes
+    onSuccess: (_, { workspaceId, projectId, taskId }) => {
+      // Update returns void, so we just invalidate the cache to refetch fresh data
       queryClient.invalidateQueries({ 
         queryKey: taskKeys.list(workspaceId, projectId) 
       });
@@ -111,15 +106,35 @@ export const useDeleteTask = () => {
       projectId: string; 
       taskId: string 
     }) => taskService.deleteTask(workspaceId, projectId, taskId),
+    onMutate: async ({ workspaceId, projectId, taskId }) => {
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: taskKeys.list(workspaceId, projectId) });
+
+      // Snapshot the previous value
+      const previousTasks = queryClient.getQueryData(taskKeys.list(workspaceId, projectId));
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(taskKeys.list(workspaceId, projectId), (old: any) => {
+        if (!old) return old;
+        return old.filter((task: any) => task.taskId !== taskId);
+      });
+
+      // Return a context object with the snapshotted value
+      return { previousTasks };
+    },
+    onError: (err, { workspaceId, projectId }, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousTasks) {
+        queryClient.setQueryData(taskKeys.list(workspaceId, projectId), context.previousTasks);
+      }
+      console.error('Failed to delete task:', err);
+    },
     onSuccess: (_, { workspaceId, projectId, taskId }) => {
       // Remove task from cache
       queryClient.removeQueries({ queryKey: taskKeys.detail(taskId) });
       
-      // Invalidate tasks list for this project
+      // Invalidate tasks list for this project to ensure fresh data
       queryClient.invalidateQueries({ queryKey: taskKeys.list(workspaceId, projectId) });
-    },
-    onError: (error) => {
-      console.error('Failed to delete task:', error);
     },
   });
 };

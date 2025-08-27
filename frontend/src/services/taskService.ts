@@ -22,15 +22,32 @@ export const taskService = {
   },
 
   // Create new task
-  createTask: async (workspaceId: string, projectId: string, task: CreateTaskRequest): Promise<NormalizedTask> => {
-    const response = await api.post<Task>(`/workspaces/${workspaceId}/projects/${projectId}/tasks`, task);
-    return normalizeTask(response.data);
+  createTask: async (workspaceId: string, projectId: string, task: CreateTaskRequest): Promise<{ taskId: string }> => {
+    const response = await api.post(`/workspaces/${workspaceId}/projects/${projectId}/tasks`, task);
+    
+    // Handle API response format: 201 Created with {"value":"task-id"}
+    if (response.data && response.data.value) {
+      return { taskId: response.data.value };
+    }
+    
+    // Fallback: try to get taskId from location header
+    const taskId = response.headers['location']?.split('/').pop();
+    if (taskId) {
+      return { taskId };
+    }
+    
+    // Last resort: generate a temporary ID (this shouldn't happen)
+    const tempId = `temp-${Date.now()}`;
+    console.warn('No task ID found in response, using temporary ID:', tempId);
+    return { taskId: tempId };
   },
 
   // Update task
-  updateTask: async (workspaceId: string, projectId: string, taskId: string, task: UpdateTaskRequest): Promise<NormalizedTask> => {
-    const response = await api.put<Task>(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}`, task);
-    return normalizeTask(response.data);
+  updateTask: async (workspaceId: string, projectId: string, taskId: string, task: UpdateTaskRequest): Promise<void> => {
+    await api.put(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}`, task);
+    // Handle API response format: 200 OK with no body
+    // The update is successful if we get here without an error
+    return;
   },
 
   // Delete task

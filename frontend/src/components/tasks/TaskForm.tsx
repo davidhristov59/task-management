@@ -41,7 +41,7 @@ type TaskFormData = z.infer<typeof taskFormSchema>;
 interface TaskFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: CreateTaskRequest | UpdateTaskRequest) => void;
+  onSubmit: (data: CreateTaskRequest | UpdateTaskRequest, pendingRecurrence?: any) => void;
   task?: NormalizedTask;
   isLoading?: boolean;
 }
@@ -70,34 +70,38 @@ function TaskForm({ isOpen, onClose, onSubmit, task, isLoading = false }: TaskFo
     resolver: zodResolver(taskFormSchema),
   });
 
-  // Update form when task changes (for editing)
+  // Update form when task changes (for editing) or modal opens
   useEffect(() => {
-    if (task) {
-      setValue('title', task.title);
-      setValue('description', task.description);
-      setValue('priority', task.priority);
-      setValue('deadline', task.deadline ? task.deadline.split('T')[0] : '');
-      setValue('status', task.status);
-      setTags(task.tags?.map(t => t.name) || []);
-      setCategories(task.categories?.map(c => c.name) || []);
-    } else {
-      // Reset form for new task
-      reset({
-        title: '',
-        description: '',
-        priority: TaskPriority.MEDIUM,
-        status: TaskStatus.PENDING,
-        deadline: '',
-      });
-      setTags([]);
-      setCategories([]);
+    if (isOpen) {
+      if (task) {
+        setValue('title', task.title);
+        setValue('description', task.description);
+        setValue('priority', task.priority);
+        setValue('deadline', task.deadline ? task.deadline.split('T')[0] : '');
+        setValue('status', task.status);
+        setTags(task.tags?.map(t => t.name) || []);
+        setCategories(task.categories?.map(c => c.name) || []);
+      } else {
+        // Reset form for new task
+        reset({
+          title: '',
+          description: '',
+          priority: TaskPriority.MEDIUM,
+          status: TaskStatus.PENDING,
+          deadline: '',
+        });
+        setTags([]);
+        setCategories([]);
+      }
     }
-  }, [task, setValue, reset]);
+  }, [task, setValue, reset, isOpen]);
 
   const priority = watch('priority');
   const status = watch('status');
 
   const handleClose = () => {
+    if (isLoading) return; // Prevent closing during submission
+
     reset();
     setTags([]);
     setCategories([]);
@@ -107,6 +111,8 @@ function TaskForm({ isOpen, onClose, onSubmit, task, isLoading = false }: TaskFo
   };
 
   const handleFormSubmit = (data: TaskFormData) => {
+    if (isLoading) return; // Prevent double submission
+
     const deadlineValue = data.deadline ? new Date(data.deadline + 'T00:00:00.000Z').toISOString() : undefined;
 
     if (task) {
@@ -131,7 +137,7 @@ function TaskForm({ isOpen, onClose, onSubmit, task, isLoading = false }: TaskFo
         tags: tags, // Send as string array
         categories: categories, // Send as string array
       };
-      
+
       onSubmit(createData);
     }
   };
@@ -366,7 +372,7 @@ function TaskForm({ isOpen, onClose, onSubmit, task, isLoading = false }: TaskFo
                 <div className="flex items-center gap-2">
                   <Repeat className="h-4 w-4" />
                   <span className="text-sm">
-                    {recurringRule 
+                    {recurringRule
                       ? `Repeats every ${recurringRule.interval} ${recurringRule.type.toLowerCase()}${recurringRule.interval > 1 ? 's' : ''}`
                       : 'No recurrence set'
                     }
@@ -385,10 +391,19 @@ function TaskForm({ isOpen, onClose, onSubmit, task, isLoading = false }: TaskFo
           )}
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleClose}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              disabled={isLoading}
+            >
               Cancel
             </Button>
-            <Button className='bg-black text-white' type="submit" disabled={isLoading}>
+            <Button
+              className='bg-black text-white'
+              type="submit"
+              disabled={isLoading}
+            >
               {isLoading ? 'Saving...' : task ? 'Update Task' : 'Create Task'}
             </Button>
           </DialogFooter>
