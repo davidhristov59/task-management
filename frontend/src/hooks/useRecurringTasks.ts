@@ -1,22 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { recurringService } from '../services';
 import type { CreateRecurringTaskRequest } from '../types';
-
-// Query keys
-export const recurringTaskKeys = {
-  all: ['recurringTasks'] as const,
-  details: () => [...recurringTaskKeys.all, 'detail'] as const,
-  detail: (taskId: string) => [...recurringTaskKeys.details(), taskId] as const,
-};
-
-// Get recurring task settings
-export const useRecurringTask = (taskId: string) => {
-  return useQuery({
-    queryKey: recurringTaskKeys.detail(taskId),
-    queryFn: () => recurringService.getRecurringTask(taskId),
-    enabled: !!taskId,
-  });
-};
 
 // Create recurring task
 export const useCreateRecurringTask = () => {
@@ -24,15 +8,20 @@ export const useCreateRecurringTask = () => {
 
   return useMutation({
     mutationFn: ({ 
+      workspaceId,
+      projectId,
       taskId, 
       data 
     }: { 
+      workspaceId: string;
+      projectId: string;
       taskId: string; 
       data: CreateRecurringTaskRequest 
-    }) => recurringService.createRecurringTask(taskId, data),
-    onSuccess: (_, { taskId }) => {
-      // Invalidate recurring task settings for this task
-      queryClient.invalidateQueries({ queryKey: recurringTaskKeys.detail(taskId) });
+    }) => recurringService.createRecurringTask(workspaceId, projectId, taskId, data),
+    onSuccess: (_, { workspaceId, projectId, taskId }) => {
+      // Invalidate tasks query to refresh the task list
+      queryClient.invalidateQueries({ queryKey: ['tasks', workspaceId, projectId] });
+      queryClient.invalidateQueries({ queryKey: ['task', taskId] });
     },
     onError: (error) => {
       console.error('Failed to create recurring task:', error);
@@ -40,40 +29,29 @@ export const useCreateRecurringTask = () => {
   });
 };
 
-// Update recurring task
+// Update recurring task (same as create since backend uses same endpoint)
 export const useUpdateRecurringTask = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ 
+      workspaceId,
+      projectId,
       taskId, 
       data 
     }: { 
+      workspaceId: string;
+      projectId: string;
       taskId: string; 
       data: CreateRecurringTaskRequest 
-    }) => recurringService.updateRecurringTask(taskId, data),
-    onSuccess: (_, { taskId }) => {
-      // Invalidate recurring task settings
-      queryClient.invalidateQueries({ queryKey: recurringTaskKeys.detail(taskId) });
+    }) => recurringService.updateRecurringTask(workspaceId, projectId, taskId, data),
+    onSuccess: (_, { workspaceId, projectId, taskId }) => {
+      // Invalidate tasks query to refresh the task list
+      queryClient.invalidateQueries({ queryKey: ['tasks', workspaceId, projectId] });
+      queryClient.invalidateQueries({ queryKey: ['task', taskId] });
     },
     onError: (error) => {
       console.error('Failed to update recurring task:', error);
-    },
-  });
-};
-
-// Delete recurring task
-export const useDeleteRecurringTask = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: recurringService.deleteRecurringTask,
-    onSuccess: (_, taskId) => {
-      // Remove recurring task settings from cache
-      queryClient.removeQueries({ queryKey: recurringTaskKeys.detail(taskId) });
-    },
-    onError: (error) => {
-      console.error('Failed to delete recurring task:', error);
     },
   });
 };

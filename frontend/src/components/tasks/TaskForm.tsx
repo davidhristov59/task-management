@@ -26,7 +26,7 @@ import { TaskPriority, TaskStatus } from '../../types';
 import type { CreateTaskRequest, UpdateTaskRequest } from '../../types';
 import type { NormalizedTask } from '../../utils/taskUtils';
 import RecurringTaskForm from './RecurringTaskForm';
-import { useRecurringTask, useCreateRecurringTask, useUpdateRecurringTask, useDeleteRecurringTask } from '../../hooks/useRecurringTasks';
+import { useCreateRecurringTask, useUpdateRecurringTask } from '../../hooks/useRecurringTasks';
 
 const taskFormSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title must be less than 200 characters'),
@@ -43,10 +43,12 @@ interface TaskFormProps {
   onClose: () => void;
   onSubmit: (data: CreateTaskRequest | UpdateTaskRequest, pendingRecurrence?: any) => void;
   task?: NormalizedTask;
+  workspaceId?: string;
+  projectId?: string;
   isLoading?: boolean;
 }
 
-function TaskForm({ isOpen, onClose, onSubmit, task, isLoading = false }: TaskFormProps) {
+function TaskForm({ isOpen, onClose, onSubmit, task, workspaceId, projectId, isLoading = false }: TaskFormProps) {
   const [tags, setTags] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [newTag, setNewTag] = useState('');
@@ -54,10 +56,8 @@ function TaskForm({ isOpen, onClose, onSubmit, task, isLoading = false }: TaskFo
   const [showRecurringForm, setShowRecurringForm] = useState(false);
 
   // Recurring task hooks
-  const { data: recurringRule } = useRecurringTask(task?.taskId || '');
   const createRecurringMutation = useCreateRecurringTask();
   const updateRecurringMutation = useUpdateRecurringTask();
-  const deleteRecurringMutation = useDeleteRecurringTask();
 
   const {
     register,
@@ -165,37 +165,21 @@ function TaskForm({ isOpen, onClose, onSubmit, task, isLoading = false }: TaskFo
   };
 
   const handleRecurringSubmit = (recurringData: any) => {
-    if (!task?.taskId) return;
+    if (!task?.taskId || !workspaceId || !projectId) return;
 
-    if (recurringRule) {
-      updateRecurringMutation.mutate(
-        { taskId: task.taskId, data: recurringData },
-        {
-          onSuccess: () => {
-            setShowRecurringForm(false);
-          },
-        }
-      );
-    } else {
-      createRecurringMutation.mutate(
-        { taskId: task.taskId, data: recurringData },
-        {
-          onSuccess: () => {
-            setShowRecurringForm(false);
-          },
-        }
-      );
-    }
-  };
-
-  const handleRecurringDelete = () => {
-    if (!task?.taskId) return;
-
-    deleteRecurringMutation.mutate(task.taskId, {
-      onSuccess: () => {
-        setShowRecurringForm(false);
+    createRecurringMutation.mutate(
+      {
+        workspaceId,
+        projectId,
+        taskId: task.taskId,
+        data: recurringData
       },
-    });
+      {
+        onSuccess: () => {
+          setShowRecurringForm(false);
+        },
+      }
+    );
   };
 
   return (
@@ -365,17 +349,14 @@ function TaskForm({ isOpen, onClose, onSubmit, task, isLoading = false }: TaskFo
           </div>
 
           {/* Recurring Task Settings - Only show for existing tasks */}
-          {task && (
+          {task && workspaceId && projectId && (
             <div className="space-y-2">
               <Label>Recurring Task</Label>
               <div className="flex items-center justify-between p-3 border rounded-md">
                 <div className="flex items-center gap-2">
                   <Repeat className="h-4 w-4" />
                   <span className="text-sm">
-                    {recurringRule
-                      ? `Repeats every ${recurringRule.interval} ${recurringRule.type.toLowerCase()}${recurringRule.interval > 1 ? 's' : ''}`
-                      : 'No recurrence set'
-                    }
+                    Set up recurring schedule for this task
                   </span>
                 </div>
                 <Button
@@ -384,7 +365,7 @@ function TaskForm({ isOpen, onClose, onSubmit, task, isLoading = false }: TaskFo
                   size="sm"
                   onClick={() => setShowRecurringForm(true)}
                 >
-                  {recurringRule ? 'Edit' : 'Set Recurrence'}
+                  Set Recurrence
                 </Button>
               </div>
             </div>
@@ -410,14 +391,12 @@ function TaskForm({ isOpen, onClose, onSubmit, task, isLoading = false }: TaskFo
         </form>
 
         {/* Recurring Task Form - Only for existing tasks */}
-        {task && (
+        {task && workspaceId && projectId && (
           <RecurringTaskForm
             isOpen={showRecurringForm}
             onClose={() => setShowRecurringForm(false)}
             onSubmit={handleRecurringSubmit}
-            onDelete={recurringRule ? handleRecurringDelete : undefined}
-            existingRule={recurringRule}
-            isLoading={createRecurringMutation.isPending || updateRecurringMutation.isPending || deleteRecurringMutation.isPending}
+            isLoading={createRecurringMutation.isPending || updateRecurringMutation.isPending}
           />
         )}
       </DialogContent>

@@ -108,6 +108,8 @@ function ProjectDetailPage() {
             // If there's pending recurrence, apply it to the newly created task
             if (pendingRecurrence && response?.taskId) {
               createRecurringMutation.mutate({
+                workspaceId: workspaceId!,
+                projectId: projectId!,
                 taskId: response.taskId,
                 data: pendingRecurrence
               }, {
@@ -390,6 +392,8 @@ function ProjectDetailPage() {
         }}
         onSubmit={handleTaskFormSubmit}
         task={editingTask}
+        workspaceId={workspaceId}
+        projectId={projectId}
         isLoading={createTaskMutation.isPending || updateTaskMutation.isPending}
       />
 

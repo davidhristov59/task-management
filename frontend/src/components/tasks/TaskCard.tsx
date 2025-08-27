@@ -7,7 +7,6 @@ import type { NormalizedTask } from '../../utils/taskUtils';
 import { format } from 'date-fns';
 import TaskStatusSelector from './TaskStatusSelector';
 import TaskAssignmentSelector from './TaskAssignmentSelector';
-import { useRecurringTask } from '../../hooks/useRecurringTasks';
 
 interface TaskCardProps {
   task: NormalizedTask;
@@ -54,7 +53,6 @@ function TaskCard({
   onClick
 }: TaskCardProps) {
   const isOverdue = task.deadline && new Date(task.deadline) < new Date() && task.status !== TaskStatus.COMPLETED;
-  const { data: recurringRule } = useRecurringTask(task.taskId);
 
   return (
     <Card
@@ -74,12 +72,12 @@ function TaskCard({
             <Badge className={getStatusColor(task.status)}>
               {task.status.replace('_', ' ')}
             </Badge>
-            {recurringRule && (
+            {/* {recurringRule && (
               <Badge variant="outline" className="flex items-center gap-1">
                 <Repeat className="h-3 w-3" />
                 Recurring
               </Badge>
-            )}
+            )} */}
           </div>
         </div>
         

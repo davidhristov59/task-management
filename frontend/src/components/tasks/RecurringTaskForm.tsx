@@ -35,8 +35,6 @@ interface RecurringTaskFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: CreateRecurringTaskRequest) => void;
-  onDelete?: () => void;
-  existingRule?: RecurrenceRule;
   isLoading?: boolean;
 }
 
@@ -44,8 +42,6 @@ function RecurringTaskForm({
   isOpen,
   onClose,
   onSubmit,
-  onDelete,
-  existingRule,
   isLoading = false
 }: RecurringTaskFormProps) {
   const {
@@ -64,20 +60,16 @@ function RecurringTaskForm({
     },
   });
 
-  // Update form when existing rule changes
+  // Reset form when dialog opens
   useEffect(() => {
-    if (existingRule) {
-      setValue('type', existingRule.type);
-      setValue('interval', existingRule.interval);
-      setValue('endDate', existingRule.endDate ? existingRule.endDate.split('T')[0] : '');
-    } else {
+    if (isOpen) {
       reset({
         type: RecurrenceType.DAILY,
         interval: 1,
         endDate: '',
       });
     }
-  }, [existingRule, setValue, reset]);
+  }, [isOpen, reset]);
 
   const type = watch('type');
   const interval = watch('interval');
@@ -121,7 +113,7 @@ function RecurringTaskForm({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Repeat className="h-5 w-5" />
-            {existingRule ? 'Edit Recurring Task' : 'Set Up Recurring Task'}
+            Set Up Recurring Task
           </DialogTitle>
         </DialogHeader>
 
@@ -192,25 +184,13 @@ function RecurringTaskForm({
             </div>
           )}
 
-          <DialogFooter className="flex justify-between">
-            <div>
-              {existingRule && onDelete && (
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={onDelete}
-                  disabled={isLoading}
-                >
-                  Remove Recurrence
-                </Button>
-              )}
-            </div>
+          <DialogFooter>
             <div className="flex gap-2">
               <Button type="button" variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
               <Button className='bg-black text-white' type="submit" disabled={isLoading}>
-                {isLoading ? 'Saving...' : existingRule ? 'Update Recurrence' : 'Set Recurrence'}
+                {isLoading ? 'Saving...' : 'Set Recurrence'}
               </Button>
             </div>
           </DialogFooter>

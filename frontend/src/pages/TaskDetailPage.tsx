@@ -9,7 +9,7 @@ import TaskStatusSelector from '../components/tasks/TaskStatusSelector';
 import TaskAssignmentSelector from '../components/tasks/TaskAssignmentSelector';
 import { CommentSection, AttachmentManager, RecurringTaskForm } from '../components/tasks';
 import { TaskPriority, TaskStatus } from '../types';
-import { useRecurringTask, useCreateRecurringTask, useUpdateRecurringTask, useDeleteRecurringTask } from '../hooks/useRecurringTasks';
+import { useCreateRecurringTask, useUpdateRecurringTask } from '../hooks/useRecurringTasks';
 
 function TaskDetailPage() {
   const { workspaceId, projectId, taskId } = useParams();
@@ -22,10 +22,8 @@ function TaskDetailPage() {
     taskId || ''
   );
 
-  const { data: recurringRule } = useRecurringTask(taskId || '');
   const createRecurringMutation = useCreateRecurringTask();
   const updateRecurringMutation = useUpdateRecurringTask();
-  const deleteRecurringMutation = useDeleteRecurringTask();
 
   const updateTaskMutation = useUpdateTask();
   const assignTaskMutation = useAssignTask();
@@ -119,37 +117,21 @@ function TaskDetailPage() {
   };
 
   const handleRecurringSubmit = (recurringData: any) => {
-    if (!taskId) return;
+    if (!workspaceId || !projectId || !taskId) return;
 
-    if (recurringRule) {
-      updateRecurringMutation.mutate(
-        { taskId, data: recurringData },
-        {
-          onSuccess: () => {
-            setShowRecurringForm(false);
-          },
-        }
-      );
-    } else {
-      createRecurringMutation.mutate(
-        { taskId, data: recurringData },
-        {
-          onSuccess: () => {
-            setShowRecurringForm(false);
-          },
-        }
-      );
-    }
-  };
-
-  const handleRecurringDelete = () => {
-    if (!taskId) return;
-
-    deleteRecurringMutation.mutate(taskId, {
-      onSuccess: () => {
-        setShowRecurringForm(false);
+    createRecurringMutation.mutate(
+      { 
+        workspaceId, 
+        projectId, 
+        taskId, 
+        data: recurringData 
       },
-    });
+      {
+        onSuccess: () => {
+          setShowRecurringForm(false);
+        },
+      }
+    );
   };
 
   if (isLoading) {
@@ -214,12 +196,7 @@ function TaskDetailPage() {
                 <Badge className={getStatusColor(task.status)}>
                   {task.status.replace('_', ' ')}
                 </Badge>
-                {recurringRule && (
-                  <Badge variant="outline" className="flex items-center gap-1">
-                    <Repeat className="h-3 w-3" />
-                    Recurring
-                  </Badge>
-                )}
+
                 {task.deadline && (
                   <div className="flex items-center gap-1 text-sm text-gray-600">
                     <Calendar className="h-4 w-4" />
@@ -246,7 +223,7 @@ function TaskDetailPage() {
                 className="flex items-center gap-1"
               >
                 <Repeat className="h-4 w-4" />
-                {recurringRule ? 'Edit Recurrence' : 'Make Recurring'}
+                Make Recurring
               </Button>
             </div>
           </div>
@@ -258,39 +235,7 @@ function TaskDetailPage() {
             <p className="text-gray-700 whitespace-pre-wrap text-left">{task.description}</p>
           </div>
 
-          {/* Recurring Task Details */}
-          {recurringRule && (
-            <div className="pt-4 border-t">
-              <div className="flex items-center gap-2 mb-3">
-                <Repeat className="h-4 w-4 text-gray-600" />
-                <h3 className="font-semibold">Recurring Task Settings</h3>
-              </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-blue-800">Frequency:</span>
-                    <span className="text-sm text-blue-700">
-                      Every {recurringRule.interval} {recurringRule.type.toLowerCase()}{recurringRule.interval > 1 ? 's' : ''}
-                    </span>
-                  </div>
-                  {recurringRule.endDate && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-blue-800">Ends:</span>
-                      <span className="text-sm text-blue-700">
-                        {formatDate(recurringRule.endDate)}
-                      </span>
-                    </div>
-                  )}
-                  {!recurringRule.endDate && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-blue-800">Duration:</span>
-                      <span className="text-sm text-blue-700">No end date</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+
 
           {/* Metadata */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
@@ -369,9 +314,7 @@ function TaskDetailPage() {
         isOpen={showRecurringForm}
         onClose={() => setShowRecurringForm(false)}
         onSubmit={handleRecurringSubmit}
-        onDelete={recurringRule ? handleRecurringDelete : undefined}
-        existingRule={recurringRule}
-        isLoading={createRecurringMutation.isPending || updateRecurringMutation.isPending || deleteRecurringMutation.isPending}
+        isLoading={createRecurringMutation.isPending || updateRecurringMutation.isPending}
       />
     </div>
   );

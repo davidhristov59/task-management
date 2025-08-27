@@ -324,6 +324,24 @@
 					"response": []
 				},
 				{
+					"name": "Update Recurring",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"type\": \"WEEKLY\",\r\n  \"interval\": 2,\r\n  \"endDate\": \"2025-08-04T22:23:51.549Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects/83c3fdc1-bada-47b9-b400-7152ec617dfa/tasks/5064f32d-510c-4dd7-892a-6e71e3af9aa5/recurring"
+					},
+					"response": []
+				},
+				{
 					"name": "Complete Task",
 					"request": {
 						"method": "POST",

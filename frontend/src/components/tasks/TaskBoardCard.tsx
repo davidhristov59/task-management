@@ -9,7 +9,6 @@ import { TaskPriority, TaskStatus } from '../../types';
 import type { NormalizedTask } from '../../utils/taskUtils';
 import { format } from 'date-fns';
 import TaskAssignmentSelector from './TaskAssignmentSelector';
-import { useRecurringTask } from '../../hooks/useRecurringTasks';
 
 interface TaskBoardCardProps {
   task: NormalizedTask;
@@ -67,7 +66,6 @@ function TaskBoardCard({
   };
 
   const isOverdue = task.deadline && new Date(task.deadline) < new Date() && task.status !== TaskStatus.COMPLETED;
-  const { data: recurringRule } = useRecurringTask(task.taskId);
 
   const handleCardClick = (e: React.MouseEvent) => {
     // Don't trigger click when interacting with action buttons
@@ -163,14 +161,14 @@ function TaskBoardCard({
           )}
 
           {/* Recurring indicator */}
-          {recurringRule && (
+          {/* {recurringRule && (
             <div className="flex items-center gap-1">
               <Badge variant="outline" className="flex items-center gap-1 text-xs">
                 <Repeat className="h-3 w-3" />
                 Recurring
               </Badge>
             </div>
-          )}
+          )} */}
 
           {/* Action buttons - Compact */}
           <div className="flex items-center justify-between pt-1 border-t border-gray-100">
