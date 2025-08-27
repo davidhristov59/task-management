@@ -90,6 +90,16 @@ services:
     networks:
       - task_services_net
 
+  taskmgmt_frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    container_name: taskmgmt_frontend
+    ports:
+      - "5173:80"
+    networks:
+      - task_services_net
+
 volumes:
   db-data:
   dms-data:

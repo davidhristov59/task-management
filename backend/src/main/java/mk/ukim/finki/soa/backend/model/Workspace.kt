@@ -89,10 +89,6 @@ class Workspace {
     fun handle(command: RemoveMemberFromWorkspaceCommand) {
         validateNotArchived()
 
-        if (!memberIds.contains(command.memberId)) {
-            throw IllegalArgumentException("Member is not part of the workspace")
-        }
-
         if (command.memberId == ownerId) {
             throw IllegalArgumentException("Cannot remove the workspace owner")
         }

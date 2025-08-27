@@ -17,89 +17,105 @@ open class WorkspaceIntegrationService(
 ) {
 
     @EventHandler
-    fun handleUserDeactivated(userId: String) {
-        println("Processing user deactivated event for workspaces: $userId")
+    fun handleUserDeactivated(event: UserDeactivatedEvent) {
+        println("Processing user deactivated event for workspaces: ${event.userId}")
 
         // Find workspaces owned by this user and reassign them
-        val ownedWorkspaces = findWorkspacesByOwner(userId)
+        val ownedWorkspaces = findWorkspacesByOwner(event.userId.value)
 
         ownedWorkspaces.forEach { workspace ->
             // Remove user from member list if present
-            val command = RemoveMemberFromWorkspaceCommand(workspace.workspaceId, userId)
+            val command = RemoveMemberFromWorkspaceCommand(workspace.workspaceId, event.userId.value)
             commandGateway.send<Any>(command)
 
             // If user is the owner, reassign ownership
-            if (workspace.ownerId == userId) {
+            if (workspace.ownerId == event.userId.value) {
                 reassignWorkspaceOwnership(workspace)
             }
         }
     }
 
+    // Note: This would need a proper OrganizationPolicyChangedEvent to be defined
+    // For now, commenting out to avoid compilation issues
+    /*
     @EventHandler
-    fun handleOrganizationPolicyChanged(policyType: String, newValue: Any) {
-        println("Processing organization policy change: $policyType = $newValue")
+    fun handleOrganizationPolicyChanged(event: OrganizationPolicyChangedEvent) {
+        println("Processing organization policy change: ${event.policyType} = ${event.newValue}")
 
-        when (policyType) {
+        when (event.policyType) {
             "MAX_WORKSPACE_MEMBERS" -> {
-                enforceMaxMembersPolicy(newValue as Int)
+                enforceMaxMembersPolicy(event.newValue as Int)
             }
             "WORKSPACE_RETENTION_DAYS" -> {
-                enforceRetentionPolicy(newValue as Int)
+                enforceRetentionPolicy(event.newValue as Int)
             }
             "REQUIRE_WORKSPACE_APPROVAL" -> {
-                if (newValue as Boolean) {
+                if (event.newValue as Boolean) {
                     archiveUnapprovedWorkspaces()
                 }
             }
         }
     }
+    */
 
+    // Note: This would need a proper UserInviteAcceptedEvent to be defined
+    // For now, commenting out to avoid compilation issues
+    /*
     @EventHandler
-    fun handleUserInviteAccepted(userId: String, workspaceId: String) {
-        println("Processing user invite accepted: $userId joined workspace $workspaceId")
+    fun handleUserInviteAccepted(event: UserInviteAcceptedEvent) {
+        println("Processing user invite accepted: ${event.userId} joined workspace ${event.workspaceId}")
 
         // Add user to workspace
-        val command = AddMemberToWorkspaceCommand(WorkspaceId(workspaceId), userId)
+        val command = AddMemberToWorkspaceCommand(event.workspaceId, event.userId)
         commandGateway.send<Any>(command)
             .thenRun {
-                println("Successfully added user $userId to workspace $workspaceId")
+                println("Successfully added user ${event.userId} to workspace ${event.workspaceId}")
                 // Could trigger welcome notifications or setup default permissions
             }
     }
+    */
 
+    // Note: This would need a proper WorkspaceUsageLimitExceededEvent to be defined
+    // For now, commenting out to avoid compilation issues
+    /*
     @EventHandler
-    fun handleWorkspaceUsageLimitExceeded(workspaceId: String, limitType: String, currentValue: Int, maxValue: Int) {
-        println("Workspace usage limit exceeded: $workspaceId - $limitType: $currentValue/$maxValue")
+    fun handleWorkspaceUsageLimitExceeded(event: WorkspaceUsageLimitExceededEvent) {
+        println("Workspace usage limit exceeded: ${event.workspaceId} - ${event.limitType}: ${event.currentValue}/${event.maxValue}")
 
-        when (limitType) {
+        when (event.limitType) {
             "PROJECTS" -> {
                 // Archive oldest completed projects
-                archiveOldestCompletedProjects(WorkspaceId(workspaceId), currentValue - maxValue)
+                archiveOldestCompletedProjects(event.workspaceId, event.currentValue - event.maxValue)
             }
             "MEMBERS" -> {
                 // Send notification to workspace owner
-                notifyWorkspaceOwnerOfLimit(workspaceId, "Member limit exceeded")
+                notifyWorkspaceOwnerOfLimit(event.workspaceId.value, "Member limit exceeded")
             }
             "STORAGE" -> {
                 // Clean up old attachments or notify owner
-                cleanupWorkspaceStorage(WorkspaceId(workspaceId))
+                cleanupWorkspaceStorage(event.workspaceId)
             }
         }
     }
+    */
 
+    // Note: This would need a proper WorkspaceInactivityDetectedEvent to be defined
+    // For now, commenting out to avoid compilation issues
+    /*
     @EventHandler
-    fun handleWorkspaceInactivityDetected(workspaceId: String, inactiveDays: Int) {
-        println("Workspace inactivity detected: $workspaceId inactive for $inactiveDays days")
+    fun handleWorkspaceInactivityDetected(event: WorkspaceInactivityDetectedEvent) {
+        println("Workspace inactivity detected: ${event.workspaceId} inactive for ${event.inactiveDays} days")
 
-        if (inactiveDays >= 90) {
+        if (event.inactiveDays >= 90) {
             // Archive workspace due to long inactivity
-            val command = ArchiveWorkspaceCommand(WorkspaceId(workspaceId))
+            val command = ArchiveWorkspaceCommand(event.workspaceId)
             commandGateway.send<Any>(command)
-        } else if (inactiveDays >= 30) {
+        } else if (event.inactiveDays >= 30) {
             // Send reminder notification to workspace owner
-            notifyWorkspaceOwnerOfInactivity(workspaceId, inactiveDays)
+            notifyWorkspaceOwnerOfInactivity(event.workspaceId.value, event.inactiveDays)
         }
     }
+    */
 
     // Helper methods
     private fun findWorkspacesByOwner(ownerId: String): List<WorkspaceView> {

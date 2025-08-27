@@ -22,42 +22,59 @@ class WorkspaceModificationServiceImpl(
     }
 
     override fun deleteWorkspace(command: DeleteWorkspaceCommand): CompletableFuture<WorkspaceId> {
-        val workspace = workspaceViewReadService.findById(command.workspaceId)
-
-        if (!workspace.archived) {
-            throw IllegalStateException("Workspace must be archived before deleting")
+        return try {
+            val workspace = workspaceViewReadService.findById(command.workspaceId)
+            
+            // Auto-archive the workspace if it's not already archived
+            if (!workspace.archived) {
+                // First archive the workspace, then delete it
+                val archiveCommand = UpdateWorkspaceCommand(
+                    workspaceId = command.workspaceId,
+                    archived = true
+                )
+                return commandGateway.send<WorkspaceId>(archiveCommand)
+                    .thenCompose { 
+                        // After archiving, proceed with deletion
+                        commandGateway.send(command)
+                    }
+            } else {
+                commandGateway.send(command)
+            }
+        } catch (e: Exception) {
+            CompletableFuture.failedFuture(e)
         }
-
-        return commandGateway.send(command)
     }
 
     override fun addMemberToWorkspace(command: AddMemberToWorkspaceCommand): CompletableFuture<WorkspaceId> {
-        val workspace = workspaceViewReadService.findById(command.workspaceId)
+        return try {
+            val workspace = workspaceViewReadService.findById(command.workspaceId)
 
-        if (workspace.archived) {
-            throw IllegalStateException("Workspace must not be archived before adding members")
+            if (workspace.archived) {
+                CompletableFuture.failedFuture(IllegalStateException("Workspace must not be archived before adding members"))
+            } else {
+                val memberIds = workspace.getMemberIdsList()
+                if (memberIds.contains(command.memberId)) {
+                    CompletableFuture.failedFuture(IllegalStateException("Member already exists in the workspace"))
+                } else {
+                    commandGateway.send(command)
+                }
+            }
+        } catch (e: Exception) {
+            CompletableFuture.failedFuture(e)
         }
-
-        val memberIds = workspace.getMemberIdsList()
-        if (memberIds.contains(command.memberId)) {
-            throw IllegalStateException("Member already exists in the workspace")
-        }
-
-        return commandGateway.send(command)
     }
 
     override fun removeMemberFromWorkspace(command: RemoveMemberFromWorkspaceCommand): CompletableFuture<WorkspaceId> {
-        val workspace = workspaceViewReadService.findById(command.workspaceId)
+        return try {
+            val workspace = workspaceViewReadService.findById(command.workspaceId)
 
-        if (workspace.archived) {
-            throw IllegalStateException("Workspace must not be archived before removing members")
+            if (workspace.archived) {
+                CompletableFuture.failedFuture(IllegalStateException("Workspace must not be archived before removing members"))
+            } else {
+                commandGateway.send<WorkspaceId>(command)
+            }
+        } catch (e: Exception) {
+            CompletableFuture.failedFuture(e)
         }
-
-        val memberIds = workspace.getMemberIdsList()
-        if (!memberIds.contains(command.memberId)) {
-            throw IllegalStateException("Member does not exist in the workspace")
-        }
-
-        return commandGateway.send(command)
     }
 }

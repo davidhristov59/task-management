@@ -1,0 +1,165 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer utilities {
+  /* Responsive text truncation utilities */
+  .text-truncate-responsive {
+    @apply truncate sm:text-clip;
+  }
+  
+  /* Prevent content overflow in containers */
+  .container-safe {
+    @apply min-w-0 max-w-full overflow-hidden;
+  }
+  
+  /* Responsive flex utilities */
+  .flex-responsive {
+    @apply flex flex-col sm:flex-row;
+  }
+  
+  .flex-responsive-reverse {
+    @apply flex flex-col-reverse sm:flex-row;
+  }
+  
+  /* Safe spacing for mobile */
+  .spacing-safe {
+    @apply space-y-2 sm:space-y-0 sm:space-x-4;
+  }
+  
+  /* Responsive grid utilities */
+  .grid-responsive-cards {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+  
+  .grid-responsive-stats {
+    @apply grid grid-cols-2 sm:grid-cols-4;
+  }
+  
+  /* Button responsive utilities */
+  .btn-responsive {
+    @apply px-3 py-2 sm:px-4 sm:py-2;
+  }
+  
+  /* Text responsive utilities */
+  .text-responsive-lg {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+  
+  .text-responsive-xl {
+    @apply text-xl sm:text-2xl lg:text-3xl;
+  }
+  
+  /* Card content safety */
+  .card-content-safe {
+    @apply break-words overflow-hidden;
+  }
+  
+  /* Action button containers */
+  .actions-container {
+    @apply flex flex-col sm:flex-row items-stretch sm:items-center gap-2;
+  }
+  
+  /* Mobile-first responsive containers */
+  .mobile-container {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+  
+  /* Sidebar responsive utilities */
+  .sidebar-mobile {
+    @apply fixed left-0 top-16 z-50 w-64 sm:static sm:z-auto;
+  }
+  
+  /* Prevent horizontal scroll */
+  .no-horizontal-scroll {
+    @apply overflow-x-hidden max-w-full;
+  }
+  
+  /* Badge overflow prevention */
+  .badge-container {
+    @apply flex flex-wrap gap-1 max-w-full overflow-hidden;
+  }
+  
+  .badge-safe {
+    @apply truncate max-w-full inline-block;
+  }
+  
+  /* Task card specific fixes */
+  .task-card-header {
+    @apply flex items-start justify-between gap-2 min-w-0;
+  }
+  
+  .task-card-badges {
+    @apply flex flex-wrap items-center gap-1 flex-shrink-0 max-w-[45%] overflow-hidden;
+  }
+  
+  /* Ensure all card content stays within bounds */
+  .card-bounded {
+    @apply overflow-hidden min-w-0 max-w-full;
+  }
+  
+  /* Force all elements to respect container bounds */
+  .force-bounds * {
+    @apply max-w-full overflow-hidden;
+  }
+  
+  /* Specific badge overflow fixes */
+  .badge-overflow-fix {
+    @apply inline-block max-w-full truncate;
+  }
+}

@@ -1,0 +1,439 @@
+{
+	"info": {
+		"_postman_id": "bbc74075-d4f1-4f60-b1f2-641be5a8ab7d",
+		"name": "Task Management",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "30655022"
+	},
+	"item": [
+		{
+			"name": "Workspace",
+			"item": [
+				{
+					"name": "Get Workspaces",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/workspaces"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Workspace",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"TestWorkspace\",\r\n  \"description\": \"DescriptionTest\",\r\n  \"ownerId\": \"UserTest\",\r\n  \"memberIds\": [\r\n    \"User1\",\r\n    \"User2\"\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/workspaces"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Workspace",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"workspaces",
+								"2e0e3217-4c12-4382-9d08-399edcbfedc6"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Workspace",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"TestWorkspace\",\r\n  \"description\": \"DescriptionTest\",\r\n  \"ownerId\": \"UserTest\",\r\n  \"memberIds\": [\r\n    \"User1\",\r\n    \"User2\"\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Workspace",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Workspace Members",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "User3",
+							"options": {
+								"raw": {
+									"language": "text"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/members"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Workspace Members",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/members/User3"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Project",
+			"item": [
+				{
+					"name": "Get Projects",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Project",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"TestProject\",\r\n  \"description\": \"TestDescription\",\r\n  \"ownerId\": \"UserTest\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Project",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects/83c3fdc1-bada-47b9-b400-7152ec617dfa"
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Project",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"TestProject\",\r\n  \"description\": \"TestDescription2\",\r\n  \"ownerId\": \"UserTest\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects/83c3fdc1-bada-47b9-b400-7152ec617dfa"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Project",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects/83c3fdc1-bada-47b9-b400-7152ec617dfa"
+					},
+					"response": []
+				},
+				{
+					"name": "Archive Project",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects/83c3fdc1-bada-47b9-b400-7152ec617dfa/archive"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Task",
+			"item": [
+				{
+					"name": "Get Tasks",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects/83c3fdc1-bada-47b9-b400-7152ec617dfa/tasks"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Task",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"TestTask\",\r\n  \"description\": \"DescriptionTest\",\r\n  \"priority\": \"LOW\",\r\n  \"deadlineDate\": \"2025-06-04T22:16:32.572Z\",\r\n  \"tags\": [\r\n    \"soa\"\r\n  ],\r\n  \"categories\": [\r\n    \"backend\",\r\n    \"frontend\"\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects/83c3fdc1-bada-47b9-b400-7152ec617dfa/tasks"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Task",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects/83c3fdc1-bada-47b9-b400-7152ec617dfa/tasks/5064f32d-510c-4dd7-892a-6e71e3af9aa5"
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Task",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"TestTask\",\r\n  \"description\": \"DescriptionTest\",\r\n  \"priority\": \"HIGH\",\r\n  \"deadlineDate\": \"2025-06-04T22:16:32.572Z\",\r\n  \"tags\": [\r\n    \"soa\"\r\n  ],\r\n  \"categories\": [\r\n    \"backend\",\r\n    \"frontend\"\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects/83c3fdc1-bada-47b9-b400-7152ec617dfa/tasks/5064f32d-510c-4dd7-892a-6e71e3af9aa5"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Task",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects/83c3fdc1-bada-47b9-b400-7152ec617dfa/tasks/5064f32d-510c-4dd7-892a-6e71e3af9aa5"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Comment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"authorId\": \"User2\",\r\n  \"content\": \"This is a test comment.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects/83c3fdc1-bada-47b9-b400-7152ec617dfa/tasks/5064f32d-510c-4dd7-892a-6e71e3af9aa5/comments"
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Comment",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"authorId\": \"User2\",\r\n  \"content\": \"This is an edited comment.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects/83c3fdc1-bada-47b9-b400-7152ec617dfa/tasks/5064f32d-510c-4dd7-892a-6e71e3af9aa5/comments/1f78f644-66ff-4faa-b376-457c1576f1f0"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Comment",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects/83c3fdc1-bada-47b9-b400-7152ec617dfa/tasks/5064f32d-510c-4dd7-892a-6e71e3af9aa5/comments/1f78f644-66ff-4faa-b376-457c1576f1f0"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Recurring",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"type\": \"DAILY\",\r\n  \"interval\": 1,\r\n  \"endDate\": \"2025-07-04T22:23:51.549Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects/83c3fdc1-bada-47b9-b400-7152ec617dfa/tasks/5064f32d-510c-4dd7-892a-6e71e3af9aa5/recurring"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Recurring",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"type\": \"WEEKLY\",\r\n  \"interval\": 2,\r\n  \"endDate\": \"2025-08-04T22:23:51.549Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects/83c3fdc1-bada-47b9-b400-7152ec617dfa/tasks/5064f32d-510c-4dd7-892a-6e71e3af9aa5/recurring"
+					},
+					"response": []
+				},
+				{
+					"name": "Complete Task",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects/83c3fdc1-bada-47b9-b400-7152ec617dfa/tasks/5064f32d-510c-4dd7-892a-6e71e3af9aa5/complete"
+					},
+					"response": []
+				},
+				{
+					"name": "Add File Attachment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"fileName\": \"TestFile\",\r\n  \"fileType\": \"pdf\",\r\n  \"fileSize\": 1297\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects/83c3fdc1-bada-47b9-b400-7152ec617dfa/tasks/5064f32d-510c-4dd7-892a-6e71e3af9aa5/attachments"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete File Attachment",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects/83c3fdc1-bada-47b9-b400-7152ec617dfa/tasks/5064f32d-510c-4dd7-892a-6e71e3af9aa5/attachments/4fb9bd2c-dd3e-4733-b252-5361637037e6"
+					},
+					"response": []
+				},
+				{
+					"name": "Assign Task",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "User3",
+							"options": {
+								"raw": {
+									"language": "text"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects/83c3fdc1-bada-47b9-b400-7152ec617dfa/tasks/5064f32d-510c-4dd7-892a-6e71e3af9aa5/assign"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Assign Task",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{baseUrl}}/workspaces/2e0e3217-4c12-4382-9d08-399edcbfedc6/projects/83c3fdc1-bada-47b9-b400-7152ec617dfa/tasks/5064f32d-510c-4dd7-892a-6e71e3af9aa5/assign"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8087",
+			"type": "string"
+		}
+	]
+}

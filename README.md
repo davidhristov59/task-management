@@ -28,15 +28,16 @@ This project implements a DDD Service-Oriented Task Management System designed t
    ```bash
    docker-compose up -d
    ```
-3. The backend API will be running on `http://localhost:8087`.
-4. Explore the API documentation at:
+3. The frontend application is running on `http://localhost:5173/`.
+4. The backend API will be running on `http://localhost:8087`.
+5. Explore the API documentation at:
 
    > [http://localhost:8087/swagger-ui/index.html](http://localhost:8087/swagger-ui/index.html)
-5. Access the Consul dashboard at:
+6. Access the Consul dashboard at:
    
    > [http://localhost:8500](http://localhost:8500)
 
-6. Keycloak (Authentication & Authorization)
+7. Keycloak (Authentication & Authorization)
 
    > [http://localhost:8001](http://localhost:8001)
 
@@ -50,6 +51,7 @@ This project implements a DDD Service-Oriented Task Management System designed t
 
 * Java 21 / Spring Boot
 * Axon Framework (CQRS & Event Sourcing)
+* TypeScript / React.js
 * PostgreSQL 16
 * Kafka (KRaft mode)
 * Docker & Docker Compose
@@ -59,6 +61,7 @@ This project implements a DDD Service-Oriented Task Management System designed t
 ## Docker Services
 
 * **taskmgmt\_db**: PostgreSQL database on port `5438 -> 5432`
+* **taskmgmt\_frontend**: React app frontend on port `5173`
 * **taskmgmt\_backend**: SpringBoot (Java + Kotlin) backend on port `8087`
 * **broker**: Kafka broker on port `9092`
 * **consul**: Consul service registry and discovery on port `8500`

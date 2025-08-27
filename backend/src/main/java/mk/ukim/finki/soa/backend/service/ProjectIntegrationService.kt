@@ -18,11 +18,11 @@ open class ProjectIntegrationService(
 ) {
 
     @EventHandler
-    fun handleWorkspaceArchived(workspaceId: String) {
-        println("Processing workspace archived event: $workspaceId")
+    fun handleWorkspaceArchived(event: WorkspaceArchivedEvent) {
+        println("Processing workspace archived event: ${event.workspaceId}")
 
         // Archive all projects in the workspace
-        val workspaceProjects = findProjectsByWorkspace(WorkspaceId(workspaceId))
+        val workspaceProjects = findProjectsByWorkspace(event.workspaceId)
 
         workspaceProjects.forEach { project ->
             if (!project.archived) {
@@ -39,12 +39,18 @@ open class ProjectIntegrationService(
         }
     }
 
+    // Fallback method for string parameter (for external integrations)
+    fun handleWorkspaceArchived(workspaceId: String) {
+        val event = WorkspaceArchivedEvent(WorkspaceId(workspaceId))
+        handleWorkspaceArchived(event)
+    }
+
     @EventHandler
-    fun handleWorkspaceDeleted(workspaceId: String) {
-        println("Processing workspace deleted event: $workspaceId")
+    fun handleWorkspaceDeleted(event: WorkspaceDeletedEvent) {
+        println("Processing workspace deleted event: ${event.workspaceId}")
 
         // Soft delete all projects in the workspace
-        val workspaceProjects = findProjectsByWorkspace(WorkspaceId(workspaceId))
+        val workspaceProjects = findProjectsByWorkspace(event.workspaceId)
 
         workspaceProjects.forEach { project ->
             val command = DeleteProjectCommand(project.projectId)
@@ -60,38 +66,45 @@ open class ProjectIntegrationService(
     }
 
     @EventHandler
-    fun handleUserRoleChanged(userId: String, oldRole: String, newRole: String) {
-        println("Processing user role change: $userId from $oldRole to $newRole")
+    fun handleUserRoleChanged(event: UserRoleChangedEvent) {
+        println("Processing user role change: ${event.userId} from ${event.old_role} to ${event.new_role}")
 
         // If user lost project management permissions, reassign project ownership
-        if (oldRole == "ADMIN" && newRole != "ADMIN") {
-            reassignProjectsFromUser(userId)
+        if (event.old_role == UserRole.EMPLOYEE && event.new_role != UserRole.EMPLOYEE) {
+            reassignProjectsFromUser(event.userId.value)
         }
     }
 
     @EventHandler
-    fun handleTaskCompleted(taskId: String, projectId: String) {
-        println("Processing task completed event: $taskId in project $projectId")
+    fun handleTaskCompleted(event: TaskCompletedEvent) {
+        println("Processing task completed event: ${event.taskId}")
 
-        // Check if all tasks in project are completed
-        val projectTasks = findTasksByProject(ProjectId(projectId))
-        val completedTasks = projectTasks.filter { it.status == TaskStatus.COMPLETED }
+        // Find the task to get its project ID
+        val task = taskViewRepository.findById(event.taskId).orElse(null)
+        if (task != null) {
+            // Check if all tasks in project are completed
+            val projectTasks = findTasksByProject(task.projectId)
+            val completedTasks = projectTasks.filter { it.status == TaskStatus.COMPLETED }
 
-        if (completedTasks.size == projectTasks.size && projectTasks.isNotEmpty()) {
-            println("All tasks completed in project $projectId. Updating project status.")
-            val command = UpdateProjectStatusCommand(ProjectId(projectId), ProjectStatus.COMPLETED)
-            commandGateway.send<Any>(command)
+            if (completedTasks.size == projectTasks.size && projectTasks.isNotEmpty()) {
+                println("All tasks completed in project ${task.projectId}. Updating project status.")
+                val command = UpdateProjectStatusCommand(task.projectId, ProjectStatus.COMPLETED)
+                commandGateway.send<Any>(command)
+            }
         }
     }
 
+    // Note: This would need a proper ProjectDeadlineApproachingEvent to be defined
+    // For now, commenting out to avoid compilation issues
+    /*
     @EventHandler
-    fun handleProjectDeadlineApproaching(projectId: String, daysRemaining: Int) {
-        println("Project deadline approaching: $projectId has $daysRemaining days remaining")
+    fun handleProjectDeadlineApproaching(event: ProjectDeadlineApproachingEvent) {
+        println("Project deadline approaching: ${event.projectId} has ${event.daysRemaining} days remaining")
 
         // Could trigger notifications, status updates, or priority changes
-        if (daysRemaining <= 3) {
+        if (event.daysRemaining <= 3) {
             // Increase priority of all pending tasks
-            val pendingTasks = findTasksByProject(ProjectId(projectId))
+            val pendingTasks = findTasksByProject(event.projectId)
                 .filter { it.status == TaskStatus.PENDING }
 
             pendingTasks.forEach { task ->
@@ -102,6 +115,7 @@ open class ProjectIntegrationService(
             }
         }
     }
+    */
 
     // Helper methods
     private fun findProjectsByWorkspace(workspaceId: WorkspaceId): List<ProjectView> {
