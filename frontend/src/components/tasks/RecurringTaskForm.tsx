@@ -60,7 +60,7 @@ function RecurringTaskForm({
     },
   });
 
-  // Reset form when dialog opens
+  
   useEffect(() => {
     if (isOpen) {
       reset({

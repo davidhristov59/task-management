@@ -2,16 +2,16 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 interface SearchState {
-  // Recent searches
+  
   recentSearches: string[];
   addRecentSearch: (query: string) => void;
   clearRecentSearches: () => void;
 
-  // Search preferences
+  
   searchTypes: ('workspace' | 'project' | 'task')[];
   setSearchTypes: (types: ('workspace' | 'project' | 'task')[]) => void;
 
-  // Search history for analytics
+  
   searchHistory: Array<{
     query: string;
     timestamp: string;
@@ -23,7 +23,7 @@ interface SearchState {
 export const useSearchStore = create<SearchState>()(
   persist(
     (set) => ({
-      // Recent searches
+      
       recentSearches: [],
       addRecentSearch: (query: string) => {
         const trimmedQuery = query.trim();
@@ -32,17 +32,17 @@ export const useSearchStore = create<SearchState>()(
         set((state) => {
           const filtered = state.recentSearches.filter(s => s !== trimmedQuery);
           return {
-            recentSearches: [trimmedQuery, ...filtered].slice(0, 10) // Keep only 10 recent searches
+            recentSearches: [trimmedQuery, ...filtered].slice(0, 10) 
           };
         });
       },
       clearRecentSearches: () => set({ recentSearches: [] }),
 
-      // Search preferences
+      
       searchTypes: ['workspace', 'project', 'task'],
       setSearchTypes: (types) => set({ searchTypes: types }),
 
-      // Search history
+      
       searchHistory: [],
       addSearchToHistory: (query: string, resultCount: number) => {
         const trimmedQuery = query.trim();
@@ -55,14 +55,14 @@ export const useSearchStore = create<SearchState>()(
               timestamp: new Date().toISOString(),
               resultCount,
             },
-            ...state.searchHistory.slice(0, 99) // Keep only 100 history items
+            ...state.searchHistory.slice(0, 99) 
           ]
         }));
       },
     }),
     {
       name: 'search-store',
-      // Only persist preferences and recent searches, not full history
+      
       partialize: (state) => ({
         recentSearches: state.recentSearches,
         searchTypes: state.searchTypes,

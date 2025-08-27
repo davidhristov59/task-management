@@ -46,7 +46,7 @@ function TaskList({
   
   const { taskViewMode, setTaskViewMode } = useUIStore();
 
-  // Extract available tags and categories from tasks
+  
   const availableTags = useMemo(() => {
     const tagSet = new Set<string>();
     tasks.forEach(task => {
@@ -65,33 +65,33 @@ function TaskList({
 
   const filteredAndSortedTasks = useMemo(() => {
     let filtered = tasks.filter((task) => {
-      // Search filter
+      
       const matchesSearch = !filters.search || 
         task.title.toLowerCase().includes(filters.search.toLowerCase()) ||
         task.description.toLowerCase().includes(filters.search.toLowerCase()) ||
         task.tags.some(tag => tag.name.toLowerCase().includes(filters?.search!.toLowerCase())) ||
         task.categories.some(cat => cat.name.toLowerCase().includes(filters?.search!.toLowerCase()));
 
-      // Status filter
+      
       const matchesStatus = filters.status === 'all' || task.status === filters.status;
 
-      // Priority filter
+      
       const matchesPriority = filters.priority === 'all' || task.priority === filters.priority;
 
-      // Assignment filter
+      
       const matchesAssignment = filters.assignment === 'all' ||
         (filters.assignment === 'assigned' && task.assignedUserId) ||
         (filters.assignment === 'unassigned' && !task.assignedUserId);
 
-      // Tags filter
+      
       const matchesTags = !filters.tags || filters.tags.length === 0 ||
         filters.tags.every(filterTag => task.tags.some(taskTag => taskTag.name === filterTag));
 
-      // Categories filter
+      
       const matchesCategories = !filters.categories || filters.categories.length === 0 ||
         filters.categories.every(filterCategory => task.categories.some(taskCategory => taskCategory.name === filterCategory));
 
-      // Date range filter
+      
       const matchesDateRange = !filters.dateRange || 
         (!filters.dateRange.from && !filters.dateRange.to) ||
         (() => {
@@ -113,7 +113,7 @@ function TaskList({
              matchesTags && matchesCategories && matchesDateRange;
     });
 
-    // Sort tasks
+    
     filtered.sort((a, b) => {
       let comparison = 0;
 

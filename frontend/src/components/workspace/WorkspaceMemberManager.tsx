@@ -32,20 +32,20 @@ export function WorkspaceMemberManager({ workspace, onClose }: WorkspaceMemberMa
   const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
   const [isAddingMember, setIsAddingMember] = useState(false);
 
-  // Fetch fresh workspace data from cache to get real-time updates
+  
   const { data: freshWorkspace } = useWorkspace(workspace.workspaceId);
 
-  // Use fresh data if available, fallback to prop
+  
   const currentWorkspace = freshWorkspace || workspace;
 
-  // Helper function to extract member IDs from various formats
+  
   const extractMemberIds = (workspace: any): string[] => {
-    // If memberIds exists and is an array, use it
+    
     if (Array.isArray(workspace.memberIds)) {
       return workspace.memberIds;
     }
 
-    // If memberIdsList exists, parse it
+    
     if (Array.isArray(workspace.memberIdsList)) {
       return workspace.memberIdsList.map((memberStr: string) => {
         try {
@@ -60,7 +60,7 @@ export function WorkspaceMemberManager({ workspace, onClose }: WorkspaceMemberMa
     return [];
   };
 
-  // Ensure memberIds is always an array and handle various data types
+  
   const memberIds = extractMemberIds(currentWorkspace);
 
   const addMemberMutation = useAddWorkspaceMember();
@@ -69,7 +69,7 @@ export function WorkspaceMemberManager({ workspace, onClose }: WorkspaceMemberMa
   const handleAddMember = async () => {
     if (!newMemberUserId.trim()) return;
 
-    // Check if member already exists
+    
     if (memberIds.includes(newMemberUserId.trim())) {
       alert('This user is already a member of the workspace');
       return;
@@ -82,7 +82,7 @@ export function WorkspaceMemberManager({ workspace, onClose }: WorkspaceMemberMa
         userId: newMemberUserId.trim(),
       });
       setNewMemberUserId('');
-      // Don't call onMemberChange here to keep modal open after adding member
+      
     } catch (error) {
       console.error('Failed to add member:', error);
       alert('Failed to add member. Please check the user ID and try again.');
@@ -92,7 +92,7 @@ export function WorkspaceMemberManager({ workspace, onClose }: WorkspaceMemberMa
   };
 
   const handleRemoveMember = async (userId: string) => {
-    // Don't allow removing the owner
+    
     if (userId === currentWorkspace.ownerId) {
       alert('Cannot remove the workspace owner');
       return;
@@ -104,7 +104,7 @@ export function WorkspaceMemberManager({ workspace, onClose }: WorkspaceMemberMa
         userId,
       });
       setRemovingMemberId(null);
-      // Don't call onMemberChange here to keep modal open after removing member
+      
     } catch (error) {
       console.error('Failed to remove member:', error);
       alert('Failed to remove member. Please try again.');

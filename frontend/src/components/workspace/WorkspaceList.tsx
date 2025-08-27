@@ -26,7 +26,7 @@ export function WorkspaceList({ onWorkspaceClick }: WorkspaceListProps) {
   const [editingWorkspace, setEditingWorkspace] = useState<Workspace | null>(null);
   const [managingMembersWorkspace, setManagingMembersWorkspace] = useState<Workspace | null>(null);
 
-  // Filter workspaces based on search term
+  
   const filteredWorkspaces = workspaces.filter(workspace =>
     workspace.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (workspace.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
@@ -265,7 +265,7 @@ export function WorkspaceList({ onWorkspaceClick }: WorkspaceListProps) {
         <WorkspaceForm
           workspace={editingWorkspace}
           onClose={handleFormClose}
-          onSuccess={handleFormClose} // The hooks already handle revalidation
+          onSuccess={handleFormClose} 
         />
       )}
 

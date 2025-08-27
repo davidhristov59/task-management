@@ -7,19 +7,19 @@ import { OfflineIndicator } from './offline-indicator'
 import { useLoadingState, useRetry, useOnlineStatus } from '@/hooks'
 import { ErrorBoundary, withErrorBoundary } from '../ErrorBoundary'
 
-// Demo component to showcase error handling and loading states
+
 export function ErrorLoadingDemo() {
   const [showSkeletons, setShowSkeletons] = useState(false)
   const [showOfflineIndicator, setShowOfflineIndicator] = useState(false)
   const { isFullyConnected } = useOnlineStatus()
   
-  // Demo loading state hook
+  
   const { isLoading, execute } = useLoadingState()
   
-  // Demo retry hook
+  
   const { executeWithRetry, isRetrying, attempts } = useRetry(
     async () => {
-      // Simulate API call that might fail
+      
       if (Math.random() < 0.7) {
         throw new Error('Simulated API failure')
       }
@@ -44,7 +44,7 @@ export function ErrorLoadingDemo() {
 
   const handleLoadingDemo = async () => {
     await execute(async () => {
-      // Simulate async operation
+      
       await new Promise(resolve => setTimeout(resolve, 2000))
       return 'Demo completed'
     }, {
@@ -64,7 +64,7 @@ export function ErrorLoadingDemo() {
   }
 
   const handleErrorBoundaryDemo = () => {
-    // This will trigger the error boundary
+    
     throw new Error('Demo error boundary trigger')
   }
 
@@ -212,7 +212,7 @@ export function ErrorLoadingDemo() {
   )
 }
 
-// Example of using withErrorBoundary HOC
+
 export const DemoComponentWithErrorBoundary = withErrorBoundary(
   () => <div>This component is wrapped with an error boundary</div>,
   <div>Custom fallback UI for this component</div>

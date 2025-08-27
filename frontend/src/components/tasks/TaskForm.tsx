@@ -55,7 +55,7 @@ function TaskForm({ isOpen, onClose, onSubmit, task, workspaceId, projectId, isL
   const [newCategory, setNewCategory] = useState('');
   const [showRecurringForm, setShowRecurringForm] = useState(false);
 
-  // Recurring task hooks
+  
   const createRecurringMutation = useCreateRecurringTask();
   const updateRecurringMutation = useUpdateRecurringTask();
 
@@ -70,7 +70,7 @@ function TaskForm({ isOpen, onClose, onSubmit, task, workspaceId, projectId, isL
     resolver: zodResolver(taskFormSchema),
   });
 
-  // Update form when task changes (for editing) or modal opens
+  
   useEffect(() => {
     if (isOpen) {
       if (task) {
@@ -82,7 +82,7 @@ function TaskForm({ isOpen, onClose, onSubmit, task, workspaceId, projectId, isL
         setTags(task.tags?.map(t => t.name) || []);
         setCategories(task.categories?.map(c => c.name) || []);
       } else {
-        // Reset form for new task
+        
         reset({
           title: '',
           description: '',
@@ -100,7 +100,7 @@ function TaskForm({ isOpen, onClose, onSubmit, task, workspaceId, projectId, isL
   const status = watch('status');
 
   const handleClose = () => {
-    if (isLoading) return; // Prevent closing during submission
+    if (isLoading) return; 
 
     reset();
     setTags([]);
@@ -111,31 +111,31 @@ function TaskForm({ isOpen, onClose, onSubmit, task, workspaceId, projectId, isL
   };
 
   const handleFormSubmit = (data: TaskFormData) => {
-    if (isLoading) return; // Prevent double submission
+    if (isLoading) return; 
 
     const deadlineValue = data.deadline ? new Date(data.deadline + 'T00:00:00.000Z').toISOString() : undefined;
 
     if (task) {
-      // Update request format
+      
       const updateData: UpdateTaskRequest = {
         title: data.title,
         description: data.description,
         priority: data.priority,
         deadline: deadlineValue,
-        tags: tags, // Send as string array
-        categories: categories, // Send as string array
+        tags: tags, 
+        categories: categories, 
         status: data.status || task.status,
       };
       onSubmit(updateData);
     } else {
-      // Create request format
+      
       const createData: CreateTaskRequest = {
         title: data.title,
         description: data.description,
         priority: data.priority,
         deadlineDate: deadlineValue,
-        tags: tags, // Send as string array
-        categories: categories, // Send as string array
+        tags: tags, 
+        categories: categories, 
       };
 
       onSubmit(createData);

@@ -17,7 +17,7 @@ export function Sidebar() {
   const location = useLocation();
   const { sidebarCollapsed, currentWorkspaceId, setCurrentWorkspace } = useUIStore();
 
-  // Only fetch workspaces when sidebar is expanded to avoid API calls when collapsed
+  
   const { data: workspaces = [], isLoading, error } = useWorkspaces();
   const [expandedWorkspaces, setExpandedWorkspaces] = useState<Set<string>>(new Set());
 
@@ -44,7 +44,7 @@ export function Sidebar() {
         {/* Home/Workspaces Link */}
         <Link
           to="/"
-          onClick={() => setCurrentWorkspace(null)} // Clear current workspace when going home
+          onClick={() => setCurrentWorkspace(null)} 
           className={cn(
             "flex items-center rounded-xl transition-all duration-200 group",
             sidebarCollapsed ? "justify-center p-3" : "space-x-3 px-4 py-3",
@@ -191,7 +191,7 @@ export function Sidebar() {
   );
 }
 
-// Component to show projects for a specific workspace
+
 function WorkspaceProjects({ workspaceId }: { workspaceId: string }) {
   const { data: projects = [], isLoading } = useProjects(workspaceId);
   const location = useLocation();

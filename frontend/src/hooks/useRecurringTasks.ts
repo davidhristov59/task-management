@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { recurringService } from '../services';
 import type { CreateRecurringTaskRequest } from '../types';
 
-// Create recurring task
+
 export const useCreateRecurringTask = () => {
   const queryClient = useQueryClient();
 
@@ -19,7 +19,7 @@ export const useCreateRecurringTask = () => {
       data: CreateRecurringTaskRequest 
     }) => recurringService.createRecurringTask(workspaceId, projectId, taskId, data),
     onSuccess: (_, { workspaceId, projectId, taskId }) => {
-      // Invalidate tasks query to refresh the task list
+      
       queryClient.invalidateQueries({ queryKey: ['tasks', workspaceId, projectId] });
       queryClient.invalidateQueries({ queryKey: ['task', taskId] });
     },
@@ -29,7 +29,7 @@ export const useCreateRecurringTask = () => {
   });
 };
 
-// Update recurring task (same as create since backend uses same endpoint)
+
 export const useUpdateRecurringTask = () => {
   const queryClient = useQueryClient();
 
@@ -46,7 +46,7 @@ export const useUpdateRecurringTask = () => {
       data: CreateRecurringTaskRequest 
     }) => recurringService.updateRecurringTask(workspaceId, projectId, taskId, data),
     onSuccess: (_, { workspaceId, projectId, taskId }) => {
-      // Invalidate tasks query to refresh the task list
+      
       queryClient.invalidateQueries({ queryKey: ['tasks', workspaceId, projectId] });
       queryClient.invalidateQueries({ queryKey: ['task', taskId] });
     },

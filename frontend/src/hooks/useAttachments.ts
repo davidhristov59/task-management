@@ -3,14 +3,14 @@ import { attachmentService } from '../services';
 import { taskKeys } from './useTasks';
 import type { CreateAttachmentRequest } from '../types';
 
-// Query keys
+
 export const attachmentKeys = {
   all: ['attachments'] as const,
   lists: () => [...attachmentKeys.all, 'list'] as const,
   list: (workspaceId: string, projectId: string, taskId: string) => [...attachmentKeys.lists(), workspaceId, projectId, taskId] as const,
 };
 
-// Get attachments for a task
+
 export const useAttachments = (workspaceId: string, projectId: string, taskId: string) => {
   return useQuery({
     queryKey: attachmentKeys.list(workspaceId, projectId, taskId),
@@ -19,7 +19,7 @@ export const useAttachments = (workspaceId: string, projectId: string, taskId: s
   });
 };
 
-// Create attachment
+
 export const useCreateAttachment = () => {
   const queryClient = useQueryClient();
 
@@ -36,12 +36,12 @@ export const useCreateAttachment = () => {
       data: CreateAttachmentRequest
     }) => attachmentService.createAttachment(workspaceId, projectId, taskId, data),
     onSuccess: (_, { workspaceId, projectId, taskId }) => {
-      // Invalidate and refetch attachments list for this task
+      
       queryClient.invalidateQueries({ queryKey: attachmentKeys.list(workspaceId, projectId, taskId) });
-      // Also invalidate task queries since attachments are embedded in task data
+      
       queryClient.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
       queryClient.invalidateQueries({ queryKey: taskKeys.list(workspaceId, projectId) });
-      // Force refetch to ensure immediate update
+      
       queryClient.refetchQueries({ queryKey: attachmentKeys.list(workspaceId, projectId, taskId) });
       queryClient.refetchQueries({ queryKey: taskKeys.detail(taskId) });
     },
@@ -51,7 +51,7 @@ export const useCreateAttachment = () => {
   });
 };
 
-// Upload attachment
+
 export const useUploadAttachment = () => {
   const queryClient = useQueryClient();
 
@@ -68,12 +68,12 @@ export const useUploadAttachment = () => {
       file: File
     }) => attachmentService.uploadAttachment(workspaceId, projectId, taskId, file),
     onSuccess: (_, { workspaceId, projectId, taskId }) => {
-      // Invalidate and refetch attachments list for this task
+      
       queryClient.invalidateQueries({ queryKey: attachmentKeys.list(workspaceId, projectId, taskId) });
-      // Also invalidate task queries since attachments are embedded in task data
+      
       queryClient.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
       queryClient.invalidateQueries({ queryKey: taskKeys.list(workspaceId, projectId) });
-      // Force refetch to ensure immediate update
+      
       queryClient.refetchQueries({ queryKey: attachmentKeys.list(workspaceId, projectId, taskId) });
       queryClient.refetchQueries({ queryKey: taskKeys.detail(taskId) });
     },
@@ -83,7 +83,7 @@ export const useUploadAttachment = () => {
   });
 };
 
-// Delete attachment
+
 export const useDeleteAttachment = () => {
   const queryClient = useQueryClient();
 
@@ -91,12 +91,12 @@ export const useDeleteAttachment = () => {
     mutationFn: ({ workspaceId, projectId, taskId, fileId }: { workspaceId: string; projectId: string; taskId: string; fileId: string }) =>
       attachmentService.deleteAttachment(workspaceId, projectId, taskId, fileId),
     onSuccess: (_, { workspaceId, projectId, taskId }) => {
-      // Invalidate attachments list
+      
       queryClient.invalidateQueries({ queryKey: attachmentKeys.list(workspaceId, projectId, taskId) });
-      // Also invalidate task queries since attachments are embedded in task data
+      
       queryClient.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
       queryClient.invalidateQueries({ queryKey: taskKeys.list(workspaceId, projectId) });
-      // Force refetch to ensure immediate update
+      
       queryClient.refetchQueries({ queryKey: attachmentKeys.list(workspaceId, projectId, taskId) });
       queryClient.refetchQueries({ queryKey: taskKeys.detail(taskId) });
     },

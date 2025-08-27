@@ -42,17 +42,17 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
     defaultValues: {
       title: project?.title || '',
       description: project?.description || '',
-      ownerId: project?.ownerId || 'current-user', // Default to current user
+      ownerId: project?.ownerId || 'current-user', 
     }
   });
 
-  // const watchedStatus = watch('status');
+  
 
   const onSubmit = async (data: ProjectFormData) => {
     console.log('Form submitted with data:', data);
     console.log('Form validation errors:', errors);
     
-    // Check if form is valid
+    
     if (Object.keys(errors).length > 0) {
       console.log('Form has validation errors, not submitting');
       return;
@@ -80,7 +80,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
     } catch (error) {
       console.error('Failed to save project:', error);
       console.error('Error details:', error);
-      // Don't call onSuccess if there's an error
+      
     }
   };
 

@@ -70,7 +70,7 @@ function TaskBoardCard({
   const isOverdue = task.deadline && new Date(task.deadline) < new Date() && task.status !== TaskStatus.COMPLETED;
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Don't trigger click when interacting with action buttons
+    
     if ((e.target as HTMLElement).closest('button')) {
       return;
     }

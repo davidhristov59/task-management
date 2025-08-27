@@ -33,7 +33,7 @@ export function WorkspaceCard({
   const [showActions, setShowActions] = useState(false);
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Don't trigger card click if clicking on action buttons
+    
     if ((e.target as HTMLElement).closest('[data-action]')) {
       return;
     }
@@ -142,7 +142,7 @@ export function WorkspaceCard({
               <div className="flex items-center space-x-1">
                 <Users className="h-3 w-3 flex-shrink-0" />
                 <span className="truncate">{(() => {
-                  // Helper function to extract member IDs from various formats
+                  
                   const extractMemberIds = (workspace: any): string[] => {
                     if (Array.isArray(workspace.memberIds)) {
                       return workspace.memberIds;

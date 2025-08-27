@@ -33,7 +33,7 @@ function AttachmentItem({ attachment, workspaceId, projectId, taskId }: Attachme
       setIsDownloading(true);
       const blob = await attachmentService.downloadAttachment(workspaceId, projectId, taskId, attachment.fileId);
       
-      // Create download link
+      
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -146,14 +146,14 @@ export function AttachmentManager({ workspaceId, projectId, taskId }: Attachment
 
     const file = files[0];
     
-    // Validate file size (max 10MB)
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    
+    const maxSize = 10 * 1024 * 1024; 
     if (file.size > maxSize) {
       setUploadError('File size must be less than 10MB');
       return;
     }
 
-    // Validate file type (basic validation)
+    
     const allowedTypes = [
       'image/', 'application/pdf', 'application/msword', 
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -171,10 +171,10 @@ export function AttachmentManager({ workspaceId, projectId, taskId }: Attachment
     try {
       setUploadError(null);
       
-      // Use the upload mutation
+      
       await uploadAttachmentMutation.mutateAsync({ workspaceId, projectId, taskId, file });
       
-      // Clear the input
+      
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -198,7 +198,7 @@ export function AttachmentManager({ workspaceId, projectId, taskId }: Attachment
 
     const file = files[0];
     
-    // Handle the dropped file directly
+    
     if (fileInputRef.current) {
       const dataTransfer = new DataTransfer();
       dataTransfer.items.add(file);

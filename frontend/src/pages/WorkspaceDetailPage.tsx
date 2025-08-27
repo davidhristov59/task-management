@@ -68,20 +68,20 @@ const WorkspaceDetailPage: React.FC = () => {
   const handleDeleteWorkspace = async () => {
     try {
       await deleteWorkspaceMutation.mutateAsync(workspaceId!);
-      navigate('/'); // Navigate back to workspaces list after deletion
+      navigate('/'); 
     } catch (error) {
       console.error('Failed to delete workspace:', error);
     }
   };
 
-  // Helper function to extract member IDs from various formats
+  
   const extractMemberIds = (workspace: any): string[] => {
-    // If memberIds exists and is an array, use it
+    
     if (Array.isArray(workspace.memberIds)) {
       return workspace.memberIds;
     }
 
-    // If memberIdsList exists, parse it
+    
     if (Array.isArray(workspace.memberIdsList)) {
       return workspace.memberIdsList.map((memberStr: string) => {
         try {

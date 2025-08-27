@@ -15,11 +15,11 @@ interface TaskAssignmentSelectorProps {
   workspaceMembers?: string[];
 }
 
-// Simple function to generate display names from user IDs
+
 const getUserDisplayName = (userId: string): string => {
   if (userId === 'current-user-id') return 'Current User';
   
-  // Generate a readable name from the ID
+  
   const cleanId = userId.replace(/[-_]/g, ' ');
   return cleanId.split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
@@ -27,7 +27,7 @@ const getUserDisplayName = (userId: string): string => {
 };
 
 const getUserEmail = (userId: string): string => {
-  // Generate a simple email from the user ID
+  
   const cleanId = userId.toLowerCase().replace(/[^a-z0-9]/g, '');
   return `${cleanId}@example.com`;
 };

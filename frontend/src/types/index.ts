@@ -1,4 +1,4 @@
-// Enum types
+
 export enum TaskStatus {
   PENDING = 'PENDING',
   IN_PROGRESS = 'IN_PROGRESS',
@@ -30,7 +30,7 @@ export enum RecurrenceType {
   MONTHLY = 'MONTHLY'
 }
 
-// Core entity interfaces
+
 export interface User {
   userId: string;
   name: string;
@@ -61,7 +61,7 @@ export interface Attachment {
 export interface RecurrenceRule {
   type: RecurrenceType;
   interval: number;
-  endDate?: string; // LocalDateTime as ISO string
+  endDate?: string; 
 }
 
 export interface Workspace {
@@ -104,17 +104,17 @@ export interface Task {
   assignedUserId?: string;
   status: TaskStatus;
   priority: TaskPriority;
-  deadline?: string; // LocalDateTime as ISO string
+  deadline?: string; 
   createdAt: string;
   lastModifiedAt?: string;
-  tags: string; // JSON string of Tag[]
-  categories: string; // JSON string of Category[]
-  attachments: string; // JSON string of Attachment[]
-  comments: string; // JSON string of Comment[]
+  tags: string; 
+  categories: string; 
+  attachments: string; 
+  comments: string; 
   deleted: boolean;
 }
 
-// API Request payload types
+
 export interface CreateWorkspaceRequest {
   title?: string;
   description?: string;
@@ -191,7 +191,7 @@ export interface CreateRecurringTaskRequest {
   endDate?: string;
 }
 
-// API Response types
+
 export interface ApiResponse<T> {
   data: T;
   message?: string;
@@ -213,7 +213,7 @@ export interface PaginatedResponse<T> {
   hasPrevious: boolean;
 }
 
-// Common response types for lists
+
 export type WorkspacesResponse = ApiResponse<Workspace[]>;
 export type WorkspaceResponse = ApiResponse<Workspace>;
 export type ProjectsResponse = ApiResponse<Project[]>;
@@ -228,7 +228,7 @@ export type RecurrenceRuleResponse = ApiResponse<RecurrenceRule>;
 export type UsersResponse = ApiResponse<User[]>;
 export type UserResponse = ApiResponse<User>;
 
-// Global search types
+
 export interface GlobalSearchResult {
   id: string;
   type: 'workspace' | 'project' | 'task';

@@ -1,7 +1,7 @@
 import type { Workspace, Project, Task, GlobalSearchResult } from '../types';
 import { normalizeTask } from './taskUtils';
 
-// Helper function to highlight search terms in text
+
 export function highlightSearchTerm(text: string, searchTerm: string): string {
   if (!searchTerm) return text;
 
@@ -9,7 +9,7 @@ export function highlightSearchTerm(text: string, searchTerm: string): string {
   return text.replace(regex, '<mark>$1</mark>');
 }
 
-// Helper function to extract relevant text for search
+
 export function extractSearchableText(item: any): string {
   const texts: string[] = [];
 
@@ -23,7 +23,7 @@ export function extractSearchableText(item: any): string {
           texts.push(...parsedTags.map((tag: any) => tag.name || tag));
         }
       } catch {
-        // Ignore parsing errors
+        
       }
     } else if (Array.isArray(item.tags)) {
       texts.push(...item.tags.map((tag: any) => tag.name || tag));
@@ -37,7 +37,7 @@ export function extractSearchableText(item: any): string {
           texts.push(...parsedCategories.map((cat: any) => cat.name || cat));
         }
       } catch {
-        // Ignore parsing errors
+        
       }
     } else if (Array.isArray(item.categories)) {
       texts.push(...item.categories.map((cat: any) => cat.name || cat));
@@ -47,7 +47,7 @@ export function extractSearchableText(item: any): string {
   return texts.join(' ').toLowerCase();
 }
 
-// Local search function for client-side filtering
+
 export function searchItems<T extends { title: string; description?: string }>(
   items: T[],
   searchTerm: string
@@ -62,7 +62,7 @@ export function searchItems<T extends { title: string; description?: string }>(
   });
 }
 
-// Convert workspace to search result
+
 export function workspaceToSearchResult(workspace: Workspace): GlobalSearchResult {
   return {
     id: workspace.workspaceId,
@@ -73,7 +73,7 @@ export function workspaceToSearchResult(workspace: Workspace): GlobalSearchResul
   };
 }
 
-// Convert project to search result
+
 export function projectToSearchResult(project: Project, workspaceName?: string): GlobalSearchResult {
   return {
     id: project.projectId.value,
@@ -86,7 +86,7 @@ export function projectToSearchResult(project: Project, workspaceName?: string):
   };
 }
 
-// Convert task to search result
+
 export function taskToSearchResult(task: Task, workspaceName?: string, projectName?: string): GlobalSearchResult {
   const normalizedTask = normalizeTask(task);
 
@@ -111,7 +111,7 @@ export function taskToSearchResult(task: Task, workspaceName?: string, projectNa
   };
 }
 
-// Debounce function for search input
+
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number
@@ -124,32 +124,32 @@ export function debounce<T extends (...args: any[]) => any>(
   };
 }
 
-// Sort search results by relevance
+
 export function sortSearchResults(results: GlobalSearchResult[], searchTerm: string): GlobalSearchResult[] {
   if (!searchTerm) return results;
 
   const lowerSearchTerm = searchTerm.toLowerCase();
 
   return results.sort((a, b) => {
-    // Exact title matches first
+    
     const aExactTitle = a.title.toLowerCase() === lowerSearchTerm;
     const bExactTitle = b.title.toLowerCase() === lowerSearchTerm;
     if (aExactTitle && !bExactTitle) return -1;
     if (!aExactTitle && bExactTitle) return 1;
 
-    // Title starts with search term
+    
     const aTitleStarts = a.title.toLowerCase().startsWith(lowerSearchTerm);
     const bTitleStarts = b.title.toLowerCase().startsWith(lowerSearchTerm);
     if (aTitleStarts && !bTitleStarts) return -1;
     if (!aTitleStarts && bTitleStarts) return 1;
 
-    // Title contains search term
+    
     const aTitleContains = a.title.toLowerCase().includes(lowerSearchTerm);
     const bTitleContains = b.title.toLowerCase().includes(lowerSearchTerm);
     if (aTitleContains && !bTitleContains) return -1;
     if (!aTitleContains && bTitleContains) return 1;
 
-    // Type priority: workspace > project > task
+    
     const typePriority = { workspace: 0, project: 1, task: 2 };
     const aTypePriority = typePriority[a.type];
     const bTypePriority = typePriority[b.type];
@@ -157,7 +157,7 @@ export function sortSearchResults(results: GlobalSearchResult[], searchTerm: str
       return aTypePriority - bTypePriority;
     }
 
-    // Alphabetical by title
+    
     return a.title.localeCompare(b.title);
   });
 }

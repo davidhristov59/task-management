@@ -1,7 +1,7 @@
 import toast, { Toaster, type ToastOptions } from 'react-hot-toast'
 import { CheckCircle, XCircle, AlertCircle, Info, X } from 'lucide-react'
 
-// Custom toast component with consistent styling
+
 const CustomToast = ({ 
   message, 
   type, 
@@ -39,7 +39,7 @@ const CustomToast = ({
   )
 }
 
-// Toast utility functions
+
 export const showToast = {
   success: (message: string, options?: ToastOptions) => {
     return toast.custom(
@@ -122,7 +122,7 @@ export const showToast = {
   }
 }
 
-// Toast provider component
+
 export function ToastProvider() {
   return (
     <Toaster

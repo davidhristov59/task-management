@@ -9,7 +9,7 @@ interface OfflineIndicatorProps {
 
 export function OfflineIndicator({ className = '', showDetails = false }: OfflineIndicatorProps) {
   const { isOnline, isFullyConnected, checkConnectivity } = useOnlineStatus({
-    showToasts: false // Don't show toasts from this component
+    showToasts: false 
   })
 
   if (isFullyConnected) {
@@ -59,7 +59,7 @@ export function OfflineIndicator({ className = '', showDetails = false }: Offlin
   )
 }
 
-// Floating offline indicator for persistent display
+
 export function FloatingOfflineIndicator() {
   const { isFullyConnected } = useOnlineStatus()
 

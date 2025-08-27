@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { workspaceService } from '../services';
 import type { UpdateWorkspaceRequest } from '../types';
 
-// Query keys
+
 export const workspaceKeys = {
   all: ['workspaces'] as const,
   lists: () => [...workspaceKeys.all, 'list'] as const,
@@ -13,7 +13,7 @@ export const workspaceKeys = {
 
 
 
-// Get all workspaces
+
 export const useWorkspaces = () => {
   return useQuery({
     queryKey: workspaceKeys.lists(),
@@ -21,7 +21,7 @@ export const useWorkspaces = () => {
   });
 };
 
-// Get workspace by ID
+
 export const useWorkspace = (workspaceId: string) => {
   return useQuery({
     queryKey: workspaceKeys.detail(workspaceId),
@@ -39,14 +39,14 @@ export const useWorkspace = (workspaceId: string) => {
   });
 };
 
-// Create workspace
+
 export const useCreateWorkspace = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: workspaceService.createWorkspace,
     onSuccess: async () => {
-      // Invalidate and refetch workspaces list immediately
+      
       await queryClient.invalidateQueries({ queryKey: workspaceKeys.lists() });
       await queryClient.refetchQueries({ queryKey: workspaceKeys.lists() });
     },
@@ -56,7 +56,7 @@ export const useCreateWorkspace = () => {
   });
 };
 
-// Update workspace
+
 export const useUpdateWorkspace = () => {
   const queryClient = useQueryClient();
 
@@ -64,7 +64,7 @@ export const useUpdateWorkspace = () => {
     mutationFn: ({ workspaceId, data }: { workspaceId: string; data: UpdateWorkspaceRequest }) =>
       workspaceService.updateWorkspace(workspaceId, data),
     onSuccess: (_, { workspaceId, data }) => {
-      // Update the workspace detail cache with the new data
+      
       const currentWorkspace = queryClient.getQueryData(workspaceKeys.detail(workspaceId));
       if (currentWorkspace) {
         queryClient.setQueryData(workspaceKeys.detail(workspaceId), {
@@ -73,7 +73,7 @@ export const useUpdateWorkspace = () => {
         });
       }
 
-      // Update the workspace in the list cache
+      
       const currentWorkspaces = queryClient.getQueryData(workspaceKeys.lists());
       if (currentWorkspaces && Array.isArray(currentWorkspaces)) {
         queryClient.setQueryData(workspaceKeys.lists(), 
@@ -91,17 +91,17 @@ export const useUpdateWorkspace = () => {
   });
 };
 
-// Delete workspace
+
 export const useDeleteWorkspace = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: workspaceService.deleteWorkspace,
     onSuccess: (_, workspaceId) => {
-      // Remove workspace detail from cache
+      
       queryClient.removeQueries({ queryKey: workspaceKeys.detail(workspaceId) });
       
-      // Remove the workspace from the list cache
+      
       const currentWorkspaces = queryClient.getQueryData(workspaceKeys.lists());
       if (currentWorkspaces && Array.isArray(currentWorkspaces)) {
         queryClient.setQueryData(workspaceKeys.lists(), 
@@ -115,7 +115,7 @@ export const useDeleteWorkspace = () => {
   });
 };
 
-// Add member to workspace
+
 export const useAddWorkspaceMember = () => {
   const queryClient = useQueryClient();
 
@@ -123,11 +123,11 @@ export const useAddWorkspaceMember = () => {
     mutationFn: ({ workspaceId, userId }: { workspaceId: string; userId: string }) =>
       workspaceService.addMember(workspaceId, { userId }),
     onSuccess: async (_, { workspaceId }) => {
-      // Invalidate and refetch both workspace detail and list to get fresh data from server
+      
       await queryClient.invalidateQueries({ queryKey: workspaceKeys.detail(workspaceId) });
       await queryClient.invalidateQueries({ queryKey: workspaceKeys.lists() });
       
-      // Force immediate refetch
+      
       await queryClient.refetchQueries({ queryKey: workspaceKeys.detail(workspaceId) });
       await queryClient.refetchQueries({ queryKey: workspaceKeys.lists() });
     },
@@ -137,7 +137,7 @@ export const useAddWorkspaceMember = () => {
   });
 };
 
-// Remove member from workspace
+
 export const useRemoveWorkspaceMember = () => {
   const queryClient = useQueryClient();
 
@@ -145,11 +145,11 @@ export const useRemoveWorkspaceMember = () => {
     mutationFn: ({ workspaceId, userId }: { workspaceId: string; userId: string }) =>
       workspaceService.removeMember(workspaceId, userId),
     onSuccess: async (_, { workspaceId }) => {
-      // Invalidate and refetch both workspace detail and list to get fresh data from server
+      
       await queryClient.invalidateQueries({ queryKey: workspaceKeys.detail(workspaceId) });
       await queryClient.invalidateQueries({ queryKey: workspaceKeys.lists() });
       
-      // Force immediate refetch
+      
       await queryClient.refetchQueries({ queryKey: workspaceKeys.detail(workspaceId) });
       await queryClient.refetchQueries({ queryKey: workspaceKeys.lists() });
     },

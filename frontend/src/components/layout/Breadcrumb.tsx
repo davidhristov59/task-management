@@ -25,14 +25,14 @@ export function Breadcrumb() {
   const buildBreadcrumbs = (): BreadcrumbItem[] => {
     const breadcrumbs: BreadcrumbItem[] = [];
 
-    // Always start with Home
+    
     breadcrumbs.push({
       label: 'Home',
       href: '/',
       isActive: location.pathname === '/'
     });
 
-    // Add workspace if we're in a workspace context
+    
     if (workspaceId) {
       breadcrumbs.push({
         label: workspace?.title || `Workspace ${workspaceId}`,
@@ -41,7 +41,7 @@ export function Breadcrumb() {
       });
     }
 
-    // Add project if we're in a project context
+    
     if (projectId && workspaceId) {
       breadcrumbs.push({
         label: project?.title || `Project ${projectId}`,
@@ -50,7 +50,7 @@ export function Breadcrumb() {
       });
     }
 
-    // Add task if we're in a task context
+    
     if (taskId && workspaceId && projectId) {
       breadcrumbs.push({
         label: task?.title || `Task ${taskId}`,
@@ -64,7 +64,7 @@ export function Breadcrumb() {
 
   const breadcrumbs = buildBreadcrumbs();
 
-  // Don't show breadcrumbs if we're just on the home page
+  
   if (breadcrumbs.length <= 1) {
     return null;
   }

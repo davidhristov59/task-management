@@ -47,7 +47,7 @@ export function useRetry<T extends any[], R>(
 
           const result = await fn(...args)
           
-          // Success - reset state
+          
           setRetryState({
             isRetrying: false,
             attempts: 0
@@ -59,23 +59,23 @@ export function useRetry<T extends any[], R>(
           currentAttempt++
 
           if (currentAttempt < maxAttempts) {
-            // Calculate delay with optional backoff
+            
             const currentDelay = backoff ? delay * Math.pow(2, currentAttempt - 1) : delay
             
             onRetry?.(currentAttempt)
             
-            // Show retry toast
+            
             showToast.info(`Retrying... (${currentAttempt}/${maxAttempts})`, {
               duration: currentDelay
             })
             
-            // Wait before retry
+            
             await new Promise(resolve => setTimeout(resolve, currentDelay))
           }
         }
       }
 
-      // Max attempts reached
+      
       setRetryState({
         isRetrying: false,
         attempts: maxAttempts,
@@ -105,7 +105,7 @@ export function useRetry<T extends any[], R>(
   }
 }
 
-// Hook for retrying React Query mutations
+
 export function useRetryMutation<TData, TVariables>(
   mutationFn: (variables: TVariables) => Promise<TData>,
   options: RetryOptions = {}

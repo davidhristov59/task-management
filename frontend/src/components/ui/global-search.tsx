@@ -23,15 +23,15 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
     const { data: results, isLoading, error } = useGlobalSearch(query);
     const { recentSearches, addRecentSearch, addSearchToHistory } = useSearchStore();
 
-    // Reset selected index when results change or query changes
+    
     useEffect(() => {
         setSelectedIndex(-1);
     }, [results, query]);
 
-    // Handle keyboard shortcuts and navigation
+    
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            // Global shortcuts
+            
             if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
                 e.preventDefault();
                 setIsOpen(true);
@@ -39,7 +39,7 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
                 return;
             }
 
-            // Only handle these keys when search is open
+            
             if (!isOpen) return;
 
             switch (e.key) {
@@ -50,7 +50,7 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
                     break;
                 case 'ArrowDown':
                     e.preventDefault();
-                    // Handle navigation for both search results and recent searches
+                    
                     if (query && results && results.length > 0) {
                         setSelectedIndex(prev =>
                             prev < results.length - 1 ? prev + 1 : 0
@@ -63,7 +63,7 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
                     break;
                 case 'ArrowUp':
                     e.preventDefault();
-                    // Handle navigation for both search results and recent searches
+                    
                     if (query && results && results.length > 0) {
                         setSelectedIndex(prev =>
                             prev > 0 ? prev - 1 : results.length - 1
@@ -89,7 +89,7 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, [isOpen, results, selectedIndex, query, recentSearches]);
 
-    // Handle click outside
+    
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -104,7 +104,7 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
     }, [isOpen]);
 
     const handleResultClick = (result: GlobalSearchResult) => {
-        // Add to search history
+        
         if (query) {
             addRecentSearch(query);
             addSearchToHistory(query, results?.length || 0);

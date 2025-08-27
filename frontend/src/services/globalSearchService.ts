@@ -11,23 +11,23 @@ import {
 } from '../utils/searchUtils';
 
 export const globalSearchService = {
-  // Global search across all entities - client-side only
+  
   search: async (params: GlobalSearchRequest): Promise<GlobalSearchResult[]> => {
     return await clientSideGlobalSearch(params);
   },
 
-  // Search within specific workspace - client-side only
+  
   searchInWorkspace: async (workspaceId: string, query: string): Promise<GlobalSearchResult[]> => {
     return await clientSideWorkspaceSearch(workspaceId, query);
   },
 
-  // Search within specific project - client-side only
+  
   searchInProject: async (workspaceId: string, projectId: string, query: string): Promise<GlobalSearchResult[]> => {
     return await clientSideProjectSearch(workspaceId, projectId, query);
   },
 };
 
-// Client-side search implementations as fallbacks
+
 async function clientSideGlobalSearch(params: GlobalSearchRequest): Promise<GlobalSearchResult[]> {
   const { query, types = ['workspace', 'project', 'task'], limit = 20 } = params;
   
@@ -36,14 +36,14 @@ async function clientSideGlobalSearch(params: GlobalSearchRequest): Promise<Glob
   const results: GlobalSearchResult[] = [];
   
   try {
-    // Search workspaces
+    
     if (types.includes('workspace')) {
       const workspaces = await workspaceService.getWorkspaces();
       const filteredWorkspaces = searchItems(workspaces, query);
       results.push(...filteredWorkspaces.map(workspaceToSearchResult));
     }
     
-    // Search projects
+    
     if (types.includes('project')) {
       const workspaces = await workspaceService.getWorkspaces();
       for (const workspace of workspaces) {
@@ -59,7 +59,7 @@ async function clientSideGlobalSearch(params: GlobalSearchRequest): Promise<Glob
       }
     }
     
-    // Search tasks
+    
     if (types.includes('task')) {
       const workspaces = await workspaceService.getWorkspaces();
       for (const workspace of workspaces) {
@@ -68,7 +68,7 @@ async function clientSideGlobalSearch(params: GlobalSearchRequest): Promise<Glob
           for (const project of projects) {
             try {
               const normalizedTasks = await taskService.getTasks(workspace.workspaceId, project.projectId.value);
-              // Convert normalized tasks back to Task format for search
+              
               const tasks = normalizedTasks.map(normalizedTask => ({
                 taskId: { value: normalizedTask.taskId },
                 title: normalizedTask.title,
@@ -118,17 +118,17 @@ async function clientSideWorkspaceSearch(workspaceId: string, query: string): Pr
     const workspace = await workspaceService.getWorkspace(workspaceId);
     const projects = await projectService.getProjects(workspaceId);
     
-    // Search projects in this workspace
+    
     const filteredProjects = searchItems(projects, query);
     results.push(...filteredProjects.map(project => 
       projectToSearchResult(project, workspace.title)
     ));
     
-    // Search tasks in this workspace
+    
     for (const project of projects) {
       try {
         const normalizedTasks = await taskService.getTasks(workspaceId, project.projectId.value);
-        // Convert normalized tasks back to Task format for search
+        
         const tasks = normalizedTasks.map(normalizedTask => ({
           taskId: { value: normalizedTask.taskId },
           title: normalizedTask.title,
@@ -171,7 +171,7 @@ async function clientSideProjectSearch(workspaceId: string, projectId: string, q
     const project = await projectService.getProject(workspaceId, projectId);
     const normalizedTasks = await taskService.getTasks(workspaceId, projectId);
     
-    // Convert normalized tasks back to Task format for search
+    
     const tasks = normalizedTasks.map(normalizedTask => ({
       taskId: { value: normalizedTask.taskId },
       title: normalizedTask.title,

@@ -26,14 +26,14 @@ export class ErrorBoundary extends Component<Props, State> {
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Uncaught error:', error, errorInfo);
     
-    // Call custom error handler if provided
+    
     this.props.onError?.(error, errorInfo);
     
-    // Store error info for display
+    
     this.setState({ errorInfo });
     
-    // Report error to monitoring service (if available)
-    // reportError(error, errorInfo);
+    
+    
   }
 
   private handleRetry = () => {
@@ -50,7 +50,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public render() {
     if (this.state.hasError) {
-      // Use custom fallback if provided
+      
       if (this.props.fallback) {
         return this.props.fallback;
       }
@@ -143,7 +143,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 }
 
-// Higher-order component for wrapping components with error boundary
+
 export function withErrorBoundary<P extends object>(
   Component: React.ComponentType<P>,
   fallback?: ReactNode,

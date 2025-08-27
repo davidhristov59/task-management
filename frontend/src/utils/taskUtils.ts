@@ -1,6 +1,6 @@
 import type { Task, Attachment, Comment } from '../types';
 
-// Additional interfaces for normalized data
+
 export interface Category {
   id: string;
   name: string;
@@ -11,7 +11,7 @@ export interface Tag {
   name: string;
 }
 
-// Normalized task interface for UI components
+
 export interface NormalizedTask {
   taskId: string;
   title: string;
@@ -31,7 +31,7 @@ export interface NormalizedTask {
   deleted: boolean;
 }
 
-// Parse JSON string safely
+
 function parseJsonString<T>(jsonString: string, fallback: T): T {
   try {
     return JSON.parse(jsonString) || fallback;
@@ -40,7 +40,7 @@ function parseJsonString<T>(jsonString: string, fallback: T): T {
   }
 }
 
-// Convert backend Task to normalized Task for UI
+
 export function normalizeTask(backendTask: Task): NormalizedTask {
   const comments = parseJsonString<Comment[]>(backendTask.comments, []);
   
@@ -59,7 +59,7 @@ export function normalizeTask(backendTask: Task): NormalizedTask {
     tags: parseJsonString<Tag[]>(backendTask.tags, []),
     categories: parseJsonString<Category[]>(backendTask.categories, []),
     attachments: parseJsonString<Attachment[]>(backendTask.attachments, []),
-    // Sort comments from newest to latest (most recent first)
+    
     comments: comments.sort((a, b) => 
       new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     ),
@@ -67,7 +67,7 @@ export function normalizeTask(backendTask: Task): NormalizedTask {
   };
 }
 
-// Convert array of backend tasks to normalized tasks
+
 export function normalizeTasks(backendTasks: Task[]): NormalizedTask[] {
   return backendTasks.map(normalizeTask);
 }

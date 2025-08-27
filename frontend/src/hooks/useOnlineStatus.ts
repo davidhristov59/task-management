@@ -15,10 +15,10 @@ export function useOnlineStatus(options: OnlineStatusOptions = {}) {
   } = options
 
   const [isOnline, setIsOnline] = useState(navigator.onLine)
-  const [isConnected, setIsConnected] = useState(true) // API connectivity
+  const [isConnected, setIsConnected] = useState(true) 
   const [lastOnlineTime, setLastOnlineTime] = useState<Date | null>(null)
 
-  // Check API connectivity
+  
   const checkConnectivity = async () => {
     try {
       const response = await fetch(pingUrl, {
@@ -50,7 +50,7 @@ export function useOnlineStatus(options: OnlineStatusOptions = {}) {
         showToast.success('You are back online!')
       }
       
-      // Check API connectivity when coming back online
+      
       checkConnectivity()
     }
 
@@ -62,14 +62,14 @@ export function useOnlineStatus(options: OnlineStatusOptions = {}) {
       }
     }
 
-    // Listen to browser online/offline events
+    
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOffline)
 
-    // Set up periodic connectivity check
+    
     const intervalId = setInterval(checkConnectivity, pingInterval)
 
-    // Initial connectivity check
+    
     checkConnectivity()
 
     return () => {

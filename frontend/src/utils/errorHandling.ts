@@ -2,7 +2,7 @@ import { AxiosError } from 'axios';
 import type { ApiError } from '../types';
 import { showToast } from '../components/ui/toast';
 
-// Error reporting service (placeholder for actual implementation)
+
 interface ErrorReport {
   error: Error;
   context?: string;
@@ -28,11 +28,11 @@ class ErrorReportingService {
 
     this.reports.push(report);
     
-    // In a real app, send to error reporting service
+    
     console.error('Error reported:', report);
     
-    // Could send to services like Sentry, LogRocket, etc.
-    // Sentry.captureException(error, { contexts: { report } });
+    
+    
   }
 
   getReports() {
@@ -46,15 +46,15 @@ class ErrorReportingService {
 
 export const errorReporter = new ErrorReportingService();
 
-// Enhanced error handling utilities
+
 export class ErrorHandler {
   static handle(error: any, context?: string, showToastMessage = true): ApiError {
     const apiError = this.extractApiError(error);
     
-    // Report error for monitoring
+    
     errorReporter.report(error, context, { apiError });
     
-    // Show user-friendly message
+    
     if (showToastMessage) {
       this.showErrorToast(apiError, context);
     }
@@ -63,17 +63,17 @@ export class ErrorHandler {
   }
 
   static extractApiError(error: any): ApiError {
-    // If it's already an ApiError
+    
     if (error.message && error.code) {
       return error as ApiError;
     }
 
-    // If it's an axios error with attached apiError
+    
     if ((error as any).apiError) {
       return (error as any).apiError;
     }
 
-    // If it's an axios error, extract info
+    
     if (error.isAxiosError || error.response) {
       const axiosError = error as AxiosError;
       
@@ -95,7 +95,7 @@ export class ErrorHandler {
       }
     }
 
-    // Generic error
+    
     return {
       message: error.message || 'An unexpected error occurred',
       code: 'UNKNOWN_ERROR',
@@ -108,7 +108,7 @@ export class ErrorHandler {
       ? `${context}: ${apiError.message}`
       : apiError.message;
 
-    // Different toast types based on error severity
+    
     if (apiError.code === 'NETWORK_ERROR') {
       showToast.warning(message);
     } else if (apiError.code?.startsWith('HTTP_5')) {
@@ -135,7 +135,7 @@ export class ErrorHandler {
     }
   }
 
-  // Async error boundary for handling promise rejections
+  
   static async handleAsync<T>(
     promise: Promise<T>, 
     context?: string,
@@ -150,7 +150,7 @@ export class ErrorHandler {
     }
   }
 
-  // Wrapper for functions that might throw
+  
   static wrap<T extends any[], R>(
     fn: (...args: T) => R,
     context?: string,
@@ -167,9 +167,9 @@ export class ErrorHandler {
   }
 }
 
-// Global error handlers
+
 export function setupGlobalErrorHandlers() {
-  // Handle unhandled promise rejections
+  
   window.addEventListener('unhandledrejection', (event) => {
     console.error('Unhandled promise rejection:', event.reason);
     errorReporter.report(
@@ -177,11 +177,11 @@ export function setupGlobalErrorHandlers() {
       'Unhandled Promise Rejection'
     );
     
-    // Prevent the default browser behavior
+    
     event.preventDefault();
   });
 
-  // Handle uncaught errors
+  
   window.addEventListener('error', (event) => {
     console.error('Uncaught error:', event.error);
     errorReporter.report(
@@ -196,7 +196,7 @@ export function setupGlobalErrorHandlers() {
   });
 }
 
-// Utility for retrying operations with exponential backoff
+
 export async function retryOperation<T>(
   operation: () => Promise<T>,
   maxRetries = 3,
@@ -212,10 +212,10 @@ export async function retryOperation<T>(
       lastError = error;
       
       if (attempt === maxRetries) {
-        break; // Don't wait after the last attempt
+        break; 
       }
       
-      // Calculate delay with exponential backoff and jitter
+      
       const delay = baseDelay * Math.pow(2, attempt) + Math.random() * 1000;
       
       console.warn(`${context || 'Operation'} failed (attempt ${attempt + 1}/${maxRetries + 1}), retrying in ${delay}ms...`);

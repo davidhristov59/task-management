@@ -28,7 +28,7 @@ type WorkspaceFormData = z.infer<typeof workspaceSchema>;
 interface WorkspaceFormProps {
   workspace?: Workspace | null;
   onClose: () => void;
-  onSuccess?: () => void; // Optional callback for additional actions after success
+  onSuccess?: () => void; 
 }
 
 export function WorkspaceForm({ workspace, onClose, onSuccess }: WorkspaceFormProps) {
@@ -47,12 +47,12 @@ export function WorkspaceForm({ workspace, onClose, onSuccess }: WorkspaceFormPr
     defaultValues: {
       title: '',
       description: '',
-      ownerId: 'current-user', // TODO: Get from auth context
+      ownerId: 'current-user', 
       memberIds: [],
     },
   });
 
-  // Populate form when editing
+  
   useEffect(() => {
     if (workspace) {
       setValue('title', workspace.title);
@@ -85,13 +85,13 @@ export function WorkspaceForm({ workspace, onClose, onSuccess }: WorkspaceFormPr
         await createWorkspaceMutation.mutateAsync(createData);
       }
       
-      // Reset form and close modal only after successful mutation
+      
       reset();
-      onSuccess?.(); // Call optional success callback
+      onSuccess?.(); 
       onClose();
     } catch (error) {
       console.error('Failed to save workspace:', error);
-      // You might want to show a toast notification here instead of console.error
+      
       alert(`Failed to ${isEditing ? 'update' : 'create'} workspace. Please try again.`);
     }
   };

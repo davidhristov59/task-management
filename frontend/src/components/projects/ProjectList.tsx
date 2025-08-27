@@ -30,18 +30,18 @@ const ProjectList: React.FC<ProjectListProps> = ({
 
   const filteredAndSortedProjects = useMemo(() => {
     let filtered = projects.filter((project) => {
-      // Search filter
+      
       const matchesSearch = !filters.search || 
         project.title.toLowerCase().includes(filters.search.toLowerCase()) ||
         (project.description?.toLowerCase().includes(filters.search.toLowerCase()) ?? false);
 
-      // Status filter
+      
       const matchesStatus = filters.status === 'all' || project.status === filters.status;
 
       return matchesSearch && matchesStatus;
     });
 
-    // Sort projects
+    
     filtered.sort((a, b) => {
       let comparison = 0;
 

@@ -17,7 +17,7 @@ import './App.css'
 
 function App() {
   useEffect(() => {
-    // Set up global error handlers
+    
     setupGlobalErrorHandlers()
   }, [])
 

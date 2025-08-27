@@ -52,12 +52,12 @@ function TaskBoard({
     searchQuery = '',
     workspaceMembers = [],
 }: TaskBoardProps) {
-    // Filter state (can be implemented later)
-    // const [priorityFilter, setPriorityFilter] = useState<TaskPriority | 'all'>('all');
-    // const [assignmentFilter, setAssignmentFilter] = useState<'assigned' | 'unassigned' | 'all'>('all');
+    
+    
+    
     const [activeTask, setActiveTask] = useState<NormalizedTask | null>(null);
 
-    // Local state for optimistic updates - track changes instead of full task list
+    
     const [optimisticChanges, setOptimisticChanges] = useState<Record<string, { status?: TaskStatus; sortOrder?: number }>>({});
 
     const sensors = useSensors(
@@ -68,7 +68,7 @@ function TaskBoard({
         })
     );
 
-    // Apply optimistic changes to tasks
+    
     const currentTasks = useMemo(() => {
         return tasks.map(task => {
             const changes = optimisticChanges[task.taskId];
@@ -85,14 +85,14 @@ function TaskBoard({
 
     const filteredTasks = useMemo(() => {
         return currentTasks.filter((task) => {
-            // Search filter
+            
             const matchesSearch = searchQuery === '' ||
                 task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 task.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 task.tags.some((tag: { name: string; }) => tag.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
                 task.categories.some((cat: { name: string; }) => cat.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
-            // For now, only apply search filter (priority and assignment filters can be added later)
+            
             return matchesSearch;
         });
     }, [currentTasks, searchQuery]);
@@ -102,7 +102,7 @@ function TaskBoard({
             acc[column.id] = filteredTasks
                 .filter(task => task.status === column.id)
                 .sort((a, b) => {
-                    // Use createdAt as fallback for sorting if no sortOrder
+                    
                     const aOrder = (a as any).sortOrder ?? new Date(a.createdAt).getTime();
                     const bOrder = (b as any).sortOrder ?? new Date(b.createdAt).getTime();
                     return aOrder - bOrder;
@@ -113,19 +113,19 @@ function TaskBoard({
         return grouped;
     }, [filteredTasks]);
 
-    // Reset optimistic changes when tasks prop changes (after successful API call)
-    // Only clear changes if the server data matches our optimistic changes
+    
+    
     useEffect(() => {
         if (Object.keys(optimisticChanges).length === 0) return;
 
-        // Add a small delay to prevent clearing changes too quickly
+        
         const timeoutId = setTimeout(() => {
-            // Check if any of our optimistic changes are now reflected in the server data
+            
             const shouldClear = Object.entries(optimisticChanges).some(([taskId, changes]) => {
                 const serverTask = tasks.find(t => t.taskId === taskId);
                 if (!serverTask) return false;
 
-                // If status was changed optimistically, check if server has the new status
+                
                 if (changes.status && serverTask.status === changes.status) {
                     return true;
                 }
@@ -136,7 +136,7 @@ function TaskBoard({
             if (shouldClear) {
                 setOptimisticChanges({});
             }
-        }, 100); // Small delay to ensure API response is processed
+        }, 100); 
 
         return () => clearTimeout(timeoutId);
     }, [tasks, optimisticChanges]);
@@ -155,25 +155,25 @@ function TaskBoard({
         const activeId = active.id as string;
         const overId = over.id as string;
 
-        // Find the active task
+        
         const activeTask = currentTasks.find(t => t.taskId === activeId);
         if (!activeTask) return;
 
-        // Determine the target status
+        
         let targetStatus: TaskStatus;
         let targetTask: NormalizedTask | undefined;
 
         if (Object.values(TaskStatus).includes(overId as TaskStatus)) {
-            // Dropped over a column
+            
             targetStatus = overId as TaskStatus;
         } else {
-            // Dropped over a task
+            
             targetTask = currentTasks.find(t => t.taskId === overId);
             if (!targetTask) return;
             targetStatus = targetTask.status;
         }
 
-        // If status is changing, update optimistically
+        
         if (activeTask.status !== targetStatus) {
             setOptimisticChanges(prev => ({
                 ...prev,
@@ -191,33 +191,33 @@ function TaskBoard({
         const activeId = active.id as string;
         const overId = over.id as string;
 
-        // Find the active task from ORIGINAL tasks (not optimistic)
+        
         const originalActiveTask = tasks.find(t => t.taskId === activeId);
         if (!originalActiveTask) return;
 
         let targetStatus: TaskStatus;
         let targetTask: NormalizedTask | undefined;
 
-        // Determine what we're dropping over
+        
         if (Object.values(TaskStatus).includes(overId as TaskStatus)) {
-            // Dropped over a column
+            
             targetStatus = overId as TaskStatus;
         } else {
-            // Dropped over a task
+            
             targetTask = currentTasks.find(t => t.taskId === overId);
             if (!targetTask) return;
             targetStatus = targetTask.status;
         }
 
-        // Handle status change - compare with ORIGINAL status
+        
         if (originalActiveTask.status !== targetStatus) {
-            // Status is changing - call the status change handler
+            
             onTaskStatusChange?.(activeId, targetStatus);
         } else if (targetTask && activeId !== overId) {
-            // Same status, different task - handle reordering within column
+            
             console.log('Reordering within column:', activeId, 'to position of', overId);
 
-            // Use current tasks for reordering (includes optimistic changes)
+            
             const tasksInColumn = currentTasks.filter(t => t.status === targetStatus);
             const activeIndex = tasksInColumn.findIndex(t => t.taskId === activeId);
             const overIndex = tasksInColumn.findIndex(t => t.taskId === overId);
@@ -227,10 +227,10 @@ function TaskBoard({
             if (activeIndex !== -1 && overIndex !== -1 && activeIndex !== overIndex) {
                 const reorderedTasks = arrayMove(tasksInColumn, activeIndex, overIndex);
 
-                // Create fresh optimistic changes for this column only
+                
                 const newChanges = { ...optimisticChanges };
 
-                // Clear any existing sortOrder changes for tasks in this column
+                
                 tasksInColumn.forEach(task => {
                     if (newChanges[task.taskId]) {
                         delete newChanges[task.taskId].sortOrder;
@@ -240,7 +240,7 @@ function TaskBoard({
                     }
                 });
 
-                // Apply new sort orders
+                
                 reorderedTasks.forEach((task, index) => {
                     newChanges[task.taskId] = {
                         ...newChanges[task.taskId],
@@ -251,18 +251,18 @@ function TaskBoard({
                 setOptimisticChanges(newChanges);
                 console.log('Applied reorder optimistic changes:', newChanges);
 
-                // TODO: Call reorder handler when available
-                // onTaskReorder?.(activeId, targetStatus, overIndex);
+                
+                
             }
         }
     };
 
-    // Filters functionality (can be implemented later)
-    // const clearFilters = () => {
-    //     setPriorityFilter('all');
-    //     setAssignmentFilter('all');
-    // };
-    // const hasActiveFilters = priorityFilter !== 'all' || assignmentFilter !== 'all';
+    
+    
+    
+    
+    
+    
 
     if (isLoading) {
         return (

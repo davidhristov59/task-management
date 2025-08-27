@@ -9,87 +9,87 @@ import { normalizeTask, normalizeTasks } from '../utils/taskUtils';
 import type { NormalizedTask } from '../utils/taskUtils';
 
 export const taskService = {
-  // Get all tasks in a project
+  
   getTasks: async (workspaceId: string, projectId: string): Promise<NormalizedTask[]> => {
     const response = await api.get<Task[]>(`/workspaces/${workspaceId}/projects/${projectId}/tasks`);
     return normalizeTasks(response.data);
   },
 
-  // Get task by ID
+  
   getTask: async (workspaceId: string, projectId: string, taskId: string): Promise<NormalizedTask> => {
     const response = await api.get<Task>(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}`);
     return normalizeTask(response.data);
   },
 
-  // Create new task
+  
   createTask: async (workspaceId: string, projectId: string, task: CreateTaskRequest): Promise<{ taskId: string }> => {
     const response = await api.post(`/workspaces/${workspaceId}/projects/${projectId}/tasks`, task);
     
-    // Handle API response format: 201 Created with {"value":"task-id"}
+    
     if (response.data && response.data.value) {
       return { taskId: response.data.value };
     }
     
-    // Fallback: try to get taskId from location header
+    
     const taskId = response.headers['location']?.split('/').pop();
     if (taskId) {
       return { taskId };
     }
     
-    // Last resort: generate a temporary ID (this shouldn't happen)
+    
     const tempId = `temp-${Date.now()}`;
     console.warn('No task ID found in response, using temporary ID:', tempId);
     return { taskId: tempId };
   },
 
-  // Update task
+  
   updateTask: async (workspaceId: string, projectId: string, taskId: string, task: UpdateTaskRequest): Promise<void> => {
     await api.put(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}`, task);
-    // Handle API response format: 200 OK with no body
-    // The update is successful if we get here without an error
+    
+    
     return;
   },
 
-  // Delete task
+  
   deleteTask: async (workspaceId: string, projectId: string, taskId: string): Promise<void> => {
     await api.delete(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}`);
-    // Handle 204 No Content response - no data to return
+    
     return;
   },
 
-  // Mark task as complete
+  
   completeTask: async (workspaceId: string, projectId: string, taskId: string): Promise<void> => {
     await api.post(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/complete`);
   },
 
-  // Mark task as incomplete
+  
   uncompleteTask: async (workspaceId: string, projectId: string, taskId: string): Promise<void> => {
     await api.delete(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/complete`);
   },
 
-  // Assign task to user
+  
   assignTask: async (workspaceId: string, projectId: string, taskId: string, assignment: AssignTaskRequest): Promise<void> => {
     await api.post(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/assign`, assignment);
   },
 
-  // Unassign task
+  
   unassignTask: async (workspaceId: string, projectId: string, taskId: string): Promise<void> => {
     await api.delete(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}/assign`);
   },
 
-  // Get tasks assigned to a specific user
+  
   getTasksByUser: async (workspaceId: string, projectId: string, userId: string): Promise<NormalizedTask[]> => {
     const response = await api.get<Task[]>(`/workspaces/${workspaceId}/projects/${projectId}/tasks?assignedUserId=${userId}`);
     return normalizeTasks(response.data);
   },
 
-  // Get tasks by status
+  
   getTasksByStatus: async (workspaceId: string, projectId: string, status: string): Promise<NormalizedTask[]> => {
     const response = await api.get<Task[]>(`/workspaces/${workspaceId}/projects/${projectId}/tasks?status=${status}`);
     return normalizeTasks(response.data);
   },
 
-  // Search tasks
+  
   searchTasks: async (workspaceId: string, projectId: string, query: string): Promise<NormalizedTask[]> => {
     const response = await api.get<Task[]>(`/workspaces/${workspaceId}/projects/${projectId}/tasks?search=${encodeURIComponent(query)}`);
     return normalizeTasks(response.data);

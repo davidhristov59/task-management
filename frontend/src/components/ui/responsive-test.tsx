@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './card';
 import { Button } from './button';
 import { Badge } from './badge';
 
-// This is a test component to verify responsivity improvements
+
 export function ResponsiveTest() {
   return (
     <div className="space-y-6 p-4">

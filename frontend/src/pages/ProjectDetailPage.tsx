@@ -41,12 +41,12 @@ function ProjectDetailPage() {
   const [showEditProjectDialog, setShowEditProjectDialog] = useState(false);
   const [showDeleteProjectDialog, setShowDeleteProjectDialog] = useState(false);
 
-  // Fetch project, workspace and tasks data
+  
   const { data: project, isLoading: isProjectLoading } = useProject(workspaceId!, projectId!);
   const { data: workspace } = useWorkspace(workspaceId!);
   const { data: tasks = [], isLoading: isTasksLoading } = useTasks(workspaceId!, projectId!);
 
-  // Task mutations
+  
   const createTaskMutation = useCreateTask();
   const updateTaskMutation = useUpdateTask();
   const deleteTaskMutation = useDeleteTask();
@@ -55,7 +55,7 @@ function ProjectDetailPage() {
   const unassignTaskMutation = useUnassignTask();
   const createRecurringMutation = useCreateRecurringTask();
 
-  // Project mutations
+  
   const updateProjectMutation = useUpdateProject();
   const deleteProjectMutation = useDeleteProject();
   const archiveProjectMutation = useArchiveProject();
@@ -74,7 +74,7 @@ function ProjectDetailPage() {
 
   const handleTaskFormSubmit = (data: CreateTaskRequest | UpdateTaskRequest, pendingRecurrence?: any) => {
     if (editingTask) {
-      // Update existing task
+      
       updateTaskMutation.mutate(
         {
           workspaceId: workspaceId!,
@@ -84,18 +84,18 @@ function ProjectDetailPage() {
         },
         {
           onSuccess: () => {
-            // Close modal and reset state after successful update
+            
             setIsTaskFormOpen(false);
             setEditingTask(undefined);
           },
           onError: (error) => {
             console.error('Failed to update task:', error);
-            // Keep modal open on error so user can retry
+            
           }
         }
       );
     } else {
-      // Create new task
+      
       createTaskMutation.mutate(
         {
           workspaceId: workspaceId!,
@@ -104,10 +104,10 @@ function ProjectDetailPage() {
         },
         {
           onSuccess: (response) => {
-            // Close modal after successful creation
+            
             setIsTaskFormOpen(false);
             
-            // If there's pending recurrence, apply it to the newly created task
+            
             if (pendingRecurrence && response?.taskId) {
               createRecurringMutation.mutate({
                 workspaceId: workspaceId!,
@@ -117,14 +117,14 @@ function ProjectDetailPage() {
               }, {
                 onError: (recurringError) => {
                   console.error('Failed to create recurring rule:', recurringError);
-                  // Don't prevent modal from closing if recurring creation fails
+                  
                 }
               });
             }
           },
           onError: (error) => {
             console.error('Failed to create task:', error);
-            // Keep modal open on error so user can retry
+            
           }
         }
       );
@@ -152,7 +152,7 @@ function ProjectDetailPage() {
         },
         onError: (error) => {
           console.error('Failed to delete task:', error);
-          // Keep the modal open on error so user can retry
+          
         }
       });
     }
@@ -175,7 +175,7 @@ function ProjectDetailPage() {
         }
       });
     } else {
-      // For other status changes, we need to update the task
+      
       const task = tasks.find(t => t.taskId === taskId);
       if (task) {
         const updateData: UpdateTaskRequest = {
@@ -258,12 +258,12 @@ function ProjectDetailPage() {
       projectId: projectId!
     }, {
       onSuccess: () => {
-        // Navigate back to workspace after deletion
+        
         navigate(`/workspaces/${workspaceId}`);
       },
       onError: (error) => {
         console.error('Failed to delete project:', error);
-        // Keep the dialog open on error so user can retry
+        
       }
     });
   };
