@@ -33,4 +33,9 @@ class TaskViewReadService(private val taskViewRepository: TaskViewRepository) {
             .filter { !it.deleted }
             .orElseThrow { NoSuchElementException("Task not found: $taskId") }
     }
+
+    @QueryHandler(queryName = "findRecurringTasks")
+    fun findRecurringTasks(): List<TaskView> {
+        return taskViewRepository.findByRecurrenceRuleIsNotNullAndDeletedIsFalse()
+    }
 }

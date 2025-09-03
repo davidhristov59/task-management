@@ -28,7 +28,8 @@ class TaskEventHandler(
             createdAt = event.timestamp,
             lastModifiedAt = event.timestamp,
             tags = objectMapper.writeValueAsString(event.tags),
-            categories = objectMapper.writeValueAsString(event.categories)
+            categories = objectMapper.writeValueAsString(event.categories),
+            recurrenceRule = event.recurrenceRule?.let { objectMapper.writeValueAsString(it) }
         )
         repository.save(task)
     }
@@ -100,6 +101,15 @@ class TaskEventHandler(
     fun on(event: TaskStatusUpdatedEvent) {
         repository.findById(event.taskId).ifPresent(Consumer<TaskView> { task ->
             task.status = event.status
+            task.lastModifiedAt = event.timestamp
+            repository.save(task)
+        })
+    }
+
+    @EventHandler
+    fun on(event: RecurringTaskSetupEvent) {
+        repository.findById(event.taskId).ifPresent(Consumer<TaskView> { task ->
+            task.recurrenceRule = objectMapper.writeValueAsString(event.recurrenceRule)
             task.lastModifiedAt = event.timestamp
             repository.save(task)
         })

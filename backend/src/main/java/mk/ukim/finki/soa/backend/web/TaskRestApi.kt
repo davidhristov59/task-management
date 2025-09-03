@@ -48,8 +48,8 @@ class TaskRestApi(
             TaskId(taskId),
             ResponseTypes.instanceOf(TaskView::class.java)
         )
-        .thenApply { ResponseEntity.ok(it) }
-        .exceptionally { ResponseEntity.notFound().build() }
+            .thenApply { ResponseEntity.ok(it) }
+            .exceptionally { ResponseEntity.notFound().build() }
     }
 
     @PostMapping

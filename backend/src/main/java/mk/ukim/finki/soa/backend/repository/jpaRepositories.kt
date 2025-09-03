@@ -20,6 +20,7 @@ interface ProjectViewRepository : JpaRepository<ProjectView, ProjectId>, JpaSpec
 @Repository
 interface TaskViewRepository : JpaRepository<TaskView, TaskId>, JpaSpecificationExecutor<TaskView> {
     fun findByProjectId(projectId: ProjectId): List<TaskView>
+    fun findByRecurrenceRuleIsNotNullAndDeletedIsFalse(): List<TaskView>
 }
 
 @Repository
