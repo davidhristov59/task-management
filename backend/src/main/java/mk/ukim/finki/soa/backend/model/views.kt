@@ -129,7 +129,10 @@ data class TaskView(
     var comments: String = "[]",
 
     @Column(name = "deleted", nullable = false)
-    var deleted: Boolean = false
+    var deleted: Boolean = false,
+
+    @Column(name = "recurrence_rule")
+    var recurrenceRule: String? = null,
 )
 
 @Entity

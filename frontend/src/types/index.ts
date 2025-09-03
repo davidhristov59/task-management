@@ -1,216 +1,216 @@
-
 export enum TaskStatus {
-  PENDING = 'PENDING',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED'
+    PENDING = 'PENDING',
+    IN_PROGRESS = 'IN_PROGRESS',
+    COMPLETED = 'COMPLETED',
+    CANCELLED = 'CANCELLED'
 }
 
 export enum TaskPriority {
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH'
+    LOW = 'LOW',
+    MEDIUM = 'MEDIUM',
+    HIGH = 'HIGH'
 }
 
 export enum ProjectStatus {
-  PLANNING = 'PLANNING',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED'
+    PLANNING = 'PLANNING',
+    IN_PROGRESS = 'IN_PROGRESS',
+    COMPLETED = 'COMPLETED',
+    CANCELLED = 'CANCELLED'
 }
 
 export enum UserRole {
-  EMPLOYEE = 'EMPLOYEE',
-  STUDENT = 'STUDENT'
+    EMPLOYEE = 'EMPLOYEE',
+    STUDENT = 'STUDENT'
 }
 
 export enum RecurrenceType {
-  DAILY = 'DAILY',
-  WEEKLY = 'WEEKLY',
-  MONTHLY = 'MONTHLY'
+    DAILY = 'DAILY',
+    WEEKLY = 'WEEKLY',
+    MONTHLY = 'MONTHLY'
 }
 
 
 export interface User {
-  userId: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  active: boolean;
-  createdAt: string;
-  lastModifiedAt?: string;
-  deleted: boolean;
+    userId: string;
+    name: string;
+    email: string;
+    role: UserRole;
+    active: boolean;
+    createdAt: string;
+    lastModifiedAt?: string;
+    deleted: boolean;
 }
 
 export interface Comment {
-  commentId: string;
-  authorId: string;
-  content: string;
-  taskId: string;
-  timestamp: string;
+    commentId: string;
+    authorId: string;
+    content: string;
+    taskId: string;
+    timestamp: string;
 }
 
 export interface Attachment {
-  fileId: string;
-  fileName: string;
-  fileType: string;
-  fileSize: number;
-  taskId: string;
+    fileId: string;
+    fileName: string;
+    fileType: string;
+    fileSize: number;
+    taskId: string;
 }
 
 export interface RecurrenceRule {
-  type: RecurrenceType;
-  interval: number;
-  endDate?: string; 
+    type: RecurrenceType;
+    interval: number;
+    endDate?: string;
 }
 
 export interface Workspace {
-  workspaceId: string;
-  title: string;
-  description?: string;
-  ownerId: string;
-  memberIds: string[];
-  createdAt: string;
-  lastModifiedAt?: string;
-  archived: boolean;
-  deleted: boolean;
+    workspaceId: string;
+    title: string;
+    description?: string;
+    ownerId: string;
+    memberIds: string[];
+    createdAt: string;
+    lastModifiedAt?: string;
+    archived: boolean;
+    deleted: boolean;
 }
 
 export interface Project {
-  projectId: {
-    value: string;
-  };
-  title: string;
-  description?: string;
-  workspaceId: string;
-  ownerId: string;
-  status: ProjectStatus;
-  createdAt: string;
-  lastModifiedAt?: string;
-  archived: boolean;
-  deleted: boolean;
+    projectId: {
+        value: string;
+    };
+    title: string;
+    description?: string;
+    workspaceId: string;
+    ownerId: string;
+    status: ProjectStatus;
+    createdAt: string;
+    lastModifiedAt?: string;
+    archived: boolean;
+    deleted: boolean;
 }
 
 export interface Task {
-  taskId: {
-    value: string;
-  };
-  title: string;
-  description: string;
-  workspaceId: string;
-  projectId: {
-    value: string;
-  };
-  assignedUserId?: string;
-  status: TaskStatus;
-  priority: TaskPriority;
-  deadline?: string; 
-  createdAt: string;
-  lastModifiedAt?: string;
-  tags: string; 
-  categories: string; 
-  attachments: string; 
-  comments: string; 
-  deleted: boolean;
+    taskId: {
+        value: string;
+    };
+    title: string;
+    description: string;
+    workspaceId: string;
+    projectId: {
+        value: string;
+    };
+    assignedUserId?: string;
+    status: TaskStatus;
+    priority: TaskPriority;
+    deadline?: string;
+    createdAt: string;
+    lastModifiedAt?: string;
+    tags: string;
+    categories: string;
+    attachments: string;
+    comments: string;
+    recurrenceRule: string | null;
+    deleted: boolean;
 }
 
 
 export interface CreateWorkspaceRequest {
-  title?: string;
-  description?: string;
-  ownerId?: string;
-  memberIds?: string[];
+    title?: string;
+    description?: string;
+    ownerId?: string;
+    memberIds?: string[];
 }
 
 export interface UpdateWorkspaceRequest {
-  title?: string;
-  description?: string;
-  ownerId?: string;
-  memberIds?: string[];
+    title?: string;
+    description?: string;
+    ownerId?: string;
+    memberIds?: string[];
 }
 
 export interface AddWorkspaceMemberRequest {
-  userId: string;
+    userId: string;
 }
 
 export interface CreateProjectRequest {
-  title: string;
-  description?: string;
-  ownerId: string;
-  status?: ProjectStatus;
+    title: string;
+    description?: string;
+    ownerId: string;
+    status?: ProjectStatus;
 }
 
 export interface UpdateProjectRequest {
-  title?: string;
-  description?: string;
-  ownerId?: string;
-  status?: ProjectStatus;
+    title?: string;
+    description?: string;
+    ownerId?: string;
+    status?: ProjectStatus;
 }
 
 export interface CreateTaskRequest {
-  title: string;
-  description: string;
-  priority: TaskPriority;
-  deadlineDate?: string;
-  tags: string[];
-  categories: string[];
+    title: string;
+    description: string;
+    priority: TaskPriority;
+    deadlineDate?: string;
+    tags: string[];
+    categories: string[];
 }
 
 export interface UpdateTaskRequest {
-  title: string;
-  description: string;
-  priority: TaskPriority;
-  deadline?: string;
-  tags: string[];
-  categories: string[];
-  status: TaskStatus;
+    title: string;
+    description: string;
+    priority: TaskPriority;
+    deadline?: string;
+    tags: string[];
+    categories: string[];
+    status: TaskStatus;
 }
 
 export interface AssignTaskRequest {
-  userId: string;
+    userId: string;
 }
 
 export interface CreateCommentRequest {
-  authorId: string;
-  content: string;
+    authorId: string;
+    content: string;
 }
 
 export interface UpdateCommentRequest {
-  content: string;
+    content: string;
 }
 
 export interface CreateAttachmentRequest {
-  fileName: string;
-  fileType: string;
-  fileSize: number;
+    fileName: string;
+    fileType: string;
+    fileSize: number;
 }
 
 export interface CreateRecurringTaskRequest {
-  type: RecurrenceType;
-  interval: number;
-  endDate?: string;
+    type: RecurrenceType;
+    interval: number;
+    endDate?: string;
 }
 
 
 export interface ApiResponse<T> {
-  data: T;
-  message?: string;
-  success: boolean;
+    data: T;
+    message?: string;
+    success: boolean;
 }
 
 export interface ApiError {
-  message: string;
-  code?: string;
-  details?: any;
+    message: string;
+    code?: string;
+    details?: any;
 }
 
 export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  hasNext: boolean;
-  hasPrevious: boolean;
+    data: T[];
+    total: number;
+    page: number;
+    limit: number;
+    hasNext: boolean;
+    hasPrevious: boolean;
 }
 
 
@@ -230,22 +230,22 @@ export type UserResponse = ApiResponse<User>;
 
 
 export interface GlobalSearchResult {
-  id: string;
-  type: 'workspace' | 'project' | 'task';
-  title: string;
-  description?: string;
-  workspaceId?: string;
-  projectId?: string;
-  breadcrumb?: string;
-  priority?: TaskPriority;
-  status?: TaskStatus | ProjectStatus;
-  tags?: string[];
+    id: string;
+    type: 'workspace' | 'project' | 'task';
+    title: string;
+    description?: string;
+    workspaceId?: string;
+    projectId?: string;
+    breadcrumb?: string;
+    priority?: TaskPriority;
+    status?: TaskStatus | ProjectStatus;
+    tags?: string[];
 }
 
 export interface GlobalSearchRequest {
-  query: string;
-  types?: ('workspace' | 'project' | 'task')[];
-  limit?: number;
+    query: string;
+    types?: ('workspace' | 'project' | 'task')[];
+    limit?: number;
 }
 
 export type GlobalSearchResponse = ApiResponse<GlobalSearchResult[]>;
