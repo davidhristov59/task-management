@@ -32,6 +32,24 @@ const getPriorityColor = (priority: TaskPriority) => {
     }
 };
 
+const getRecurrenceDescription = (recurrenceRule: any) => {
+    if (!recurrenceRule) return null;
+
+    const { type, interval } = recurrenceRule;
+    const intervalText = interval === 1 ? '' : `${interval} `;
+
+    switch (type) {
+        case 'DAILY':
+            return `Every ${intervalText}day${interval > 1 ? 's' : ''}`;
+        case 'WEEKLY':
+            return `Every ${intervalText}week${interval > 1 ? 's' : ''}`;
+        case 'MONTHLY':
+            return `Every ${intervalText}month${interval > 1 ? 's' : ''}`;
+        default:
+            return 'Recurring';
+    }
+};
+
 const TaskBoardCard: React.FC<TaskBoardCardProps> = ({
                                                          task,
                                                          onAssignmentChange,
@@ -50,6 +68,9 @@ const TaskBoardCard: React.FC<TaskBoardCardProps> = ({
         opacity: isDragging ? 0.5 : 1,
     };
 
+    const isRecurring = Boolean(task.recurrenceRule);
+    const isOverdue = task.deadline && new Date(task.deadline) < new Date();
+
     const handleCardClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         onClick?.(task);
@@ -62,7 +83,7 @@ const TaskBoardCard: React.FC<TaskBoardCardProps> = ({
             {...attributes}
             className={`relative rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 ${
                 isDragging ? 'z-50' : ''
-            }`}
+            } ${isRecurring ? 'border-l-4 border-l-purple-500' : ''}`}
             onClick={handleCardClick}
         >
             <div className="absolute top-0 right-0 p-1 cursor-grab" {...listeners}>
@@ -70,97 +91,127 @@ const TaskBoardCard: React.FC<TaskBoardCardProps> = ({
             </div>
 
             <CardHeader className="py-2 px-3">
-                <h4 className="font-semibold text-sm text-gray-800 break-words pr-6">
-                    {task.title}
-                </h4>
+                <div className="flex items-start gap-2">
+                    <h4 className="font-semibold text-sm text-gray-800 break-words pr-6 flex-1">
+                        {task.title}
+                    </h4>
+                    {isRecurring && (
+                        <Repeat className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" />
+                    )}
+                </div>
             </CardHeader>
+
             <CardContent className="py-2 px-3">
-                <div className="flex flex-col gap-1">
-                    <Badge
-                        variant="outline"
-                        className={`w-fit font-medium ${getPriorityColor(task.priority)}`}
-                    >
-                        {task.priority.toLowerCase()}
-                    </Badge>
-                    {task.recurrenceRule && (
+                <div className="flex flex-col gap-2">
+                    {/* Priority and Recurring badges */}
+                    <div className="flex flex-col gap-1">
                         <Badge
                             variant="outline"
-                            className="w-fit font-medium bg-purple-100 text-purple-800 border-purple-200"
+                            className={`w-fit font-medium ${getPriorityColor(task.priority)}`}
                         >
-                            <Repeat className="w-3 h-3 mr-1" />
-                            Recurring
+                            {task.priority.toLowerCase()}
                         </Badge>
-                    )}
-                </div>
-                <div className="flex flex-wrap gap-1 mt-2">
-                    {task.tags.map((tag) => (
-                        <Badge
-                            key={tag.id}
-                            variant="secondary"
-                            className="w-fit text-xs font-normal"
-                        >
-                            <TagIcon className="h-3 w-3 mr-1 text-gray-500" />
-                            {tag.name}
-                        </Badge>
-                    ))}
-                    {task.categories.map((category) => (
-                        <Badge
-                            key={category.id}
-                            variant="secondary"
-                            className="w-fit text-xs font-normal"
-                        >
-                            {category.name}
-                        </Badge>
-                    ))}
-                </div>
-                <div className="flex items-center gap-2 text-xs text-gray-500 mt-2">
+                        {isRecurring && (
+                            <Badge
+                                variant="outline"
+                                className="w-fit font-medium bg-purple-100 text-purple-800 border-purple-200"
+                            >
+                                <Repeat className="w-3 h-3 mr-1" />
+                                {getRecurrenceDescription(task.recurrenceRule)}
+                            </Badge>
+                        )}
+                    </div>
+
+                    {/* Tags and Categories */}
+                    <div className="flex flex-wrap gap-1">
+                        {task.tags.slice(0, 2).map((tag) => (
+                            <Badge
+                                key={tag.id}
+                                variant="secondary"
+                                className="w-fit text-xs font-normal"
+                            >
+                                <TagIcon className="h-3 w-3 mr-1 text-gray-500" />
+                                {tag.name}
+                            </Badge>
+                        ))}
+                        {task.tags.length > 2 && (
+                            <Badge variant="secondary" className="w-fit text-xs font-normal">
+                                +{task.tags.length - 2}
+                            </Badge>
+                        )}
+                        {task.categories.slice(0, 1).map((category) => (
+                            <Badge
+                                key={category.id}
+                                variant="secondary"
+                                className="w-fit text-xs font-normal"
+                            >
+                                {category.name}
+                            </Badge>
+                        ))}
+                        {task.categories.length > 1 && (
+                            <Badge variant="secondary" className="w-fit text-xs font-normal">
+                                +{task.categories.length - 1} cat
+                            </Badge>
+                        )}
+                    </div>
+
+                    {/* Deadline */}
                     {task.deadline && (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
                             <Calendar className="h-3 w-3" />
-                            <span>{format(new Date(task.deadline), 'MMM d, yyyy')}</span>
+                            <span className={isOverdue ? 'text-red-500 font-medium' : ''}>
+                                {format(new Date(task.deadline), 'MMM d')}
+                            </span>
+                            {isOverdue && (
+                                <AlertCircle className="h-3 w-3 text-red-500" />
+                            )}
                         </div>
                     )}
-                    {task.deadline && new Date(task.deadline) < new Date() && (
-                        <div className="flex items-center gap-1 text-red-500">
-                            <AlertCircle className="h-3 w-3" />
-                            <span>Overdue</span>
+
+                    {/* Recurring end date info */}
+                    {isRecurring && task.recurrenceRule?.endDate && (
+                        <div className="text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded">
+                            Until {format(new Date(task.recurrenceRule.endDate), 'MMM d, yyyy')}
                         </div>
                     )}
-                </div>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pt-1 border-t border-gray-100 mt-2">
-                    <TaskAssignmentSelector
-                        currentUserId={task.assignedUserId}
-                        onAssignmentChange={(userId) => onAssignmentChange?.(task.taskId, userId)}
-                        compact={true}
-                        workspaceMembers={workspaceMembers}
-                    />
-                    <div className="flex items-center gap-1 flex-shrink-0">
-                        {onEdit && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onEdit(task);
-                                }}
-                                className="h-6 px-2 text-xs"
-                            >
-                                Edit
-                            </Button>
-                        )}
-                        {onDelete && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onDelete(task.taskId);
-                                }}
-                                className="h-6 px-2 text-xs text-red-600 hover:text-red-700"
-                            >
-                                Delete
-                            </Button>
-                        )}
+
+                    {/* Actions */}
+                    <div className="flex flex-col gap-2 pt-1 border-t border-gray-100 mt-2">
+                        <TaskAssignmentSelector
+                            currentUserId={task.assignedUserId}
+                            onAssignmentChange={(userId) => onAssignmentChange?.(task.taskId, userId)}
+                            compact={true}
+                            workspaceMembers={workspaceMembers}
+                        />
+
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                            {onEdit && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onEdit(task);
+                                    }}
+                                    className="h-6 px-2 text-xs flex-1"
+                                >
+                                    Edit
+                                </Button>
+                            )}
+                            {onDelete && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onDelete(task.taskId);
+                                    }}
+                                    className="h-6 px-2 text-xs text-red-600 hover:text-red-700 flex-1"
+                                >
+                                    Delete
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 </div>
             </CardContent>
