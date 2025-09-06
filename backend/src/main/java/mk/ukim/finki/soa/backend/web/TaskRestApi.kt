@@ -264,5 +264,86 @@ class TaskRestApi(
             .thenApply { ResponseEntity.noContent().build<Void>() }
             .exceptionally { ResponseEntity.status(HttpStatus.BAD_REQUEST).build() }
     }
+
+
+    @PostMapping("/{taskId}/tags")
+    fun addTagToTask(
+        @PathVariable workspaceId: String,
+        @PathVariable projectId: String,
+        @PathVariable taskId: String,
+        @RequestBody tagName: String
+    ): CompletableFuture<ResponseEntity<Void>> {
+        val tag = Tag(UUID.randomUUID().toString(), tagName)
+
+        return commandGateway.send<Any>(AddTagToTaskCommand(TaskId(taskId), tag))
+            .thenApply { ResponseEntity.status(HttpStatus.CREATED).build<Void>() }
+            .exceptionally { ResponseEntity.status(HttpStatus.BAD_REQUEST).build() }
+    }
+
+    @DeleteMapping("/{taskId}/tags/{tagId}")
+    fun removeTagFromTask(
+        @PathVariable workspaceId: String,
+        @PathVariable projectId: String,
+        @PathVariable taskId: String,
+        @PathVariable tagId: String
+    ): CompletableFuture<ResponseEntity<Void>> {
+        return commandGateway.send<Any>(RemoveTagFromTaskCommand(TaskId(taskId), tagId))
+            .thenApply { ResponseEntity.noContent().build<Void>() }
+            .exceptionally { ResponseEntity.status(HttpStatus.BAD_REQUEST).build() }
+    }
+
+    @PutMapping("/{taskId}/tags")
+    fun updateTaskTags(
+        @PathVariable workspaceId: String,
+        @PathVariable projectId: String,
+        @PathVariable taskId: String,
+        @RequestBody tagNames: List<String>
+    ): CompletableFuture<ResponseEntity<Void>> {
+        val tags = tagNames.map { Tag(UUID.randomUUID().toString(), it) }
+
+        return commandGateway.send<Any>(UpdateTaskTagsCommand(TaskId(taskId), tags))
+            .thenApply { ResponseEntity.ok().build<Void>() }
+            .exceptionally { ResponseEntity.status(HttpStatus.BAD_REQUEST).build() }
+    }
+
+    @PostMapping("/{taskId}/categories")
+    fun addCategoryToTask(
+        @PathVariable workspaceId: String,
+        @PathVariable projectId: String,
+        @PathVariable taskId: String,
+        @RequestBody categoryName: String
+    ): CompletableFuture<ResponseEntity<Void>> {
+        val category = Category(UUID.randomUUID().toString(), categoryName)
+
+        return commandGateway.send<Any>(AddCategoryToTaskCommand(TaskId(taskId), category))
+            .thenApply { ResponseEntity.status(HttpStatus.CREATED).build<Void>() }
+            .exceptionally { ResponseEntity.status(HttpStatus.BAD_REQUEST).build() }
+    }
+
+    @DeleteMapping("/{taskId}/categories/{categoryId}")
+    fun removeCategoryFromTask(
+        @PathVariable workspaceId: String,
+        @PathVariable projectId: String,
+        @PathVariable taskId: String,
+        @PathVariable categoryId: String
+    ): CompletableFuture<ResponseEntity<Void>> {
+        return commandGateway.send<Any>(RemoveCategoryFromTaskCommand(TaskId(taskId), categoryId))
+            .thenApply { ResponseEntity.noContent().build<Void>() }
+            .exceptionally { ResponseEntity.status(HttpStatus.BAD_REQUEST).build() }
+    }
+
+    @PutMapping("/{taskId}/categories")
+    fun updateTaskCategories(
+        @PathVariable workspaceId: String,
+        @PathVariable projectId: String,
+        @PathVariable taskId: String,
+        @RequestBody categoryNames: List<String>
+    ): CompletableFuture<ResponseEntity<Void>> {
+        val categories = categoryNames.map { Category(UUID.randomUUID().toString(), it) }
+
+        return commandGateway.send<Any>(UpdateTaskCategoriesCommand(TaskId(taskId), categories))
+            .thenApply { ResponseEntity.ok().build<Void>() }
+            .exceptionally { ResponseEntity.status(HttpStatus.BAD_REQUEST).build() }
+    }
 }
 

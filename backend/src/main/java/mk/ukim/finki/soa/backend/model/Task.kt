@@ -254,4 +254,79 @@ class Task {
     fun on(event: CommentDeletedEvent) {
         comments.remove(event.commentId)
     }
+
+    @CommandHandler
+    fun handle(command: AddTagToTaskCommand) {
+        if (tags.any { it.id == command.tag.id }) {
+            throw IllegalArgumentException("Tag already exists on this task")
+        }
+        AggregateLifecycle.apply(TagAddedToTaskEvent(command.taskId, command.tag))
+    }
+
+    @CommandHandler
+    fun handle(command: RemoveTagFromTaskCommand) {
+        if (!tags.any { it.id == command.tagId }) {
+            throw IllegalArgumentException("Tag does not exist on this task")
+        }
+        AggregateLifecycle.apply(TagRemovedFromTaskEvent(command.taskId, command.tagId))
+    }
+
+    @CommandHandler
+    fun handle(command: UpdateTaskTagsCommand) {
+        AggregateLifecycle.apply(TaskTagsUpdatedEvent(command.taskId, command.tags))
+    }
+
+    @CommandHandler
+    fun handle(command: AddCategoryToTaskCommand) {
+        if (categories.any { it.id == command.category.id }) {
+            throw IllegalArgumentException("Category already exists on this task")
+        }
+        AggregateLifecycle.apply(CategoryAddedToTaskEvent(command.taskId, command.category))
+    }
+
+    @CommandHandler
+    fun handle(command: RemoveCategoryFromTaskCommand) {
+        if (!categories.any { it.id == command.categoryId }) {
+            throw IllegalArgumentException("Category does not exist on this task")
+        }
+        AggregateLifecycle.apply(CategoryRemovedFromTaskEvent(command.taskId, command.categoryId))
+    }
+
+    @CommandHandler
+    fun handle(command: UpdateTaskCategoriesCommand) {
+        AggregateLifecycle.apply(TaskCategoriesUpdatedEvent(command.taskId, command.categories))
+    }
+
+
+    @EventSourcingHandler
+    fun on(event: TagAddedToTaskEvent) {
+        tags.add(event.tag)
+    }
+
+    @EventSourcingHandler
+    fun on(event: TagRemovedFromTaskEvent) {
+        tags.removeIf { it.id == event.tagId }
+    }
+
+    @EventSourcingHandler
+    fun on(event: TaskTagsUpdatedEvent) {
+        tags.clear()
+        tags.addAll(event.tags)
+    }
+
+    @EventSourcingHandler
+    fun on(event: CategoryAddedToTaskEvent) {
+        categories.add(event.category)
+    }
+
+    @EventSourcingHandler
+    fun on(event: CategoryRemovedFromTaskEvent) {
+        categories.removeIf { it.id == event.categoryId }
+    }
+
+    @EventSourcingHandler
+    fun on(event: TaskCategoriesUpdatedEvent) {
+        categories.clear()
+        categories.addAll(event.categories)
+    }
 }
