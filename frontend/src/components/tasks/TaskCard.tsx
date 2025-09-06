@@ -1,4 +1,4 @@
-import { Calendar, Tag as TagIcon, AlertCircle, Repeat } from 'lucide-react';
+import { Calendar, Tag as TagIcon, AlertCircle, Repeat, FolderOpen } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -16,6 +16,8 @@ interface TaskCardProps {
     onDelete?: (taskId: string) => void;
     onClick?: (task: NormalizedTask) => void;
     workspaceMembers?: string[];
+    onTagClick?: (tagName: string) => void;
+    onCategoryClick?: (categoryName: string) => void;
 }
 
 const getPriorityColor = (priority: TaskPriority) => {
@@ -70,10 +72,22 @@ function TaskCard({
                       onEdit,
                       onDelete,
                       onClick,
-                      workspaceMembers = []
+                      workspaceMembers = [],
+                      onTagClick,
+                      onCategoryClick
                   }: TaskCardProps) {
     const isOverdue = task.deadline && new Date(task.deadline) < new Date() && task.status !== TaskStatus.COMPLETED;
     const isRecurring = Boolean(task.recurrenceRule);
+
+    const handleTagClick = (e: React.MouseEvent, tagName: string) => {
+        e.stopPropagation();
+        onTagClick?.(tagName);
+    };
+
+    const handleCategoryClick = (e: React.MouseEvent, categoryName: string) => {
+        e.stopPropagation();
+        onCategoryClick?.(categoryName);
+    };
 
     return (
         <Card
@@ -139,36 +153,55 @@ function TaskCard({
                         <div className="flex items-center gap-2 text-sm">
                             <Calendar className="h-4 w-4" />
                             <span className={isOverdue ? 'text-red-600 font-medium' : 'text-gray-600'}>
-                {format(new Date(task.deadline), 'MMM dd, yyyy')}
+                                {format(new Date(task.deadline), 'MMM dd, yyyy')}
                                 {isOverdue && (
                                     <AlertCircle className="h-4 w-4 inline ml-1 text-red-500" />
                                 )}
-              </span>
+                            </span>
                         </div>
                     )}
 
-                    {/* Tags */}
+                    {/* Tags Section */}
                     {task.tags && task.tags.length > 0 && (
                         <div className="flex items-start gap-2 text-sm">
-                            <TagIcon className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                            <div className="flex flex-wrap gap-1 min-w-0">
-                                {task.tags.map((tag) => (
-                                    <Badge key={tag.id} variant="outline" className="text-xs truncate">
-                                        {tag.name}
-                                    </Badge>
-                                ))}
+                            <TagIcon className="h-4 w-4 flex-shrink-0 mt-0.5 text-blue-600" />
+                            <div className="flex-1 min-w-0">
+                                <div className="flex flex-wrap gap-1">
+                                    {task.tags.map((tag) => (
+                                        <Badge
+                                            key={tag.id}
+                                            variant="secondary"
+                                            className="text-xs truncate cursor-pointer hover:bg-blue-100 transition-colors bg-blue-50 text-blue-700 border-blue-200"
+                                            onClick={(e) => handleTagClick(e, tag.name)}
+                                            title={`Click to filter by tag: ${tag.name}`}
+                                        >
+                                            {tag.name}
+                                        </Badge>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     )}
 
-                    {/* Categories */}
+                    {/* Categories Section */}
                     {task.categories && task.categories.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                            {task.categories.map((category) => (
-                                <Badge key={category.id} variant="secondary" className="text-xs truncate">
-                                    {category.name}
-                                </Badge>
-                            ))}
+                        <div className="flex items-start gap-2 text-sm">
+                            <FolderOpen className="h-4 w-4 flex-shrink-0 mt-0.5 text-indigo-600" />
+                            <div className="flex-1 min-w-0">
+                                <div className="flex flex-wrap gap-1">
+                                    {task.categories.map((category) => (
+                                        <Badge
+                                            key={category.id}
+                                            variant="outline"
+                                            className="text-xs truncate cursor-pointer hover:bg-indigo-100 transition-colors bg-indigo-50 text-indigo-700 border-indigo-200"
+                                            onClick={(e) => handleCategoryClick(e, category.name)}
+                                            title={`Click to filter by category: ${category.name}`}
+                                        >
+                                            {category.name}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     )}
 

@@ -1,6 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Calendar, Tag as TagIcon, AlertCircle, GripVertical, Repeat } from 'lucide-react';
+import { Calendar, Tag as TagIcon, AlertCircle, GripVertical, Repeat, FolderOpen } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -17,6 +17,8 @@ interface TaskBoardCardProps {
     onClick?: (task: NormalizedTask) => void;
     isDragging?: boolean;
     workspaceMembers?: string[];
+    onTagClick?: (tagName: string) => void;
+    onCategoryClick?: (categoryName: string) => void;
 }
 
 const getPriorityColor = (priority: TaskPriority) => {
@@ -58,6 +60,8 @@ const TaskBoardCard: React.FC<TaskBoardCardProps> = ({
                                                          onClick,
                                                          isDragging,
                                                          workspaceMembers,
+                                                         onTagClick,
+                                                         onCategoryClick,
                                                      }) => {
     const { attributes, listeners, setNodeRef, transform, transition } =
         useSortable({ id: task.taskId });
@@ -74,6 +78,16 @@ const TaskBoardCard: React.FC<TaskBoardCardProps> = ({
     const handleCardClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         onClick?.(task);
+    };
+
+    const handleTagClick = (e: React.MouseEvent, tagName: string) => {
+        e.stopPropagation();
+        onTagClick?.(tagName);
+    };
+
+    const handleCategoryClick = (e: React.MouseEvent, categoryName: string) => {
+        e.stopPropagation();
+        onCategoryClick?.(categoryName);
     };
 
     return (
@@ -122,38 +136,67 @@ const TaskBoardCard: React.FC<TaskBoardCardProps> = ({
                         )}
                     </div>
 
-                    {/* Tags and Categories */}
-                    <div className="flex flex-wrap gap-1">
-                        {task.tags.slice(0, 2).map((tag) => (
-                            <Badge
-                                key={tag.id}
-                                variant="secondary"
-                                className="w-fit text-xs font-normal"
-                            >
-                                <TagIcon className="h-3 w-3 mr-1 text-gray-500" />
-                                {tag.name}
-                            </Badge>
-                        ))}
-                        {task.tags.length > 2 && (
-                            <Badge variant="secondary" className="w-fit text-xs font-normal">
-                                +{task.tags.length - 2}
-                            </Badge>
-                        )}
-                        {task.categories.slice(0, 1).map((category) => (
-                            <Badge
-                                key={category.id}
-                                variant="secondary"
-                                className="w-fit text-xs font-normal"
-                            >
-                                {category.name}
-                            </Badge>
-                        ))}
-                        {task.categories.length > 1 && (
-                            <Badge variant="secondary" className="w-fit text-xs font-normal">
-                                +{task.categories.length - 1} cat
-                            </Badge>
-                        )}
-                    </div>
+                    {/* Tags Section */}
+                    {task.tags && task.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                            <div className="flex items-center gap-1 w-full">
+                                <TagIcon className="h-3 w-3 text-gray-500 flex-shrink-0" />
+                                <span className="text-xs text-gray-600 font-medium">Tags:</span>
+                            </div>
+                            <div className="flex flex-wrap gap-1 ml-4">
+                                {task.tags.slice(0, 3).map((tag) => (
+                                    <Badge
+                                        key={tag.id}
+                                        variant="secondary"
+                                        className="w-fit text-xs font-normal cursor-pointer hover:bg-blue-100 transition-colors"
+                                        onClick={(e) => handleTagClick(e, tag.name)}
+                                    >
+                                        {tag.name}
+                                    </Badge>
+                                ))}
+                                {task.tags.length > 3 && (
+                                    <Badge
+                                        variant="secondary"
+                                        className="w-fit text-xs font-normal cursor-pointer hover:bg-blue-100 transition-colors"
+                                        title={`${task.tags.length - 3} more tags: ${task.tags.slice(3).map(t => t.name).join(', ')}`}
+                                    >
+                                        +{task.tags.length - 3}
+                                    </Badge>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Categories Section */}
+                    {task.categories && task.categories.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                            <div className="flex items-center gap-1 w-full">
+                                <FolderOpen className="h-3 w-3 text-gray-500 flex-shrink-0" />
+                                <span className="text-xs text-gray-600 font-medium">Categories:</span>
+                            </div>
+                            <div className="flex flex-wrap gap-1 ml-4">
+                                {task.categories.slice(0, 2).map((category) => (
+                                    <Badge
+                                        key={category.id}
+                                        variant="outline"
+                                        className="w-fit text-xs font-normal bg-indigo-50 text-indigo-700 border-indigo-200 cursor-pointer hover:bg-indigo-100 transition-colors"
+                                        onClick={(e) => handleCategoryClick(e, category.name)}
+                                    >
+                                        {category.name}
+                                    </Badge>
+                                ))}
+                                {task.categories.length > 2 && (
+                                    <Badge
+                                        variant="outline"
+                                        className="w-fit text-xs font-normal bg-indigo-50 text-indigo-700 border-indigo-200 cursor-pointer hover:bg-indigo-100 transition-colors"
+                                        title={`${task.categories.length - 2} more categories: ${task.categories.slice(2).map(c => c.name).join(', ')}`}
+                                    >
+                                        +{task.categories.length - 2}
+                                    </Badge>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Deadline */}
                     {task.deadline && (
