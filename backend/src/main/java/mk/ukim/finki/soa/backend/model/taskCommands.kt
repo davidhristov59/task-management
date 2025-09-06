@@ -97,3 +97,33 @@ data class DeleteCommentCommand(
 data class DeleteTaskCommand(
     override val taskId: TaskId
 ) : TaskCommand(taskId)
+
+data class AddTagToTaskCommand(
+    override val taskId: TaskId,
+    val tag: Tag
+) : TaskCommand(taskId)
+
+data class RemoveTagFromTaskCommand(
+    override val taskId: TaskId,
+    val tagId: String
+) : TaskCommand(taskId)
+
+data class UpdateTaskTagsCommand(
+    override val taskId: TaskId,
+    val tags: List<Tag>
+) : TaskCommand(taskId)
+
+data class AddCategoryToTaskCommand(
+    override val taskId: TaskId,
+    val category: Category
+) : TaskCommand(taskId)
+
+data class RemoveCategoryFromTaskCommand(
+    override val taskId: TaskId,
+    val categoryId: String
+) : TaskCommand(taskId)
+
+data class UpdateTaskCategoriesCommand(
+    override val taskId: TaskId,
+    val categories: List<Category>
+) : TaskCommand(taskId)

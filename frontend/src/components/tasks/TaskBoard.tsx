@@ -31,6 +31,8 @@ interface TaskBoardProps {
     isLoading?: boolean;
     searchQuery?: string;
     workspaceMembers?: string[];
+    onTagClick?: (tagName: string) => void;
+    onCategoryClick?: (categoryName: string) => void;
 }
 
 const BOARD_COLUMNS = [
@@ -41,23 +43,22 @@ const BOARD_COLUMNS = [
 ];
 
 function TaskBoard({
-    tasks,
-    onTaskClick,
-    onTaskEdit,
-    onTaskDelete,
-    onTaskStatusChange,
-    onTaskAssignmentChange,
-    onCreateTask,
-    isLoading = false,
-    searchQuery = '',
-    workspaceMembers = [],
-}: TaskBoardProps) {
-    
-    
-    
+                       tasks,
+                       onTaskClick,
+                       onTaskEdit,
+                       onTaskDelete,
+                       onTaskStatusChange,
+                       onTaskAssignmentChange,
+                       onCreateTask,
+                       isLoading = false,
+                       searchQuery = '',
+                       workspaceMembers = [],
+                       onTagClick,
+                       onCategoryClick,
+                   }: TaskBoardProps) {
+
     const [activeTask, setActiveTask] = useState<NormalizedTask | null>(null);
 
-    
     const [optimisticChanges, setOptimisticChanges] = useState<Record<string, { status?: TaskStatus; sortOrder?: number }>>({});
 
     const sensors = useSensors(
@@ -68,7 +69,6 @@ function TaskBoard({
         })
     );
 
-    
     const currentTasks = useMemo(() => {
         return tasks.map(task => {
             const changes = optimisticChanges[task.taskId];
@@ -85,14 +85,12 @@ function TaskBoard({
 
     const filteredTasks = useMemo(() => {
         return currentTasks.filter((task) => {
-            
             const matchesSearch = searchQuery === '' ||
                 task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 task.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 task.tags.some((tag: { name: string; }) => tag.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
                 task.categories.some((cat: { name: string; }) => cat.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
-            
             return matchesSearch;
         });
     }, [currentTasks, searchQuery]);
@@ -102,7 +100,6 @@ function TaskBoard({
             acc[column.id] = filteredTasks
                 .filter(task => task.status === column.id)
                 .sort((a, b) => {
-                    
                     const aOrder = (a as any).sortOrder ?? new Date(a.createdAt).getTime();
                     const bOrder = (b as any).sortOrder ?? new Date(b.createdAt).getTime();
                     return aOrder - bOrder;
@@ -113,19 +110,14 @@ function TaskBoard({
         return grouped;
     }, [filteredTasks]);
 
-    
-    
     useEffect(() => {
         if (Object.keys(optimisticChanges).length === 0) return;
 
-        
         const timeoutId = setTimeout(() => {
-            
             const shouldClear = Object.entries(optimisticChanges).some(([taskId, changes]) => {
                 const serverTask = tasks.find(t => t.taskId === taskId);
                 if (!serverTask) return false;
 
-                
                 if (changes.status && serverTask.status === changes.status) {
                     return true;
                 }
@@ -136,7 +128,7 @@ function TaskBoard({
             if (shouldClear) {
                 setOptimisticChanges({});
             }
-        }, 100); 
+        }, 100);
 
         return () => clearTimeout(timeoutId);
     }, [tasks, optimisticChanges]);
@@ -155,25 +147,20 @@ function TaskBoard({
         const activeId = active.id as string;
         const overId = over.id as string;
 
-        
         const activeTask = currentTasks.find(t => t.taskId === activeId);
         if (!activeTask) return;
 
-        
         let targetStatus: TaskStatus;
         let targetTask: NormalizedTask | undefined;
 
         if (Object.values(TaskStatus).includes(overId as TaskStatus)) {
-            
             targetStatus = overId as TaskStatus;
         } else {
-            
             targetTask = currentTasks.find(t => t.taskId === overId);
             if (!targetTask) return;
             targetStatus = targetTask.status;
         }
 
-        
         if (activeTask.status !== targetStatus) {
             setOptimisticChanges(prev => ({
                 ...prev,
@@ -191,33 +178,25 @@ function TaskBoard({
         const activeId = active.id as string;
         const overId = over.id as string;
 
-        
         const originalActiveTask = tasks.find(t => t.taskId === activeId);
         if (!originalActiveTask) return;
 
         let targetStatus: TaskStatus;
         let targetTask: NormalizedTask | undefined;
 
-        
         if (Object.values(TaskStatus).includes(overId as TaskStatus)) {
-            
             targetStatus = overId as TaskStatus;
         } else {
-            
             targetTask = currentTasks.find(t => t.taskId === overId);
             if (!targetTask) return;
             targetStatus = targetTask.status;
         }
 
-        
         if (originalActiveTask.status !== targetStatus) {
-            
             onTaskStatusChange?.(activeId, targetStatus);
         } else if (targetTask && activeId !== overId) {
-            
             console.log('Reordering within column:', activeId, 'to position of', overId);
 
-            
             const tasksInColumn = currentTasks.filter(t => t.status === targetStatus);
             const activeIndex = tasksInColumn.findIndex(t => t.taskId === activeId);
             const overIndex = tasksInColumn.findIndex(t => t.taskId === overId);
@@ -227,10 +206,8 @@ function TaskBoard({
             if (activeIndex !== -1 && overIndex !== -1 && activeIndex !== overIndex) {
                 const reorderedTasks = arrayMove(tasksInColumn, activeIndex, overIndex);
 
-                
                 const newChanges = { ...optimisticChanges };
 
-                
                 tasksInColumn.forEach(task => {
                     if (newChanges[task.taskId]) {
                         delete newChanges[task.taskId].sortOrder;
@@ -240,7 +217,6 @@ function TaskBoard({
                     }
                 });
 
-                
                 reorderedTasks.forEach((task, index) => {
                     newChanges[task.taskId] = {
                         ...newChanges[task.taskId],
@@ -250,19 +226,9 @@ function TaskBoard({
 
                 setOptimisticChanges(newChanges);
                 console.log('Applied reorder optimistic changes:', newChanges);
-
-                
-                
             }
         }
     };
-
-    
-    
-    
-    
-    
-    
 
     if (isLoading) {
         return (
@@ -308,6 +274,8 @@ function TaskBoard({
                             onTaskDelete={onTaskDelete}
                             onTaskAssignmentChange={onTaskAssignmentChange}
                             workspaceMembers={workspaceMembers}
+                            onTagClick={onTagClick}
+                            onCategoryClick={onCategoryClick}
                         />
                     ))}
                 </div>
@@ -318,6 +286,8 @@ function TaskBoard({
                             task={activeTask}
                             isDragging={true}
                             workspaceMembers={workspaceMembers}
+                            onTagClick={onTagClick}
+                            onCategoryClick={onCategoryClick}
                         />
                     ) : null}
                 </DragOverlay>

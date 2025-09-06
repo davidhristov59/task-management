@@ -226,4 +226,94 @@ class TaskEventHandler(
             repository.save(task)
         })
     }
+
+    @EventHandler
+    fun on(event: TagAddedToTaskEvent) {
+        repository.findById(event.taskId).ifPresent(Consumer<TaskView> { task ->
+            val tagsType = object : TypeReference<List<Tag>>() {}
+            val tags = if (task.tags == "[]") {
+                mutableListOf<Tag>()
+            } else {
+                objectMapper.readValue(task.tags, tagsType).toMutableList()
+            }
+
+            if (!tags.any { it.id == event.tag.id }) {
+                tags.add(event.tag)
+                task.tags = objectMapper.writeValueAsString(tags)
+                task.lastModifiedAt = event.timestamp
+                repository.save(task)
+            }
+        })
+    }
+
+    @EventHandler
+    fun on(event: TagRemovedFromTaskEvent) {
+        repository.findById(event.taskId).ifPresent(Consumer<TaskView> { task ->
+            val tagsType = object : TypeReference<List<Tag>>() {}
+            val tags = if (task.tags == "[]") {
+                emptyList<Tag>()
+            } else {
+                objectMapper.readValue(task.tags, tagsType)
+                    .filter { it.id != event.tagId }
+            }
+
+            task.tags = objectMapper.writeValueAsString(tags)
+            task.lastModifiedAt = event.timestamp
+            repository.save(task)
+        })
+    }
+
+    @EventHandler
+    fun on(event: TaskTagsUpdatedEvent) {
+        repository.findById(event.taskId).ifPresent(Consumer<TaskView> { task ->
+            task.tags = objectMapper.writeValueAsString(event.tags)
+            task.lastModifiedAt = event.timestamp
+            repository.save(task)
+        })
+    }
+
+    @EventHandler
+    fun on(event: CategoryAddedToTaskEvent) {
+        repository.findById(event.taskId).ifPresent(Consumer<TaskView> { task ->
+            val categoriesType = object : TypeReference<List<Category>>() {}
+            val categories = if (task.categories == "[]") {
+                mutableListOf<Category>()
+            } else {
+                objectMapper.readValue(task.categories, categoriesType).toMutableList()
+            }
+
+            if (!categories.any { it.id == event.category.id }) {
+                categories.add(event.category)
+                task.categories = objectMapper.writeValueAsString(categories)
+                task.lastModifiedAt = event.timestamp
+                repository.save(task)
+            }
+        })
+    }
+
+    @EventHandler
+    fun on(event: CategoryRemovedFromTaskEvent) {
+        repository.findById(event.taskId).ifPresent(Consumer<TaskView> { task ->
+            val categoriesType = object : TypeReference<List<Category>>() {}
+            val categories = if (task.categories == "[]") {
+                emptyList<Category>()
+            } else {
+                objectMapper.readValue(task.categories, categoriesType)
+                    .filter { it.id != event.categoryId }
+            }
+
+            task.categories = objectMapper.writeValueAsString(categories)
+            task.lastModifiedAt = event.timestamp
+            repository.save(task)
+        })
+    }
+
+    @EventHandler
+    fun on(event: TaskCategoriesUpdatedEvent) {
+        repository.findById(event.taskId).ifPresent(Consumer<TaskView> { task ->
+            task.categories = objectMapper.writeValueAsString(event.categories)
+            task.lastModifiedAt = event.timestamp
+            repository.save(task)
+        })
+    }
 }

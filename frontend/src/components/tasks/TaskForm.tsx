@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, Plus, Repeat, AlertCircle, Calendar } from 'lucide-react';
+import { X, Plus, Repeat, AlertCircle, Calendar, Tag as TagIcon, FolderOpen } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
@@ -47,15 +47,15 @@ interface TaskFormProps {
     workspaceId?: string;
     projectId?: string;
     isLoading?: boolean;
+    onUpdateTags?: (taskId: string, tags: string[]) => void;
+    onUpdateCategories?: (taskId: string, categories: string[]) => void;
 }
 
 // Create a custom hook for delete recurrence if it doesn't exist
 const useDeleteRecurringTask = () => {
-    // This is a placeholder - you'll need to implement this based on your API structure
     return {
         mutate: (params: { workspaceId: string; projectId: string; taskId: string }, options?: any) => {
             console.log('Delete recurrence not implemented', params);
-            // Implement your delete recurrence logic here
             if (options?.onSuccess) {
                 options.onSuccess();
             }
@@ -82,12 +82,24 @@ const getRecurrenceDescription = (recurrenceRule: any) => {
     }
 };
 
-function TaskForm({ isOpen, onClose, onSubmit, task, workspaceId, projectId, isLoading = false }: TaskFormProps) {
+function TaskForm({
+                      isOpen,
+                      onClose,
+                      onSubmit,
+                      task,
+                      workspaceId,
+                      projectId,
+                      isLoading = false,
+                      onUpdateTags,
+                      onUpdateCategories
+                  }: TaskFormProps) {
     const [tags, setTags] = useState<string[]>([]);
     const [categories, setCategories] = useState<string[]>([]);
     const [newTag, setNewTag] = useState('');
     const [newCategory, setNewCategory] = useState('');
     const [showRecurringForm, setShowRecurringForm] = useState(false);
+    const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
+    const [categorySuggestions, setCategorySuggestions] = useState<string[]>([]);
 
     const createRecurringMutation = useCreateRecurringTask();
     const updateRecurringMutation = useUpdateRecurringTask();
@@ -142,7 +154,7 @@ function TaskForm({ isOpen, onClose, onSubmit, task, workspaceId, projectId, isL
         onClose();
     };
 
-    const handleFormSubmit = (data: TaskFormData) => {
+    const handleFormSubmit = async (data: TaskFormData) => {
         if (isLoading) return;
 
         const deadlineValue = data.deadline ? new Date(data.deadline + 'T00:00:00.000Z').toISOString() : undefined;
@@ -157,6 +169,16 @@ function TaskForm({ isOpen, onClose, onSubmit, task, workspaceId, projectId, isL
                 categories: categories,
                 status: data.status || task.status,
             };
+
+            // Handle tags and categories updates separately if needed
+            if (onUpdateTags && task.tags?.map(t => t.name).join(',') !== tags.join(',')) {
+                await onUpdateTags(task.taskId, tags);
+            }
+
+            if (onUpdateCategories && task.categories?.map(c => c.name).join(',') !== categories.join(',')) {
+                await onUpdateCategories(task.taskId, categories);
+            }
+
             onSubmit(updateData);
         } else {
             const createData: CreateTaskRequest = {
@@ -176,6 +198,7 @@ function TaskForm({ isOpen, onClose, onSubmit, task, workspaceId, projectId, isL
         if (newTag.trim() && !tags.includes(newTag.trim())) {
             setTags([...tags, newTag.trim()]);
             setNewTag('');
+            setTagSuggestions([]);
         }
     };
 
@@ -187,6 +210,7 @@ function TaskForm({ isOpen, onClose, onSubmit, task, workspaceId, projectId, isL
         if (newCategory.trim() && !categories.includes(newCategory.trim())) {
             setCategories([...categories, newCategory.trim()]);
             setNewCategory('');
+            setCategorySuggestions([]);
         }
     };
 
@@ -194,11 +218,36 @@ function TaskForm({ isOpen, onClose, onSubmit, task, workspaceId, projectId, isL
         setCategories(categories.filter(category => category !== categoryToRemove));
     };
 
+    const handleTagInputChange = (value: string) => {
+        setNewTag(value);
+        // Simple suggestion system - in real app, this would come from API
+        if (value.length > 0) {
+            const suggestions = ['Frontend', 'Backend', 'Bug', 'Feature', 'Urgent', 'Review']
+                .filter(tag => tag.toLowerCase().includes(value.toLowerCase()) && !tags.includes(tag))
+                .slice(0, 3);
+            setTagSuggestions(suggestions);
+        } else {
+            setTagSuggestions([]);
+        }
+    };
+
+    const handleCategoryInputChange = (value: string) => {
+        setNewCategory(value);
+        // Simple suggestion system - in real app, this would come from API
+        if (value.length > 0) {
+            const suggestions = ['Development', 'Design', 'Testing', 'Documentation', 'Marketing', 'Support']
+                .filter(cat => cat.toLowerCase().includes(value.toLowerCase()) && !categories.includes(cat))
+                .slice(0, 3);
+            setCategorySuggestions(suggestions);
+        } else {
+            setCategorySuggestions([]);
+        }
+    };
+
     const handleRecurringSubmit = (recurringData: any) => {
         if (!task?.taskId || !workspaceId || !projectId) return;
 
         if (task.recurrenceRule) {
-            // Update existing recurrence
             updateRecurringMutation.mutate(
                 {
                     workspaceId,
@@ -213,7 +262,6 @@ function TaskForm({ isOpen, onClose, onSubmit, task, workspaceId, projectId, isL
                 }
             );
         } else {
-            // Create new recurrence
             createRecurringMutation.mutate(
                 {
                     workspaceId,
@@ -251,7 +299,7 @@ function TaskForm({ isOpen, onClose, onSubmit, task, workspaceId, projectId, isL
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
-            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+            <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         {task ? 'Edit Task' : 'Create New Task'}
@@ -405,29 +453,55 @@ function TaskForm({ isOpen, onClose, onSubmit, task, workspaceId, projectId, isL
                         </div>
                     </div>
 
-                    {/* Tags */}
-                    <div className="space-y-2">
-                        <Label>Tags</Label>
-                        <div className="flex gap-2">
-                            <Input
-                                value={newTag}
-                                onChange={(e) => setNewTag(e.target.value)}
-                                placeholder="Add a tag"
-                                onKeyPress={(e) => {
-                                    if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        addTag();
-                                    }
-                                }}
-                            />
-                            <Button type="button" onClick={addTag} size="sm">
-                                <Plus className="h-4 w-4" />
-                            </Button>
+                    {/* Enhanced Tags Section */}
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                            <TagIcon className="h-4 w-4 text-blue-600" />
+                            <Label>Tags</Label>
                         </div>
+                        <div className="relative">
+                            <div className="flex gap-2">
+                                <Input
+                                    value={newTag}
+                                    onChange={(e) => handleTagInputChange(e.target.value)}
+                                    placeholder="Add a tag..."
+                                    onKeyPress={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            addTag();
+                                        }
+                                    }}
+                                />
+                                <Button type="button" onClick={addTag} size="sm">
+                                    <Plus className="h-4 w-4" />
+                                </Button>
+                            </div>
+
+                            {/* Tag suggestions */}
+                            {tagSuggestions.length > 0 && (
+                                <div className="absolute top-full left-0 right-0 z-10 bg-white border border-gray-300 rounded-md shadow-lg mt-1">
+                                    {tagSuggestions.map((suggestion) => (
+                                        <button
+                                            key={suggestion}
+                                            type="button"
+                                            className="w-full text-left px-3 py-2 hover:bg-blue-50 text-sm"
+                                            onClick={() => {
+                                                setNewTag(suggestion);
+                                                addTag();
+                                            }}
+                                        >
+                                            {suggestion}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
                         {tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-2">
+                            <div className="flex flex-wrap gap-2">
                                 {tags.map((tag) => (
-                                    <Badge key={tag} variant="outline" className="flex items-center gap-1">
+                                    <Badge key={tag} variant="secondary" className="flex items-center gap-1 bg-blue-50 text-blue-700 border-blue-200">
+                                        <TagIcon className="h-3 w-3" />
                                         {tag}
                                         <button
                                             type="button"
@@ -442,29 +516,55 @@ function TaskForm({ isOpen, onClose, onSubmit, task, workspaceId, projectId, isL
                         )}
                     </div>
 
-                    {/* Categories */}
-                    <div className="space-y-2">
-                        <Label>Categories</Label>
-                        <div className="flex gap-2">
-                            <Input
-                                value={newCategory}
-                                onChange={(e) => setNewCategory(e.target.value)}
-                                placeholder="Add a category"
-                                onKeyPress={(e) => {
-                                    if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        addCategory();
-                                    }
-                                }}
-                            />
-                            <Button type="button" onClick={addCategory} size="sm">
-                                <Plus className="h-4 w-4" />
-                            </Button>
+                    {/* Enhanced Categories Section */}
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                            <FolderOpen className="h-4 w-4 text-indigo-600" />
+                            <Label>Categories</Label>
                         </div>
+                        <div className="relative">
+                            <div className="flex gap-2">
+                                <Input
+                                    value={newCategory}
+                                    onChange={(e) => handleCategoryInputChange(e.target.value)}
+                                    placeholder="Add a category..."
+                                    onKeyPress={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            addCategory();
+                                        }
+                                    }}
+                                />
+                                <Button type="button" onClick={addCategory} size="sm">
+                                    <Plus className="h-4 w-4" />
+                                </Button>
+                            </div>
+
+                            {/* Category suggestions */}
+                            {categorySuggestions.length > 0 && (
+                                <div className="absolute top-full left-0 right-0 z-10 bg-white border border-gray-300 rounded-md shadow-lg mt-1">
+                                    {categorySuggestions.map((suggestion) => (
+                                        <button
+                                            key={suggestion}
+                                            type="button"
+                                            className="w-full text-left px-3 py-2 hover:bg-indigo-50 text-sm"
+                                            onClick={() => {
+                                                setNewCategory(suggestion);
+                                                addCategory();
+                                            }}
+                                        >
+                                            {suggestion}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
                         {categories.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-2">
+                            <div className="flex flex-wrap gap-2">
                                 {categories.map((category) => (
-                                    <Badge key={category} variant="secondary" className="flex items-center gap-1">
+                                    <Badge key={category} variant="outline" className="flex items-center gap-1 bg-indigo-50 text-indigo-700 border-indigo-200">
+                                        <FolderOpen className="h-3 w-3" />
                                         {category}
                                         <button
                                             type="button"
@@ -487,8 +587,8 @@ function TaskForm({ isOpen, onClose, onSubmit, task, workspaceId, projectId, isL
                                 <div className="flex items-center gap-2">
                                     <Repeat className="h-4 w-4" />
                                     <span className="text-sm">
-                        Set up recurring schedule for this task
-                      </span>
+                                        Set up recurring schedule for this task
+                                    </span>
                                 </div>
                                 <Button
                                     type="button"

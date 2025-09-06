@@ -99,3 +99,32 @@ data class TaskDeletedEvent(
     override val taskId: TaskId
 ) : TaskEvent(taskId)
 
+data class TagAddedToTaskEvent(
+    override val taskId: TaskId,
+    val tag: Tag
+) : TaskEvent(taskId)
+
+data class TagRemovedFromTaskEvent(
+    override val taskId: TaskId,
+    val tagId: String
+) : TaskEvent(taskId)
+
+data class TaskTagsUpdatedEvent(
+    override val taskId: TaskId,
+    val tags: List<Tag>
+) : TaskEvent(taskId)
+
+data class CategoryAddedToTaskEvent(
+    override val taskId: TaskId,
+    val category: Category
+) : TaskEvent(taskId)
+
+data class CategoryRemovedFromTaskEvent(
+    override val taskId: TaskId,
+    val categoryId: String
+) : TaskEvent(taskId)
+
+data class TaskCategoriesUpdatedEvent(
+    override val taskId: TaskId,
+    val categories: List<Category>
+) : TaskEvent(taskId)
