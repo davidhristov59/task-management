@@ -6,19 +6,19 @@ import type {
 } from '../types';
 
 export const projectService = {
-  
+
   getProjects: async (workspaceId: string): Promise<Project[]> => {
     const response = await api.get<Project[]>(`/workspaces/${workspaceId}/projects`);
     return response.data;
   },
 
-  
+
   getProject: async (workspaceId: string, projectId: string): Promise<Project> => {
     const response = await api.get<Project>(`/workspaces/${workspaceId}/projects/${projectId}`);
     return response.data;
   },
 
-  
+
   createProject: async (workspaceId: string, project: CreateProjectRequest): Promise<Project> => {
     console.log('Creating project:', { workspaceId, project });
     const response = await api.post<Project>(`/workspaces/${workspaceId}/projects`, project);
@@ -26,7 +26,7 @@ export const projectService = {
     return response.data;
   },
 
-  
+
   updateProject: async (workspaceId: string, projectId: string, project: UpdateProjectRequest): Promise<Project> => {
     console.log('Updating project:', { workspaceId, projectId, project });
     const response = await api.put<Project>(`/workspaces/${workspaceId}/projects/${projectId}`, project);
@@ -34,22 +34,18 @@ export const projectService = {
     return response.data;
   },
 
-  
+
   deleteProject: async (workspaceId: string, projectId: string): Promise<void> => {
     await api.delete(`/workspaces/${workspaceId}/projects/${projectId}`);
   },
 
-  
-  archiveProject: async (workspaceId: string, projectId: string): Promise<void> => {
-    await api.post(`/workspaces/${workspaceId}/projects/${projectId}/archive`);
+  toggleArchiveProject: async (workspaceId: string, projectId: string): Promise<Project> => {
+    const response = await api.post<Project>(
+        `/workspaces/${workspaceId}/projects/${projectId}/archive`
+    );
+    return response.data;
   },
 
-  
-  unarchiveProject: async (workspaceId: string, projectId: string): Promise<void> => {
-    await api.post(`/workspaces/${workspaceId}/projects/${projectId}/archive`);
-  },
-
-  
   getArchivedProjects: async (workspaceId: string): Promise<Project[]> => {
     const response = await api.get<Project[]>(`/workspaces/${workspaceId}/projects?archived=true`);
     return response.data;

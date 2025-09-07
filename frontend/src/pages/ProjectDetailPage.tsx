@@ -41,12 +41,12 @@ function ProjectDetailPage() {
   const [showEditProjectDialog, setShowEditProjectDialog] = useState(false);
   const [showDeleteProjectDialog, setShowDeleteProjectDialog] = useState(false);
 
-  
+
   const { data: project, isLoading: isProjectLoading } = useProject(workspaceId!, projectId!);
   const { data: workspace } = useWorkspace(workspaceId!);
   const { data: tasks = [], isLoading: isTasksLoading } = useTasks(workspaceId!, projectId!);
 
-  
+
   const createTaskMutation = useCreateTask();
   const updateTaskMutation = useUpdateTask();
   const deleteTaskMutation = useDeleteTask();
@@ -72,59 +72,59 @@ function ProjectDetailPage() {
 
   const handleTaskFormSubmit = (data: CreateTaskRequest | UpdateTaskRequest, pendingRecurrence?: any) => {
     if (editingTask) {
-      
+
       updateTaskMutation.mutate(
-        {
-          workspaceId: workspaceId!,
-          projectId: projectId!,
-          taskId: editingTask.taskId,
-          data: data as UpdateTaskRequest
-        },
-        {
-          onSuccess: () => {
-            
-            setIsTaskFormOpen(false);
-            setEditingTask(undefined);
+          {
+            workspaceId: workspaceId!,
+            projectId: projectId!,
+            taskId: editingTask.taskId,
+            data: data as UpdateTaskRequest
           },
-          onError: (error) => {
-            console.error('Failed to update task:', error);
-            
+          {
+            onSuccess: () => {
+
+              setIsTaskFormOpen(false);
+              setEditingTask(undefined);
+            },
+            onError: (error) => {
+              console.error('Failed to update task:', error);
+
+            }
           }
-        }
       );
     } else {
-      
+
       createTaskMutation.mutate(
-        {
-          workspaceId: workspaceId!,
-          projectId: projectId!,
-          data: data as CreateTaskRequest
-        },
-        {
-          onSuccess: (response) => {
-            
-            setIsTaskFormOpen(false);
-            
-            
-            if (pendingRecurrence && response?.taskId) {
-              createRecurringMutation.mutate({
-                workspaceId: workspaceId!,
-                projectId: projectId!,
-                taskId: response.taskId,
-                data: pendingRecurrence
-              }, {
-                onError: (recurringError) => {
-                  console.error('Failed to create recurring rule:', recurringError);
-                  
-                }
-              });
-            }
+          {
+            workspaceId: workspaceId!,
+            projectId: projectId!,
+            data: data as CreateTaskRequest
           },
-          onError: (error) => {
-            console.error('Failed to create task:', error);
-            
+          {
+            onSuccess: (response) => {
+
+              setIsTaskFormOpen(false);
+
+
+              if (pendingRecurrence && response?.taskId) {
+                createRecurringMutation.mutate({
+                  workspaceId: workspaceId!,
+                  projectId: projectId!,
+                  taskId: response.taskId,
+                  data: pendingRecurrence
+                }, {
+                  onError: (recurringError) => {
+                    console.error('Failed to create recurring rule:', recurringError);
+
+                  }
+                });
+              }
+            },
+            onError: (error) => {
+              console.error('Failed to create task:', error);
+
+            }
           }
-        }
       );
     }
   };
@@ -150,7 +150,7 @@ function ProjectDetailPage() {
         },
         onError: (error) => {
           console.error('Failed to delete task:', error);
-          
+
         }
       });
     }
@@ -173,7 +173,7 @@ function ProjectDetailPage() {
         }
       });
     } else {
-      
+
       const task = tasks.find(t => t.taskId === taskId);
       if (task) {
         const updateData: UpdateTaskRequest = {
@@ -237,17 +237,22 @@ function ProjectDetailPage() {
   };
 
   const handleArchiveProject = () => {
-    if (project) {
-      archiveProjectMutation.mutate({
-        workspaceId: workspaceId!,
-        projectId: projectId!,
-        archived: !project.archived
-      }, {
-        onError: (error) => {
-          console.error('Failed to archive project:', error);
-        }
-      });
+    if (!project) {
+      console.error('No project data available');
+      return;
     }
+
+    archiveProjectMutation.mutate({
+      workspaceId: workspaceId!,
+      projectId: projectId!
+    }, {
+      onSuccess: (result) => {
+        console.log('Toggle archive completed successfully:', result);
+      },
+      onError: (error) => {
+        console.error(' Toggle archive failed:', error);
+      }
+    });
   };
 
   const handleDeleteProject = () => {
@@ -256,12 +261,12 @@ function ProjectDetailPage() {
       projectId: projectId!
     }, {
       onSuccess: () => {
-        
+
         navigate(`/workspaces/${workspaceId}`);
       },
       onError: (error) => {
         console.error('Failed to delete project:', error);
-        
+
       }
     });
   };
@@ -272,180 +277,180 @@ function ProjectDetailPage() {
 
   if (isProjectLoading) {
     return (
-      <div className="space-y-6">
-        <div className="h-8 w-64 bg-gray-200 rounded animate-pulse" />
-        <div className="h-4 w-48 bg-gray-200 rounded animate-pulse" />
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-32 bg-gray-200 rounded animate-pulse" />
-          ))}
+        <div className="space-y-6">
+          <div className="h-8 w-64 bg-gray-200 rounded animate-pulse" />
+          <div className="h-4 w-48 bg-gray-200 rounded animate-pulse" />
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-32 bg-gray-200 rounded animate-pulse" />
+            ))}
+          </div>
         </div>
-      </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="mt-2 flex flex-col lg:flex-row items-start justify-between gap-4">
-        <div className="flex items-center gap-4 min-w-0 flex-1">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleBackToWorkspace}
-            className="flex items-center gap-2 bg-white hover:bg-gray-50 border-gray-300 flex-shrink-0"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span className="hidden sm:inline">Back to Workspace</span>
-            <span className="sm:hidden">Back</span>
-          </Button>
-        </div>
-
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
-          <Button
-            variant="outline"
-            onClick={handleEditProject}
-            className="flex items-center justify-center gap-2"
-          >
-            <Edit className="h-4 w-4" />
-            <span>Edit</span>
-          </Button>
-
-          <Button
-            variant="outline"
-            onClick={handleArchiveProject}
-            className="flex items-center justify-center gap-2"
-          >
-            {project?.archived ? (
-              <>
-                <ArchiveRestore className="h-4 w-4" />
-                <span className="hidden sm:inline">Unarchive</span>
-                <span className="sm:hidden">Restore</span>
-              </>
-            ) : (
-              <>
-                <Archive className="h-4 w-4" />
-                <span>Archive</span>
-              </>
-            )}
-          </Button>
-
-          <Button
-            variant="outline"
-            onClick={() => setShowDeleteProjectDialog(true)}
-            className="flex items-center justify-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-          >
-            <Trash2 className="h-4 w-4" />
-            <span>Delete</span>
-          </Button>
-        </div>
-      </div>
-
-      <div className="min-w-0">
-        <h1 className="text-2xl sm:text-3xl font-bold text-left truncate">{project?.title || 'Project'}</h1>
-        {project?.description && (
-          <p className="text-gray-600 text-left mt-1 break-words">{project.description}</p>
-        )}
-      </div>
-
-      {/* Project Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-blue-600">{tasks.length}</div>
-          <div className="text-sm text-gray-600">Total Tasks</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-yellow-600">
-            {tasks.filter(t => t.status === TaskStatus.PENDING).length}
-          </div>
-          <div className="text-sm text-gray-600">Pending</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-blue-600">
-            {tasks.filter(t => t.status === TaskStatus.IN_PROGRESS).length}
-          </div>
-          <div className="text-sm text-gray-600">In Progress</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-green-600">
-            {tasks.filter(t => t.status === TaskStatus.COMPLETED).length}
-          </div>
-          <div className="text-sm text-gray-600">Completed</div>
-        </div>
-      </div>
-
-      {/* Tasks List */}
-      <TaskList
-        tasks={tasks}
-        onTaskClick={handleTaskClick}
-        onTaskEdit={handleEditTask}
-        onTaskDelete={handleDeleteTask}
-        onTaskStatusChange={handleStatusChange}
-        onTaskAssignmentChange={handleAssignmentChange}
-        onCreateTask={handleCreateTask}
-        isLoading={isTasksLoading}
-        workspaceMembers={workspace?.memberIds || []}
-      />
-
-      {/* Task Form Modal */}
-      <TaskForm
-        isOpen={isTaskFormOpen}
-        onClose={() => {
-          setIsTaskFormOpen(false);
-          setEditingTask(undefined);
-        }}
-        onSubmit={handleTaskFormSubmit}
-        task={editingTask}
-        workspaceId={workspaceId}
-        projectId={projectId}
-        isLoading={createTaskMutation.isPending || updateTaskMutation.isPending}
-      />
-
-      {/* Task Delete Confirmation Modal */}
-      <TaskDeleteConfirmation
-        isOpen={isDeleteConfirmOpen}
-        onClose={handleCancelDelete}
-        onConfirm={handleConfirmDelete}
-        task={taskToDelete}
-        isLoading={deleteTaskMutation.isPending}
-      />
-
-      {/* Edit Project Dialog */}
-      <Dialog open={showEditProjectDialog} onOpenChange={setShowEditProjectDialog}>
-        <DialogContent className="sm:max-w-[500px] bg-white border border-gray-200">
-          <DialogHeader>
-            <DialogTitle>Edit Project</DialogTitle>
-          </DialogHeader>
-          <ProjectForm
-            workspaceId={workspaceId!}
-            project={project}
-            onSuccess={handleProjectFormSuccess}
-            onCancel={() => setShowEditProjectDialog(false)}
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Project Confirmation */}
-      <AlertDialog open={showDeleteProjectDialog} onOpenChange={setShowDeleteProjectDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Project</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{project?.title}"? This action cannot be undone and will permanently delete all tasks within this project.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteProject}
-              className="bg-red-600 hover:bg-red-700 text-white"
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="mt-2 flex flex-col lg:flex-row items-start justify-between gap-4">
+          <div className="flex items-center gap-4 min-w-0 flex-1">
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={handleBackToWorkspace}
+                className="flex items-center gap-2 bg-white hover:bg-gray-50 border-gray-300 flex-shrink-0"
             >
-              Delete Project
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Back to Workspace</span>
+              <span className="sm:hidden">Back</span>
+            </Button>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+            <Button
+                variant="outline"
+                onClick={handleEditProject}
+                className="flex items-center justify-center gap-2"
+            >
+              <Edit className="h-4 w-4" />
+              <span>Edit</span>
+            </Button>
+
+            <Button
+                variant="outline"
+                onClick={handleArchiveProject}
+                className="flex items-center justify-center gap-2"
+            >
+              {project?.archived ? (
+                  <>
+                    <ArchiveRestore className="h-4 w-4" />
+                    <span className="hidden sm:inline">Unarchive</span>
+                    <span className="sm:hidden">Restore</span>
+                  </>
+              ) : (
+                  <>
+                    <Archive className="h-4 w-4" />
+                    <span>Archive</span>
+                  </>
+              )}
+            </Button>
+
+            <Button
+                variant="outline"
+                onClick={() => setShowDeleteProjectDialog(true)}
+                className="flex items-center justify-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4" />
+              <span>Delete</span>
+            </Button>
+          </div>
+        </div>
+
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-left truncate">{project?.title || 'Project'}</h1>
+          {project?.description && (
+              <p className="text-gray-600 text-left mt-1 break-words">{project.description}</p>
+          )}
+        </div>
+
+        {/* Project Stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="bg-white p-4 rounded-lg border">
+            <div className="text-2xl font-bold text-blue-600">{tasks.length}</div>
+            <div className="text-sm text-gray-600">Total Tasks</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg border">
+            <div className="text-2xl font-bold text-yellow-600">
+              {tasks.filter(t => t.status === TaskStatus.PENDING).length}
+            </div>
+            <div className="text-sm text-gray-600">Pending</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg border">
+            <div className="text-2xl font-bold text-blue-600">
+              {tasks.filter(t => t.status === TaskStatus.IN_PROGRESS).length}
+            </div>
+            <div className="text-sm text-gray-600">In Progress</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg border">
+            <div className="text-2xl font-bold text-green-600">
+              {tasks.filter(t => t.status === TaskStatus.COMPLETED).length}
+            </div>
+            <div className="text-sm text-gray-600">Completed</div>
+          </div>
+        </div>
+
+        {/* Tasks List */}
+        <TaskList
+            tasks={tasks}
+            onTaskClick={handleTaskClick}
+            onTaskEdit={handleEditTask}
+            onTaskDelete={handleDeleteTask}
+            onTaskStatusChange={handleStatusChange}
+            onTaskAssignmentChange={handleAssignmentChange}
+            onCreateTask={handleCreateTask}
+            isLoading={isTasksLoading}
+            workspaceMembers={workspace?.memberIds || []}
+        />
+
+        {/* Task Form Modal */}
+        <TaskForm
+            isOpen={isTaskFormOpen}
+            onClose={() => {
+              setIsTaskFormOpen(false);
+              setEditingTask(undefined);
+            }}
+            onSubmit={handleTaskFormSubmit}
+            task={editingTask}
+            workspaceId={workspaceId}
+            projectId={projectId}
+            isLoading={createTaskMutation.isPending || updateTaskMutation.isPending}
+        />
+
+        {/* Task Delete Confirmation Modal */}
+        <TaskDeleteConfirmation
+            isOpen={isDeleteConfirmOpen}
+            onClose={handleCancelDelete}
+            onConfirm={handleConfirmDelete}
+            task={taskToDelete}
+            isLoading={deleteTaskMutation.isPending}
+        />
+
+        {/* Edit Project Dialog */}
+        <Dialog open={showEditProjectDialog} onOpenChange={setShowEditProjectDialog}>
+          <DialogContent className="sm:max-w-[500px] bg-white border border-gray-200">
+            <DialogHeader>
+              <DialogTitle>Edit Project</DialogTitle>
+            </DialogHeader>
+            <ProjectForm
+                workspaceId={workspaceId!}
+                project={project}
+                onSuccess={handleProjectFormSuccess}
+                onCancel={() => setShowEditProjectDialog(false)}
+            />
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Project Confirmation */}
+        <AlertDialog open={showDeleteProjectDialog} onOpenChange={setShowDeleteProjectDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Project</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete "{project?.title}"? This action cannot be undone and will permanently delete all tasks within this project.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                  onClick={handleDeleteProject}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                Delete Project
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
   );
 }
 

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { projectService } from '../services';
-import type { CreateProjectRequest, UpdateProjectRequest } from '../types';
+import type {CreateProjectRequest, Project, UpdateProjectRequest} from '../types';
 import { taskKeys } from './useTasks';
 
 
@@ -8,10 +8,10 @@ export const projectKeys = {
   all: ['projects'] as const,
   lists: () => [...projectKeys.all, 'list'] as const,
   list: (workspaceId: string, filters?: Record<string, any>) =>
-    [...projectKeys.lists(), workspaceId, { filters }] as const,
+      [...projectKeys.lists(), workspaceId, { filters }] as const,
   details: () => [...projectKeys.all, 'detail'] as const,
   detail: (workspaceId: string, projectId: string) =>
-    [...projectKeys.details(), workspaceId, projectId] as const,
+      [...projectKeys.details(), workspaceId, projectId] as const,
 };
 
 
@@ -38,27 +38,27 @@ export const useCreateProject = () => {
 
   return useMutation({
     mutationFn: ({ workspaceId, data }: { workspaceId: string; data: CreateProjectRequest }) =>
-      projectService.createProject(workspaceId, data),
+        projectService.createProject(workspaceId, data),
     onSuccess: (newProject, { workspaceId }) => {
       console.log('Create project success:', newProject);
 
-      
+
       queryClient.invalidateQueries({
         queryKey: projectKeys.list(workspaceId),
         refetchType: 'active'
       });
 
-      
+
       queryClient.invalidateQueries({
         queryKey: projectKeys.lists(),
         refetchType: 'active'
       });
 
-      
+
       if (newProject && newProject.projectId && newProject.projectId.value) {
         queryClient.setQueryData(
-          projectKeys.detail(workspaceId, newProject.projectId.value),
-          newProject
+            projectKeys.detail(workspaceId, newProject.projectId.value),
+            newProject
         );
       }
     },
@@ -74,10 +74,10 @@ export const useUpdateProject = () => {
 
   return useMutation({
     mutationFn: ({
-      workspaceId,
-      projectId,
-      data
-    }: {
+                   workspaceId,
+                   projectId,
+                   data
+                 }: {
       workspaceId: string;
       projectId: string;
       data: UpdateProjectRequest
@@ -85,33 +85,33 @@ export const useUpdateProject = () => {
     onSuccess: async (updatedProject, { workspaceId, projectId }) => {
       console.log('Update project success:', updatedProject);
 
-      
+
       if (updatedProject && updatedProject.projectId && updatedProject.projectId.value) {
         queryClient.setQueryData(
-          projectKeys.detail(workspaceId, updatedProject.projectId.value),
-          updatedProject
+            projectKeys.detail(workspaceId, updatedProject.projectId.value),
+            updatedProject
         );
       }
 
-      
+
       await queryClient.invalidateQueries({
         queryKey: projectKeys.list(workspaceId),
         refetchType: 'active'
       });
 
-      
+
       await queryClient.invalidateQueries({
         queryKey: projectKeys.lists(),
         refetchType: 'active'
       });
 
-      
+
       await queryClient.invalidateQueries({
         queryKey: projectKeys.detail(workspaceId, projectId),
         refetchType: 'active'
       });
 
-      
+
       await queryClient.invalidateQueries({
         queryKey: taskKeys.list(workspaceId, projectId),
         refetchType: 'active'
@@ -129,20 +129,20 @@ export const useDeleteProject = () => {
 
   return useMutation({
     mutationFn: ({ workspaceId, projectId }: { workspaceId: string; projectId: string }) =>
-      projectService.deleteProject(workspaceId, projectId),
+        projectService.deleteProject(workspaceId, projectId),
     onSuccess: async (_, { workspaceId, projectId }) => {
-      
+
       queryClient.removeQueries({
         queryKey: projectKeys.detail(workspaceId, projectId)
       });
 
-      
+
       await queryClient.invalidateQueries({
         queryKey: projectKeys.list(workspaceId),
         refetchType: 'active'
       });
 
-      
+
       await queryClient.invalidateQueries({
         queryKey: projectKeys.lists(),
         refetchType: 'active'
@@ -159,44 +159,35 @@ export const useArchiveProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceId, projectId, archived }: {
-      workspaceId: string;
-      projectId: string;
-      archived: boolean
-    }) => {
-      if (archived) {
-        return projectService.archiveProject(workspaceId, projectId);
-      } else {
-        return projectService.unarchiveProject(workspaceId, projectId);
+    mutationFn: ({ workspaceId, projectId }: { workspaceId: string; projectId: string }) =>
+        projectService.toggleArchiveProject(workspaceId, projectId),
+
+    onMutate: async ({ workspaceId, projectId }) => {
+      await queryClient.cancelQueries({ queryKey: projectKeys.detail(workspaceId, projectId) });
+
+      const previousProject = queryClient.getQueryData(projectKeys.detail(workspaceId, projectId));
+
+      queryClient.setQueryData(projectKeys.detail(workspaceId, projectId), (old: Project | undefined) =>
+          old ? { ...old, archived: !old.archived } : old
+      );
+
+      return { previousProject };
+    },
+
+    onError: (err, variables, context) => {
+      if (context?.previousProject) {
+        queryClient.setQueryData(
+            projectKeys.detail(variables.workspaceId, variables.projectId),
+            context.previousProject
+        );
       }
+      console.error('Failed to toggle archive project:', err);
     },
-    onSuccess: async (_, { workspaceId, projectId }) => {
-      
-      await queryClient.invalidateQueries({
-        queryKey: projectKeys.detail(workspaceId, projectId),
-        refetchType: 'active'
-      });
 
-      
-      await queryClient.invalidateQueries({
-        queryKey: projectKeys.list(workspaceId),
-        refetchType: 'active'
-      });
+    onSuccess: (updatedProject, { workspaceId, projectId }) => {
 
-      
-      await queryClient.invalidateQueries({
-        queryKey: projectKeys.lists(),
-        refetchType: 'active'
-      });
+      queryClient.setQueryData(projectKeys.detail(workspaceId, projectId), updatedProject);
 
-      
-      await queryClient.invalidateQueries({
-        queryKey: taskKeys.list(workspaceId, projectId),
-        refetchType: 'active'
-      });
-    },
-    onError: (error) => {
-      console.error('Failed to archive project:', error);
     },
   });
 };
