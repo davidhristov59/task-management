@@ -39,6 +39,27 @@ open class ProjectIntegrationService(
         }
     }
 
+    @EventHandler
+    fun handleWorkspaceUnarchived(event: WorkspaceUnarchivedEvent) {
+        println("Processing workspace unarchived event: ${event.workspaceId}")
+
+        val workspaceProjects = findProjectsByWorkspace(event.workspaceId)
+
+        workspaceProjects.forEach { project ->
+            if (project.archived) {
+                val command = UnarchiveProjectCommand(project.projectId)
+                commandGateway.send<Any>(command)
+                    .thenRun {
+                        println("Successfully unarchived project ${project.projectId}")
+                    }
+                    .exceptionally { ex ->
+                        println("Failed to unarchive project ${project.projectId}: ${ex.message}")
+                        null
+                    }
+            }
+        }
+    }
+
     // Fallback method for string parameter (for external integrations)
     fun handleWorkspaceArchived(workspaceId: String) {
         val event = WorkspaceArchivedEvent(WorkspaceId(workspaceId))

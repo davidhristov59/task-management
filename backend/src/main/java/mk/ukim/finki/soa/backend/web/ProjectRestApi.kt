@@ -93,14 +93,21 @@ class ProjectRestApi(
     }
 
     @PostMapping("/{projectId}/archive")
-    fun archiveProject(
+    fun toggleArchiveProject(
         @PathVariable workspaceId: String,
         @PathVariable projectId: String
-    ): CompletableFuture<ResponseEntity<Void>> {
-        val command = ArchiveProjectCommand(ProjectId(projectId))
+    ): CompletableFuture<ResponseEntity<ProjectView>> {
+        val command = ToggleArchiveProjectCommand(ProjectId(projectId))
 
         return commandGateway.send<Any>(command)
-            .thenApply { ResponseEntity.ok().build<Void>() }
+            .thenCompose {
+                queryGateway.query(
+                    "findProjectById",
+                    ProjectId(projectId),
+                    ResponseTypes.instanceOf(ProjectView::class.java)
+                )
+            }
+            .thenApply { ResponseEntity.ok(it) }
             .exceptionally { ResponseEntity.status(HttpStatus.BAD_REQUEST).build() }
     }
 }

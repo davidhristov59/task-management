@@ -27,6 +27,14 @@ data class ArchiveProjectCommand(
     override val projectId: ProjectId
 ) : ProjectCommand(projectId)
 
+data class UnarchiveProjectCommand(
+    override val projectId: ProjectId
+) : ProjectCommand(projectId)
+
+data class ToggleArchiveProjectCommand(
+    override val projectId: ProjectId
+) : ProjectCommand(projectId)
+
 data class DeleteProjectCommand(
     override val projectId: ProjectId
 ) : ProjectCommand(projectId)

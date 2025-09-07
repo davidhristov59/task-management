@@ -64,9 +64,12 @@ class Project {
     }
 
     @CommandHandler
-    fun handle(command: ArchiveProjectCommand) {
-        validateNotArchived()
-        AggregateLifecycle.apply(ProjectArchivedEvent(command.projectId))
+    fun handle(command: ToggleArchiveProjectCommand) {
+        if (archived) {
+            AggregateLifecycle.apply(ProjectUnarchivedEvent(command.projectId))
+        } else {
+            AggregateLifecycle.apply(ProjectArchivedEvent(command.projectId))
+        }
     }
 
     @CommandHandler
